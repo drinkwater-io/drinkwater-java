@@ -25,7 +25,6 @@
   <packaging>pom</packaging>
 
   <modules>
-    <module>drinkwater-examples-getstarted</module>
     <module>drinkwater.examples.numberservice</module>
   </modules>
 </project>
