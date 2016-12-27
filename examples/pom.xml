@@ -26,5 +26,6 @@
 
   <modules>
     <module>drinkwater.examples.numberservice</module>
+    <module>drinkwater.examples.numberservice.asrest</module>
   </modules>
 </project>
