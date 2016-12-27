@@ -11,11 +11,16 @@ public class NumberService {
 
     private INumberFormatter numberFormatter;
 
-    public NumberService(){}
+    private IAccountService accountService;
+
+    public NumberService() {
+    }
 
     public NumberService(
+            IAccountService accountService,
             INumberRepository numberRepository,
             INumberFormatter numberFormatter) {
+        this.accountService = accountService;
         this.numberRepository = numberRepository;
         this.numberFormatter = numberFormatter;
     }
@@ -36,34 +41,51 @@ public class NumberService {
         this.numberFormatter = numberFormatter;
     }
 
+    public IAccountService getAccountService() {
+        return accountService;
+    }
+
+    public void setAccountService(IAccountService accountService) {
+        this.accountService = accountService;
+    }
+
     //API
 
-    public String saveNumber(String filePath, int number){
-        try {
-            //convert number to string
-            String numberAsString = Integer.toString(number);
+    public String saveNumber(Account account, int number) throws Exception {
 
-            //check that length is 10
-            while (numberAsString.length() < 5) {
-                numberAsString = numberFormatter.prependZero(numberAsString);
-            }
+        checkAuthenticated(account);
 
-            //register the info
-            numberRepository.registerSomeInfo(filePath, numberAsString);
+        //convert number to string
+        String numberAsString = Integer.toString(number);
 
-            return numberAsString;
+        //check that length is 10
+        while (numberAsString.length() < 5) {
+            numberAsString = numberFormatter.prependZero(numberAsString);
         }
-        catch(Exception ex){
-            throw new RuntimeException(ex);
-        }
+
+        //register the info
+        numberRepository.saveNumber(account, numberAsString);
+
+        return numberAsString;
     }
 
-    public List<String> getNumberList(String filePath){
-        return numberRepository.getNumbers(filePath);
+    public List<String> getNumberList(Account account) throws Exception {
+        checkAuthenticated(account);
+
+        return numberRepository.getNumbers(account);
     }
 
-    public void clear(String filePath){
-        numberRepository.clear(filePath);
+    public void clear(Account account) throws Exception {
+
+        checkAuthenticated(account);
+
+        numberRepository.clearNumbers(account);
+    }
+
+    private void checkAuthenticated(Account account) throws Exception {
+        if (!accountService.isAuthenticated(account)) {
+            throw new Exception("should authenticate first");
+        }
     }
 
 }

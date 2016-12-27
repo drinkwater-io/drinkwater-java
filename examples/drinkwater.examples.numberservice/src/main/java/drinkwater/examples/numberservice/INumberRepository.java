@@ -6,9 +6,10 @@ import java.util.List;
  * Created by A406775 on 27/12/2016.
  */
 public interface INumberRepository {
-    void registerSomeInfo(String filePath, String info);
 
-    List<String> getNumbers(String filePath);
+    void saveNumber(Account account, String info);
 
-    void clear(String filePath);
+    List<String> getNumbers(Account account);
+
+    void clearNumbers(Account account);
 }
