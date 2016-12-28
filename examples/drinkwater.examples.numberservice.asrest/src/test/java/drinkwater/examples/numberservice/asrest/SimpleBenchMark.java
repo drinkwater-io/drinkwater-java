@@ -18,7 +18,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class SimpleBenchMark {
 
-    private int LOOP_COUNT = 10;
+    private int LOOP_COUNT = 1;
     DrinkWaterApplication app;
     DrinkWaterBoot booter;
 
