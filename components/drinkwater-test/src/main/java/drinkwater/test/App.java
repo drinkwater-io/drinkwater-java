@@ -1,4 +1,4 @@
-package drinkwater.examples.numberservice.asrest;
+package drinkwater.test;
 
 /**
  * Hello world!

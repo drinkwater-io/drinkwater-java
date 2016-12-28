@@ -13,10 +13,10 @@ import java.util.List;
  */
 public class DrinkWaterBoot {
 
-    private DrinkWaterMain drinkWaterMain;
+    private Main drinkWaterMain;
 
     public DrinkWaterBoot() {
-        drinkWaterMain = new DrinkWaterMain();
+        drinkWaterMain = new Main();
     }
 
     public void run() throws Exception {
@@ -37,10 +37,11 @@ public class DrinkWaterBoot {
         drinkWaterMain.stop();
     }
 
-    public FluentProducerTemplate getTemplate(){
-        List<CamelContext> contexts = drinkWaterMain.getCamelContexts();
-        FluentProducerTemplate fpt =  DefaultFluentProducerTemplate.on(contexts.get(0));
-        return fpt;
+    public Main getDrinkWaterMain() {
+        return drinkWaterMain;
     }
 
+    public void setDrinkWaterMain(Main drinkWaterMain) {
+        this.drinkWaterMain = drinkWaterMain;
+    }
 }

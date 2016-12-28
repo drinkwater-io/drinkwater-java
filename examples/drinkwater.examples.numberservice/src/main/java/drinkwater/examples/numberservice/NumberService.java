@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Created by A406775 on 27/12/2016.
  */
-public class NumberService {
+public class NumberService implements INumberService {
 
     private INumberRepository numberRepository;
 
@@ -51,6 +51,7 @@ public class NumberService {
 
     //API
 
+    @Override
     public String saveNumber(Account account, int number) throws Exception {
 
         checkAuthenticated(account);
@@ -69,12 +70,14 @@ public class NumberService {
         return numberAsString;
     }
 
+    @Override
     public List<String> getNumberList(Account account) throws Exception {
         checkAuthenticated(account);
 
         return numberRepository.getNumbers(account);
     }
 
+    @Override
     public void clear(Account account) throws Exception {
 
         checkAuthenticated(account);

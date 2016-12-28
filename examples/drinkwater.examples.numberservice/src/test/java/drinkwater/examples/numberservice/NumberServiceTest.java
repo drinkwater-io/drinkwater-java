@@ -17,35 +17,6 @@ public class NumberServiceTest
 {
 
     @Test
-    public void shouldPassTheHappyPath() throws Exception {
-        long startTime = System.nanoTime();
-
-        AccountService accountservice = new AccountService();
-        NumberService numberService = new NumberService();
-        numberService.setNumberFormatter(new NumberFormatter());
-        numberService.setNumberRepository(new NumberFileRepository("c:/temp"));
-        numberService.setAccountService(accountservice);
-
-        //create an account
-        Account acc = accountservice.createAccount("cedric", "secret");
-        accountservice.login("cedric", "secret");
-
-        numberService.saveNumber(acc, 10);
-        numberService.saveNumber(acc, 20);
-        numberService.saveNumber(acc, 30);
-
-        List<String> numbers = numberService.getNumberList(acc);
-
-        assertEquals(3, numbers.size());
-
-        numberService.clear(acc);
-
-        long estimatedTime = System.nanoTime() - startTime;
-
-        System.out.println("test took " + TimeUnit.NANOSECONDS.toMillis(estimatedTime) + " millis");
-    }
-
-    @Test
     public void shouldCreateAccounts() throws Exception {
         IAccountService accountservice = new AccountService();
 

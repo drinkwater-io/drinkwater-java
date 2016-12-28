@@ -64,4 +64,9 @@ public class AccountService implements IAccountService {
     {
         return accounts.toJavaList();
     }
+
+    @Override
+    public void clear() {
+        accounts = List.empty();
+    }
 }

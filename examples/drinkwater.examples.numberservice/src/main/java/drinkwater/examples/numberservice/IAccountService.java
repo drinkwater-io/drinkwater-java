@@ -17,4 +17,6 @@ public interface IAccountService {
     boolean isAuthenticated(Account acc);
 
     List<Account> getAll();
+
+    void clear();
 }

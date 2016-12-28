@@ -25,7 +25,7 @@ public class RestRouteBuilderFactory{
                     restConfiguration().component("jetty")
                                         .host("localhost")
                                         .port("8889")
-                            .contextPath(config.getContextPath())
+                            .contextPath("rest")
                                         .bindingMode(RestBindingMode.json);
                     List.ofAll(_components)
                             .map(obj -> RestRouteBuilder.buildGetRoutemappings(this, obj));

@@ -9,7 +9,7 @@ public class NumberFormatter implements INumberFormatter {
     public String prependZero(String s){
 
         //cpu time consumption
-        consumeCpuFor(200);
+        consumeCpuFor(Constants.LATENCY);
 
         if(s == null){
             return "0";

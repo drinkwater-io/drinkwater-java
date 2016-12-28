@@ -5,7 +5,6 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -35,7 +34,7 @@ public class NumberFileRepository implements INumberRepository {
     public synchronized void saveNumber(Account account, String number) {
         try {
             number = number + "\n";
-            Thread.sleep(200);
+            Thread.sleep(Constants.LATENCY);
             Files.write(Paths.get(directory, account.getAcountId() + ".txt"), number.getBytes(),
                     StandardOpenOption.APPEND, StandardOpenOption.CREATE);
         } catch (Exception e) {

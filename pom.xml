@@ -27,7 +27,7 @@
         <module>components</module>
         <module>drinkwater-boot</module>
         <module>examples</module>
-   </modules>
+  </modules>
 
     <build>
         <defaultGoal>install</defaultGoal>

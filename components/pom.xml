@@ -26,5 +26,6 @@
   <packaging>pom</packaging>
   <modules>
     <module>drinkwater-core</module>
+    <module>drinkwater-test</module>
   </modules>
 </project>
