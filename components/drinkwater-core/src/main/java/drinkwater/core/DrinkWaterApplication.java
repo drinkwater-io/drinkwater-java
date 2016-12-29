@@ -14,6 +14,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 /**
@@ -21,6 +22,13 @@ import java.util.stream.Stream;
  */
 //@Vetoed
 public class DrinkWaterApplication {
+
+    static {
+        //FIXME manage the logging system
+        java.util.logging.Logger topLogger = java.util.logging.Logger.getLogger("");
+        topLogger.setLevel(Level.INFO);
+        System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
+    }
 
     Map<Class, ProducerTemplate> producertemplates = new HashMap<>();
 
@@ -31,7 +39,7 @@ public class DrinkWaterApplication {
     public void start() {
 
         for (ServiceConfigurationBuilder builder :serviceBuilders) {
-            for (ServiceConfiguration config : builder.build()) {
+            for (IServiceConfiguration config : builder.build()) {
                 createCamelContextFromConfig(config);
             }
         }
@@ -51,7 +59,7 @@ public class DrinkWaterApplication {
         serviceBuilders = serviceBuilders.append(builder);
     }
 
-    private void createCamelContextFromConfig(ServiceConfiguration config) {
+    private void createCamelContextFromConfig(IServiceConfiguration config) {
         try {
             DefaultCamelContext ctx = new DefaultCamelContext();
             _camelContexts.add(ctx);
@@ -61,10 +69,10 @@ public class DrinkWaterApplication {
             ctx.disableJMX();
             ctx.setName("CAMEL-CONTEXT-" + config.getServiceClass().getName());
             if(config.getScheme() == ServiceScheme.BeanClass) {
-                ctx.addRoutes(RouteBuilders.mapBeanMethods(this, prop, config));
+                ctx.addRoutes(RouteBuilders.mapBeanClassRoutes(this, prop, config));
             }
             else if(config.getScheme() == ServiceScheme.Rest){
-                ctx.addRoutes(RouteBuilders.mapToRest(this, prop, config));
+                ctx.addRoutes(RouteBuilders.mapRestRoutes(this, prop, config));
             }
             ProducerTemplate template = ctx.createProducerTemplate();
             producertemplates.put(config.getServiceClass(), template);

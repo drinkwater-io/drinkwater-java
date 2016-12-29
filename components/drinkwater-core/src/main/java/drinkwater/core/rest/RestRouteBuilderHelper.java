@@ -56,20 +56,20 @@ public class RestRouteBuilderHelper {//extends RouteBuilder {
 
     }
 
-    private static RestDefinition toPostRestDefinition(RouteBuilder builder, String restPath, Method m) {
-        RestDefinition answer = builder.rest(restPath);
-
-        String fromPath = getPath(m);
-
-        if (fromPath == null) {
-            fromPath = javaslang.collection.List.of(m.getParameters())
-                    .map(p -> "{" + p.getName() + "}").getOrElse("");
-        }
-
-        answer.post(fromPath);
-
-        return answer;
-    }
+//    private static RestDefinition toPostRestDefinition(RouteBuilder builder, String restPath, Method m) {
+//        RestDefinition answer = builder.rest(restPath);
+//
+//        String fromPath = getPath(m);
+//
+//        if (fromPath == null) {
+//            fromPath = javaslang.collection.List.of(m.getParameters())
+//                    .map(p -> "{" + p.getName() + "}").getOrElse("");
+//        }
+//
+//        answer.post(fromPath);
+//
+//        return answer;
+//    }
 
 
     private static RestDefinition toGetRestDefinition(RouteBuilder builder,

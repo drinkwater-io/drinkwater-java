@@ -22,7 +22,7 @@ public class ProducerTemplateInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result = null;
 
-        String route = "direct:" + RouteBuilders.formatRoute(method);
+        String route = "direct:" + RouteBuilders.formatBeanMethodRoute(method);
 
         if (args == null || args.length == 0) {
             result = producerTemplate.requestBody(route, (Object) null);

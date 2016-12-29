@@ -7,23 +7,23 @@ import java.util.List;
 
 public class DrinkTrackerServiceAsBeanClass extends ServiceConfigurationBuilder {
     @Override
-    public List<ServiceConfiguration> build() {
+    public List<IServiceConfiguration> build() {
 
-        ServiceConfiguration volumeRepositoryService = ServiceConfiguration
+        IServiceConfiguration volumeRepositoryService = ServiceConfiguration
                 .forService(IWaterVolumeRepository.class)
                 .withProperties("classpath:volume-repository.properties")
                 .useBeanClass(WaterVolumeFileRepository.class)
                 .withInjectionStrategy(InjectionStrategy.Default);
 
-        ServiceConfiguration accountService = ServiceConfiguration
+        IServiceConfiguration accountService = ServiceConfiguration
                 .forService(IAccountService.class)
                 .useBeanClass(AccountService.class);
 
-        ServiceConfiguration volumeFormatter = ServiceConfiguration
+        IServiceConfiguration volumeFormatter = ServiceConfiguration
                 .forService(IWaterVolumeFormatter.class)
                 .useBeanClass(DefaultWaterVolumeFormatter.class);
 
-        ServiceConfiguration volumeService = ServiceConfiguration
+        IServiceConfiguration volumeService = ServiceConfiguration
                 .forService(IDrinkTrackerService.class)
                 .useBeanClass(DrinkTrackerService.class)
                 .dependsOn(accountService, volumeFormatter, volumeRepositoryService);

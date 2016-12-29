@@ -1,8 +1,7 @@
 package drinkwater.core.helper;
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.core.ServiceConfiguration;
-import drinkwater.core.helper.BeanFactory;
+import drinkwater.core.IServiceConfiguration;
 import drinkwater.core.rest.RestRouteBuilderHelper;
 import javaslang.collection.List;
 import org.apache.camel.builder.RouteBuilder;
@@ -19,7 +18,7 @@ import java.util.ArrayList;
  */
 public class RouteBuilders {
 
-    public static RouteBuilder mapToRest(DrinkWaterApplication app, PropertiesComponent pc, ServiceConfiguration config) {
+    public static RouteBuilder mapRestRoutes(DrinkWaterApplication app, PropertiesComponent pc, IServiceConfiguration config) {
 
         return new RouteBuilder() {
             @Override
@@ -40,7 +39,7 @@ public class RouteBuilders {
     }
 
     //FIXME to many params
-    public static RouteBuilder mapBeanMethods(DrinkWaterApplication app, PropertiesComponent pc, ServiceConfiguration config) {
+    public static RouteBuilder mapBeanClassRoutes(DrinkWaterApplication app, PropertiesComponent pc, IServiceConfiguration config) {
 
         return new RouteBuilder() {
             @Override
@@ -52,15 +51,15 @@ public class RouteBuilders {
 
                 for (Method m : methods) {
                     if(Modifier.isPublic(m.getModifiers())) {
-                        from("direct:" + formatRoute(m))
-                                .bean(beanToUse, formatBeanMethodCall(m), true);
+                        from("direct:" + formatBeanMethodRoute(m))
+                                .bean(beanToUse, formatBeanEndpointRoute(m), true);
                     }
                 }
             }
         };
     }
 
-    public static String formatRoute(Method m){
+    public static String formatBeanMethodRoute(Method m){
         String answer = m.getName();
 
         Parameter[] params = m.getParameters();
@@ -77,7 +76,7 @@ public class RouteBuilders {
 
     }
 
-    public static String formatBeanMethodCall(Method m){
+    public static String formatBeanEndpointRoute(Method m){
         String answer = m.getName();
 
         Parameter[] params = m.getParameters();

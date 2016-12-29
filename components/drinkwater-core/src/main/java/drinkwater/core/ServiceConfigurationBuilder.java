@@ -7,5 +7,5 @@ import java.util.List;
  */
 public abstract class ServiceConfigurationBuilder {
 
-    public abstract List<ServiceConfiguration> build();
+    public abstract List<IServiceConfiguration> build();
 }

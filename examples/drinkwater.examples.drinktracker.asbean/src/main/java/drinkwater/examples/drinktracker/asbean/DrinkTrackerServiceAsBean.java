@@ -8,7 +8,7 @@ import java.util.List;
 public class DrinkTrackerServiceAsBean extends ServiceConfigurationBuilder{
 
     @Override
-    public List<ServiceConfiguration> build(){
+    public List<IServiceConfiguration> build(){
 
         //create service using classes
         AccountService accountService = new AccountService();
@@ -16,19 +16,19 @@ public class DrinkTrackerServiceAsBean extends ServiceConfigurationBuilder{
         WaterVolumeFileRepository waterVolumeFileRepository = new WaterVolumeFileRepository("c:/temp");
         DrinkTrackerService drinkTrackerService = new DrinkTrackerService();
 
-        ServiceConfiguration iaccountService =ServiceConfiguration
+        IServiceConfiguration iaccountService =ServiceConfiguration
                 .forService(IAccountService.class)
                 .useBean(accountService);
 
-        ServiceConfiguration ivolumeRepositoryService = ServiceConfiguration
+        IServiceConfiguration ivolumeRepositoryService = ServiceConfiguration
                 .forService(IWaterVolumeRepository.class)
                 .useBean(waterVolumeFileRepository);
 
-        ServiceConfiguration ivolumeFormatter =ServiceConfiguration
+        IServiceConfiguration ivolumeFormatter =ServiceConfiguration
                 .forService(IWaterVolumeFormatter.class)
                 .useBean(waterVolumeFormatter);
 
-        ServiceConfiguration ivolumeService =ServiceConfiguration
+        IServiceConfiguration ivolumeService =ServiceConfiguration
                 .forService(IDrinkTrackerService.class)
                 .useBean(drinkTrackerService)
                 .dependsOn(iaccountService, ivolumeFormatter, ivolumeRepositoryService);

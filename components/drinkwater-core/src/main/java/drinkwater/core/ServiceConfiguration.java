@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Created by A406775 on 23/12/2016.
  */
-public class ServiceConfiguration {
+public class ServiceConfiguration implements IServiceConfiguration {
 
     private String properties;
 
@@ -20,9 +20,9 @@ public class ServiceConfiguration {
 
     private ServiceScheme scheme = ServiceScheme.BeanClass; //default to bean
 
-    private List<ServiceConfiguration> serviceDependencies = new ArrayList<>();
+    private List<IServiceConfiguration> serviceDependencies = new ArrayList<>();
 
-    private ServiceConfiguration(){}
+    protected ServiceConfiguration(){}
 
     public static ServiceConfiguration forService(Class serviceClass){
         ServiceConfiguration sc = new ServiceConfiguration();
@@ -52,14 +52,14 @@ public class ServiceConfiguration {
         return this;
     }
 
-    public ServiceConfiguration withInjectionStrategy(InjectionStrategy strategy){
+    public IServiceConfiguration withInjectionStrategy(InjectionStrategy strategy){
         this.injectionStrategy = strategy;
         return this;
     }
 
-    public ServiceConfiguration dependsOn(ServiceConfiguration... configs){
+    public IServiceConfiguration dependsOn(IServiceConfiguration... configs){
 
-        for (ServiceConfiguration conf:configs) {
+        for (IServiceConfiguration conf:configs) {
             this.serviceDependencies.add(conf);
         }
 
@@ -74,27 +74,33 @@ public class ServiceConfiguration {
                 '}';
     }
 
+    @Override
     public Class getServiceClass() {
         return serviceClass;
     }
 
+    @Override
     public String getProperties() {
         return properties;
     }
 
+    @Override
     public Class getTargetBeanClass() {
         return targetBeanClass;
     }
 
+    @Override
     public ServiceScheme getScheme() {
         return scheme;
     }
 
+    @Override
     public InjectionStrategy getInjectionStrategy() {
         return injectionStrategy;
     }
 
-    public List<ServiceConfiguration> getServiceDependencies() {
+    @Override
+    public List<IServiceConfiguration> getServiceDependencies() {
         return serviceDependencies;
     }
 }
