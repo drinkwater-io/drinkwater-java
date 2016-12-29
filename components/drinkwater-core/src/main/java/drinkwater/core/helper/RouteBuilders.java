@@ -18,7 +18,7 @@ import java.util.ArrayList;
  */
 public class RouteBuilders {
 
-    public static RouteBuilder mapRestRoutes(DrinkWaterApplication app, IServiceConfiguration config) {
+    public static RouteBuilder mapRestRoutes(DrinkWaterApplication app, InternalServiceConfiguration config) {
 
         return new RouteBuilder() {
             @Override
@@ -39,7 +39,7 @@ public class RouteBuilders {
     }
 
     //FIXME to many params
-    public static RouteBuilder mapBeanClassRoutes(DrinkWaterApplication app, IServiceConfiguration config) {
+    public static RouteBuilder mapBeanClassRoutes(DrinkWaterApplication app, InternalServiceConfiguration config) {
 
         return new RouteBuilder() {
             @Override

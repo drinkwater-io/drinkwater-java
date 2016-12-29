@@ -24,10 +24,6 @@ public class ServiceConfiguration implements IServiceConfiguration {
 
     private List<IServiceConfiguration> serviceDependencies = new ArrayList<>();
 
-
-
-    PropertiesComponent component;
-
     protected ServiceConfiguration(){}
 
     public static ServiceConfiguration forService(Class serviceClass){
@@ -108,16 +104,6 @@ public class ServiceConfiguration implements IServiceConfiguration {
     @Override
     public List<IServiceConfiguration> getServiceDependencies() {
         return serviceDependencies;
-    }
-
-    @Override
-    public String lookupProperty(String s) throws Exception {
-        return component.parseUri(s);
-    }
-
-    //FIXME : not the correct way to configure this
-    void setComponent(PropertiesComponent component) {
-        this.component = component;
     }
 
 }

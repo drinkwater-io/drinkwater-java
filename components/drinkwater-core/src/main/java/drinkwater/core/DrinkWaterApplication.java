@@ -56,9 +56,7 @@ public class DrinkWaterApplication {
     }
 
     public void addServiceBuilder(ServiceConfigurationBuilder builder) {
-        for (IServiceConfiguration config : builder.build()) {
-            addServiceConfig(config);
-        }
+        builder.build().forEach(this::addServiceConfig);
     }
 
     private void addServiceConfig(IServiceConfiguration serviceConfig) {
@@ -76,8 +74,7 @@ public class DrinkWaterApplication {
                 ctx.addRoutes(RouteBuilders.mapRestRoutes(this, config));
             }
 
-            ProducerTemplate template = ctx.createProducerTemplate();
-            producertemplates.put(config.getServiceClass(), template);
+            producertemplates.put(config.getServiceClass(), ctx.createProducerTemplate());
 
             serviceConfigurations = serviceConfigurations.append(config);
 

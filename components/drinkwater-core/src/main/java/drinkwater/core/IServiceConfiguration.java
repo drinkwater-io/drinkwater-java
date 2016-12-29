@@ -19,5 +19,4 @@ public interface IServiceConfiguration {
 
     List<IServiceConfiguration> getServiceDependencies();
 
-    String lookupProperty(String s) throws Exception;
 }

@@ -68,7 +68,6 @@ public class InternalServiceConfiguration  implements IServiceConfiguration{
         return propertiesComponent;
     }
 
-    @Override
     public String lookupProperty(String s) throws Exception {
         return  getPropertiesComponent().parseUri(s);
     }
