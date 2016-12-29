@@ -1,39 +1,39 @@
 package drinkwater.examples.drinktracker.asbeanclass;
 
-import drinkwater.core.DrinkWaterApplicationConfig;
-import drinkwater.core.InjectionStrategy;
-import drinkwater.core.ServiceConfiguration;
-import drinkwater.core.ServiceConfigurationCollection;
+import drinkwater.core.*;
 import drinkwater.examples.drinktracker.model.*;
 
-@DrinkWaterApplicationConfig
-public class DrinkTrackerServiceAsBeanClass {
-    public ServiceConfigurationCollection getServiceConfigurations(){
+import java.util.List;
 
-        ServiceConfiguration volumeRepositoryService =ServiceConfiguration
+public class DrinkTrackerServiceAsBeanClass extends ServiceConfigurationBuilder {
+    @Override
+    public List<ServiceConfiguration> build() {
+
+        ServiceConfiguration volumeRepositoryService = ServiceConfiguration
                 .forService(IWaterVolumeRepository.class)
                 .withProperties("classpath:volume-repository.properties")
                 .useBeanClass(WaterVolumeFileRepository.class)
                 .withInjectionStrategy(InjectionStrategy.Default);
 
-        ServiceConfiguration accountService =ServiceConfiguration
+        ServiceConfiguration accountService = ServiceConfiguration
                 .forService(IAccountService.class)
                 .useBeanClass(AccountService.class);
 
-        ServiceConfiguration volumeFormatter =ServiceConfiguration
+        ServiceConfiguration volumeFormatter = ServiceConfiguration
                 .forService(IWaterVolumeFormatter.class)
                 .useBeanClass(DefaultWaterVolumeFormatter.class);
 
-        ServiceConfiguration volumeService =ServiceConfiguration
+        ServiceConfiguration volumeService = ServiceConfiguration
                 .forService(IDrinkTrackerService.class)
                 .useBeanClass(DrinkTrackerService.class)
                 .dependsOn(accountService, volumeFormatter, volumeRepositoryService);
 
         //FIXME order is important here, we should sort by deps...
-        return ServiceConfigurationCollection.of(
+        return javaslang.collection.List.of(
                 accountService,
                 volumeFormatter,
                 volumeRepositoryService,
-                volumeService);
+                volumeService
+        ).toJavaList();
     }
 }

@@ -1,14 +1,13 @@
 package drinkwater.examples.drinktracker.asrest;
 
-import drinkwater.core.DrinkWaterApplicationConfig;
-import drinkwater.core.InjectionStrategy;
-import drinkwater.core.ServiceConfiguration;
-import drinkwater.core.ServiceConfigurationCollection;
+import drinkwater.core.*;
 import drinkwater.examples.drinktracker.model.*;
 
-@DrinkWaterApplicationConfig
-public class DrinkTrackerServicesAsRest {
-    public ServiceConfigurationCollection getServiceConfigurations(){
+import java.util.List;
+
+public class DrinkTrackerServicesAsRest extends ServiceConfigurationBuilder{
+    @Override
+    public List<ServiceConfiguration> build(){
 
         ServiceConfiguration drinktrackerRepositoryService =ServiceConfiguration
                 .forService(IWaterVolumeRepository.class)
@@ -31,10 +30,11 @@ public class DrinkTrackerServicesAsRest {
                 .dependsOn(accountService, drinktrackerFormatter, drinktrackerRepositoryService);
 
         //FIXME order is important here, it should not be
-        return ServiceConfigurationCollection.of(
+        return javaslang.collection.List.of(
                 accountService,
                 drinktrackerFormatter,
                 drinktrackerRepositoryService,
-                drinktrackerServiceAsRest);
+                drinktrackerServiceAsRest
+        ).toJavaList();
     }
 }

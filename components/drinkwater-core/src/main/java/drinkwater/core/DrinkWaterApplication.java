@@ -11,6 +11,7 @@ import org.apache.camel.impl.DefaultCamelContext;
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.Vetoed;
 import javax.inject.Inject;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -26,31 +27,35 @@ import static org.reflections.ReflectionUtils.withReturnType;
 /**
  * Created by A406775 on 27/12/2016.
  */
-@ApplicationScoped
+@Vetoed
 public class DrinkWaterApplication {
 
-    @Inject
-    @DrinkWaterApplicationConfig
-    private Instance<Object> applicationConfig;
+//    @Inject
+//    @DrinkWaterApplicationConfig
+//    private Instance<Object> applicationConfig;
 
-    java.util.List<CamelContext> _camelContexts = new ArrayList<>();
-
-    public java.util.List<CamelContext> get_camelContexts() {
-        return _camelContexts;
-    }
+//    public java.util.List<CamelContext> get_camelContexts() {
+//        return _camelContexts;
+//    }
 
     Map<Class, ProducerTemplate> producertemplates = new HashMap<>();
+
+    List<ServiceConfigurationBuilder> serviceBuilders = List.empty();
+
+    java.util.List<CamelContext> _camelContexts = new ArrayList<>();
 
 //    @PostConstruct
     public void start() {
 
-        for (ServiceConfiguration config : getServiceConfigurations()) {
-            createCamelContextFromConfig(config);
+        for (ServiceConfigurationBuilder builder :serviceBuilders) {
+            for (ServiceConfiguration config : builder.build()) {
+                createCamelContextFromConfig(config);
+            }
         }
     }
 
     // be sure to stop camel context on bean destroy
-    @PreDestroy
+//    @PreDestroy
     public void stop() {
         for (CamelContext ctx : _camelContexts) {
             try {
@@ -61,37 +66,41 @@ public class DrinkWaterApplication {
         }
     }
 
-    private List<ServiceConfiguration> getServiceConfigurations(){
-        Object applicationConfigObject =  applicationConfig.get();
-
-        DrinkWaterApplicationConfig configAnnotation = applicationConfigObject.getClass().getAnnotation(DrinkWaterApplicationConfig.class);
-
-        java.util.Set<Method> methods = getMethods(applicationConfigObject.getClass(),
-                withReturnType(ServiceConfigurationCollection.class));
-
-        if(methods.size() == 0){
-            throw new RuntimeException(String.format("The type annotated with @DrinkWaterApplicationConfig, " +
-                            "should provide a method with signature public %s %s()", configAnnotation.configurationMethod(),
-                    ServiceConfiguration.class.getName())
-            );
-        }
-
-        List<ServiceConfiguration> configs = List.empty();
-
-        configs = List.ofAll(methods).
-                map(
-                        m -> {
-                            try {
-                                return (ServiceConfigurationCollection)m.invoke(applicationConfigObject);
-                            } catch (Exception e) {
-                                throw new RuntimeException(String.format(
-                                        "Error while configuring Application. call to method %s.%s failed", m.getDeclaringClass(),m.getName()));
-                            }
-                        })
-                .flatMap(col -> col.getConfigurations());
-
-        return configs;
+    public void addServiceBuilder(ServiceConfigurationBuilder builder){
+        serviceBuilders = serviceBuilders.append(builder);
     }
+
+//    private List<ServiceConfiguration> getServiceConfigurations(){
+//        Object applicationConfigObject =  applicationConfig.get();
+//
+//        DrinkWaterApplicationConfig configAnnotation = applicationConfigObject.getClass().getAnnotation(DrinkWaterApplicationConfig.class);
+//
+//        java.util.Set<Method> methods = getMethods(applicationConfigObject.getClass(),
+//                withReturnType(ServiceConfigurationCollection.class));
+//
+//        if(methods.size() == 0){
+//            throw new RuntimeException(String.format("The type annotated with @DrinkWaterApplicationConfig, " +
+//                            "should provide a method with signature public %s %s()", configAnnotation.configurationMethod(),
+//                    ServiceConfiguration.class.getName())
+//            );
+//        }
+//
+//        List<ServiceConfiguration> configs = List.empty();
+//
+//        configs = List.ofAll(methods).
+//                map(
+//                        m -> {
+//                            try {
+//                                return (ServiceConfigurationCollection)m.invoke(applicationConfigObject);
+//                            } catch (Exception e) {
+//                                throw new RuntimeException(String.format(
+//                                        "Error while configuring Application. call to method %s.%s failed", m.getDeclaringClass(),m.getName()));
+//                            }
+//                        })
+//                .flatMap(col -> col.getConfigurations());
+//
+//        return configs;
+//    }
 
     private void createCamelContextFromConfig(ServiceConfiguration config) {
         try {

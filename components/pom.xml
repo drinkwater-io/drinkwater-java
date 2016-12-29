@@ -27,5 +27,6 @@
   <modules>
     <module>drinkwater-core</module>
     <module>drinkwater-test</module>
+    <module>drinkwater-cdi</module>
   </modules>
 </project>
