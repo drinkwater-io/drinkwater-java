@@ -12,7 +12,9 @@ public class ServiceConfiguration {
 
     private Class serviceClass;
 
-    private Class targetBean;
+    private Class targetBeanClass;
+
+    private Object targetBean;
 
     private InjectionStrategy injectionStrategy = InjectionStrategy.None;
 
@@ -33,9 +35,15 @@ public class ServiceConfiguration {
         return this;
     }
 
-    public ServiceConfiguration useBean(Class bean){
-        this.targetBean = bean;
+    public ServiceConfiguration useBeanClass(Class bean){
+        this.targetBeanClass = bean;
         this.scheme = ServiceScheme.BeanClass;
+        return this;
+    }
+
+    public ServiceConfiguration useBean(Object bean){
+        this.targetBean = bean;
+        this.scheme = ServiceScheme.BeanObject;
         return this;
     }
 
@@ -74,8 +82,8 @@ public class ServiceConfiguration {
         return properties;
     }
 
-    public Class getTargetBean() {
-        return targetBean;
+    public Class getTargetBeanClass() {
+        return targetBeanClass;
     }
 
     public ServiceScheme getScheme() {

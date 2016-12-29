@@ -27,6 +27,7 @@
   <modules>
     <module>drinkwater.examples.drinktracker</module>
     <module>drinkwater.examples.drinktracker.asbean</module>
+    <module>drinkwater.examples.drinktracker.asbeanclass</module>
     <module>drinkwater.examples.drinktracker.asrest</module>
   </modules>
 </project>

@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
 public class BeanFactory {
     public static Object createBean(DrinkWaterApplication app, PropertiesComponent pc, ServiceConfiguration config) throws Exception {
         // create an instance of the bean
-        Object beanToUse = config.getTargetBean().newInstance();
+        Object beanToUse = config.getTargetBeanClass().newInstance();
 
         //inject fields eventually
         if(config.getInjectionStrategy() == InjectionStrategy.Default){

@@ -13,20 +13,20 @@ public class DrinkTrackerServicesAsRest {
         ServiceConfiguration drinktrackerRepositoryService =ServiceConfiguration
                 .forService(IWaterVolumeRepository.class)
                 .withProperties("classpath:drinktracker.properties")
-                .useBean(WaterVolumeFileRepository.class)
+                .useBeanClass(WaterVolumeFileRepository.class)
                 .withInjectionStrategy(InjectionStrategy.Default);
 
         ServiceConfiguration accountService =ServiceConfiguration
                 .forService(IAccountService.class)
-                .useBean(AccountService.class);
+                .useBeanClass(AccountService.class);
 
         ServiceConfiguration drinktrackerFormatter =ServiceConfiguration
                 .forService(IWaterVolumeFormatter.class)
-                .useBean(DefaultWaterVolumeFormatter.class);
+                .useBeanClass(DefaultWaterVolumeFormatter.class);
 
         ServiceConfiguration drinktrackerServiceAsRest =ServiceConfiguration
                 .forService(IDrinkTrackerService.class)
-                .useBean(DrinkTrackerService.class)
+                .useBeanClass(DrinkTrackerService.class)
                 .asRest()
                 .dependsOn(accountService, drinktrackerFormatter, drinktrackerRepositoryService);
 

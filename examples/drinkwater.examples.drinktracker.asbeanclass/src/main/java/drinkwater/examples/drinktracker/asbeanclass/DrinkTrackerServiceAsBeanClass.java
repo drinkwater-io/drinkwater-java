@@ -1,4 +1,4 @@
-package drinkwater.examples.drinktracker.asbean;
+package drinkwater.examples.drinktracker.asbeanclass;
 
 import drinkwater.core.DrinkWaterApplicationConfig;
 import drinkwater.core.InjectionStrategy;
@@ -13,20 +13,20 @@ public class DrinkTrackerServiceAsBeanClass {
         ServiceConfiguration volumeRepositoryService =ServiceConfiguration
                 .forService(IWaterVolumeRepository.class)
                 .withProperties("classpath:volume-repository.properties")
-                .useBean(WaterVolumeFileRepository.class)
+                .useBeanClass(WaterVolumeFileRepository.class)
                 .withInjectionStrategy(InjectionStrategy.Default);
 
         ServiceConfiguration accountService =ServiceConfiguration
                 .forService(IAccountService.class)
-                .useBean(AccountService.class);
+                .useBeanClass(AccountService.class);
 
         ServiceConfiguration volumeFormatter =ServiceConfiguration
                 .forService(IWaterVolumeFormatter.class)
-                .useBean(DefaultWaterVolumeFormatter.class);
+                .useBeanClass(DefaultWaterVolumeFormatter.class);
 
         ServiceConfiguration volumeService =ServiceConfiguration
                 .forService(IDrinkTrackerService.class)
-                .useBean(DrinkTrackerService.class)
+                .useBeanClass(DrinkTrackerService.class)
                 .dependsOn(accountService, volumeFormatter, volumeRepositoryService);
 
         //FIXME order is important here, we should sort by deps...

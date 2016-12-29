@@ -1,4 +1,4 @@
-package drinkwater.examples.drinktracker.asbean;
+package drinkwater.examples.drinktracker.asbean.test;
 
 
 import drinkwater.boot.DrinkWaterBoot;
@@ -6,14 +6,16 @@ import drinkwater.core.DrinkWaterApplication;
 import drinkwater.examples.drinktracker.model.Account;
 import drinkwater.examples.drinktracker.model.IAccountService;
 import drinkwater.examples.drinktracker.model.IWaterVolumeFormatter;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import static org.junit.Assert.*;
 
 /**
  * Unit test for simple App.
  */
-public class DrinkTrackerServiceAsBeanClassTest {
+public class DrinkTrackerServiceAsBeanTest {
     private int LOOP_COUNT = 10;
     static DrinkWaterApplication app;
     static DrinkWaterBoot booter;
