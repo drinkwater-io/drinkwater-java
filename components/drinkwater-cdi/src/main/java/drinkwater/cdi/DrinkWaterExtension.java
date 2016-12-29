@@ -2,15 +2,9 @@ package drinkwater.cdi;
 
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.ServiceConfigurationBuilder;
-import javaslang.collection.List;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.*;
-import java.lang.reflect.Method;
-import java.util.Set;
-
-import static org.reflections.ReflectionUtils.getMethods;
-import static org.reflections.ReflectionUtils.withReturnType;
 
 /**
  * Created by A406775 on 27/12/2016.

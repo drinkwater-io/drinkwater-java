@@ -16,12 +16,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.reflections</groupId>
-            <artifactId>reflections</artifactId>
-            <version>0.9.10</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-dbcp2</artifactId>
             <version>2.1.1</version>
@@ -40,11 +34,6 @@
             <artifactId>camel-core</artifactId>
             <version>2.18.1</version>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.apache.camel</groupId>-->
-            <!--<artifactId>camel-cdi</artifactId>-->
-            <!--<version>2.18.1</version>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-jetty</artifactId>
@@ -70,20 +59,6 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>2.6.7</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-test-cdi</artifactId>
-            <version>2.18.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!--j2ee dep-->
-        <dependency>
-            <groupId>javax.enterprise</groupId>
-            <artifactId>cdi-api</artifactId>
-            <version>1.2</version>
-        </dependency>
-
         <!--test dependencies-->
         <dependency>
             <groupId>junit</groupId>
@@ -91,45 +66,5 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-        
-
-        <!--unirest dependencies-->
-
-        <!--<dependency>-->
-            <!--<groupId>com.mashape.unirest</groupId>-->
-            <!--<artifactId>unirest-java</artifactId>-->
-            <!--<version>1.4.9</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.httpcomponents</groupId>-->
-            <!--<artifactId>httpclient</artifactId>-->
-            <!--<version>4.5.2</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.httpcomponents</groupId>-->
-            <!--<artifactId>httpasyncclient</artifactId>-->
-            <!--<version>4.1.1</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.httpcomponents</groupId>-->
-            <!--<artifactId>httpmime</artifactId>-->
-            <!--<version>4.5.2</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.json</groupId>-->
-            <!--<artifactId>json</artifactId>-->
-            <!--<version>20160212</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>commons-io</groupId>-->
-            <!--<artifactId>commons-io</artifactId>-->
-            <!--<version>2.5</version>-->
-            <!--<scope>test</scope>-->
-        <!--</dependency>-->
     </dependencies>
 </project>

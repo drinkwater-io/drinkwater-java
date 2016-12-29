@@ -8,26 +8,18 @@ import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 
-import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.Vetoed;
-import javax.inject.Inject;
+//import javax.enterprise.inject.Vetoed;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.reflections.ReflectionUtils.getMethods;
-import static org.reflections.ReflectionUtils.withReturnType;
-
 /**
  * Created by A406775 on 27/12/2016.
  */
-@Vetoed
+//@Vetoed
 public class DrinkWaterApplication {
 
 //    @Inject
