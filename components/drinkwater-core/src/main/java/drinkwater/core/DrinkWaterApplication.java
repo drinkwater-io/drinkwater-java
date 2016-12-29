@@ -1,12 +1,12 @@
 package drinkwater.core;
 
-import drinkwater.core.rest.RestRouteBuilderFactory;
+import drinkwater.core.helper.ProducerTemplateInvocationHandler;
+import drinkwater.core.helper.RouteBuilders;
 import javaslang.collection.List;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
-import org.apache.camel.spi.Registry;
 
 import javax.annotation.PreDestroy;
 import javax.enterprise.context.ApplicationScoped;
@@ -32,12 +32,6 @@ public class DrinkWaterApplication {
     @Inject
     @DrinkWaterApplicationConfig
     private Instance<Object> applicationConfig;
-
-    @Inject
-    private RestRouteBuilderFactory restRouteBuilder;
-
-    @Inject
-    private BeanRouteBuilder beanRouteBuilder;
 
     java.util.List<CamelContext> _camelContexts = new ArrayList<>();
 
@@ -109,10 +103,10 @@ public class DrinkWaterApplication {
             ctx.disableJMX();
             ctx.setName("CAMEL-CONTEXT-" + config.getServiceClass().getName());
             if(config.getScheme() == ServiceScheme.BeanClass) {
-                ctx.addRoutes(beanRouteBuilder.mapBeanMethods(this, prop, config));
+                ctx.addRoutes(RouteBuilders.mapBeanMethods(this, prop, config));
             }
             else if(config.getScheme() == ServiceScheme.Rest){
-                ctx.addRoutes(restRouteBuilder.createRestRouteBuilder(this, prop, config));
+                ctx.addRoutes(RouteBuilders.mapToRest(this, prop, config));
             }
             ProducerTemplate template = ctx.createProducerTemplate();
             producertemplates.put(config.getServiceClass(), template);

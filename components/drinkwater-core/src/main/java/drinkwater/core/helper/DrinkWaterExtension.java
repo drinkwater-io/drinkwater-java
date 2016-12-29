@@ -1,5 +1,6 @@
-package drinkwater.core;
+package drinkwater.core.helper;
 
+import drinkwater.core.DrinkWaterApplication;
 import javaslang.collection.List;
 
 import javax.enterprise.event.Observes;

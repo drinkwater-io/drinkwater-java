@@ -15,7 +15,7 @@ import java.util.ArrayList;
  * Created by A406775 on 20/12/2016.
  */
 
-class RestRouteBuilder {//extends RouteBuilder {
+public class RestRouteBuilderHelper {//extends RouteBuilder {
 
 
 ////    @Inject
