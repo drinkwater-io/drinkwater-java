@@ -1,19 +1,19 @@
 package drinkwater.core.rest;
 
-import drinkwater.core.ServiceConfiguration;
-import drinkwater.core.helper.InternalServiceConfiguration;
+import drinkwater.core.reflect.ReflectHelper;
 import javaslang.Tuple;
+import javaslang.Tuple2;
 import javaslang.collection.List;
-import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.http.common.HttpMethods;
-import org.apache.camel.impl.DefaultProducerTemplate;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.rest.RestDefinition;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by A406775 on 20/12/2016.
@@ -21,78 +21,135 @@ import java.util.ArrayList;
 
 public class RestRouteBuilderHelper {
 
-    public static List<RouteDefinition> buildRestRouteMappings(
-            RouteBuilder builder,
-            Object bean,
-            HttpMethods method,
-            String methodPrefixes) {
+    private static Map<HttpMethods, String[]> prefixesMap = new HashMap<>();
 
-        List<RouteDefinition> GetrouteDefinitions =
-                javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
-                        .filter(m -> httpMethodPredicate(m, methodPrefixes))
-                        .map(m -> Tuple.of(toGetRestDefinition(builder, "", m, method, methodPrefixes), m))
-                        .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, method)))
-                        .map((t2) -> routeToBean(t2._1, bean, t2._2));
-
-        return GetrouteDefinitions;
+    //FIXME : get it from some config?
+    static{
+        prefixesMap.put(HttpMethods.GET, new String[]{"get","find", "check"});
+        prefixesMap.put(HttpMethods.POST, new String[]{"save","create", "set", "clear"});
     }
 
-    private static boolean httpMethodPredicate(Method m, String prefixes) {
+    public static HttpMethods getCorrespondingHttpMethod(String methodName){
+        return List.ofAll(prefixesMap.entrySet())
+                .filter(prefix -> startsWithOneOf(methodName, prefix.getValue()))
+                .map(entryset -> entryset.getKey())
+                .getOrElse(HttpMethods.OPTIONS);
+    }
 
-        return List.of(
-                prefixes.toLowerCase().split(","))
-                .filter(prefix -> m.getName().toLowerCase().startsWith(prefix))
+    private static boolean startsWithOneOf(String value, String[] prefixes){
+        return List.of(prefixes)
+                .filter(p -> value.toLowerCase().startsWith(p))
                 .length() > 0;
+    }
+
+
+    public static Tuple2<RestDefinition,String> buildRestRoute(RouteBuilder builder, Method method){
+
+        HttpMethods httpMethod = getCorrespondingHttpMethod(method.getName());
+
+        String restPath = restPath(method, httpMethod);
+
+        RestDefinition restDefinition =
+                toRestdefinition(builder, method, httpMethod, restPath);
+
+        String camelMethod = camelMethodBuilder(method, httpMethod);
+
+        return Tuple.of(restDefinition, camelMethod);
 
     }
 
-    private static RestDefinition toGetRestDefinition(RouteBuilder builder,
-                                                      String restPath,
-                                                      Method m,
-                                                      HttpMethods method,
-                                                      String prefixes) {
-        RestDefinition answer = builder.rest(restPath);
+    public static void buildRestRoutes(RouteBuilder builder, Object bean){
+        javaslang.collection.List.of(ReflectHelper.getPublicDeclaredMethods(bean.getClass()))
+                .map(method -> buildRestRoute(builder, method))
+                .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2));
+    }
 
-        String fromPath = getPath(m);
+//    public static void buildRestRouteMappings(
+//            RouteBuilder builder,
+//            Object bean,
+//            HttpMethods httpMethod,
+//            String methodPrefixes) {
+//
+//        javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
+//                .filter(method -> filterOnPrefixes(method, methodPrefixes))
+//                .map(filteredMethod -> Tuple.of(
+//                        toRestdefinition(builder, filteredMethod, httpMethod,
+//                                restPath(filteredMethod, httpMethod)),
+//                        filteredMethod))
+//                .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, httpMethod)))
+//                .map((t2) -> routeToBeanMethod(t2._1, bean, t2._2));
+//
+//    }
+
+//    private static boolean filterOnPrefixes(Method m, String prefixes) {
+//
+//        return List.of(
+//                prefixes.toLowerCase().split(","))
+//                .filter(prefix -> m.getName().toLowerCase().startsWith(prefix))
+//                .length() > 0;
+//
+//    }
+
+    private static String restPath(Method method, HttpMethods httpMethod){
+        if(httpMethod == HttpMethods.OPTIONS){
+            return "";
+        }
+        String fromPath = getPath(method);
 
         if (fromPath == null) {
-            fromPath = List.of(prefixes.toLowerCase().split(","))
-                    .filter(prefix -> m.getName().toLowerCase().startsWith(prefix))
-                    .map(prefix -> m.getName().replace(prefix, "").toLowerCase())
+            fromPath = List.of(prefixesMap.get(httpMethod))
+                    .filter(prefix -> method.getName().toLowerCase().startsWith(prefix))
+                    .map(prefix -> method.getName().replace(prefix, "").toLowerCase())
                     .getOrElse("");
         }
 
-        if (method == HttpMethods.GET) {
+        if (httpMethod == HttpMethods.GET) {
             if (fromPath == null || fromPath.isEmpty()) {
-                fromPath = javaslang.collection.List.of(m.getParameters())
+                fromPath = javaslang.collection.List.of(method.getParameters())
                         .map(p -> "{" + p.getName() + "}").getOrElse("");
             }
+        }
+
+        return fromPath;
+    }
+
+
+    private static RestDefinition toRestdefinition(RouteBuilder builder,
+                                                   Method method,
+                                                   HttpMethods httpMethod,
+                                                   String restPath) {
+        RestDefinition answer = builder.rest();
+
+        String fromPath = restPath;
+
+        if (httpMethod == HttpMethods.GET) {
             answer = answer.get(fromPath);
-        } else if (method == HttpMethods.POST) {
-            answer = answer.post(fromPath).type(m.getParameters()[0].getType());
-        } else if (method == HttpMethods.PUT) {
+        } else if (httpMethod == HttpMethods.POST) {
+            answer = answer.post(fromPath).type(method.getParameters()[0].getType());
+        } else if (httpMethod == HttpMethods.PUT) {
             answer = answer.put(fromPath);
-        } else if (method == HttpMethods.DELETE) {
+        } else if (httpMethod == HttpMethods.DELETE) {
             answer = answer.delete(fromPath);
-        } else if (method == HttpMethods.PATCH) {
+        } else if (httpMethod == HttpMethods.PATCH) {
             answer = answer.patch(fromPath);
-        } else {
-            throw new RuntimeException("method currently not supported in Rest Paths : " + method);
+        }
+        else {
+            throw new RuntimeException("method currently not supported in Rest Paths : " + httpMethod);
         }
 
         return answer;
     }
 
-    private static String camelMethodBuilder(Method m, HttpMethods method) {
+    private static String camelMethodBuilder(Method m, HttpMethods httpMethod) {
         String params = "";
-        if (method == HttpMethods.GET) {
+        if (httpMethod == HttpMethods.GET) {
             params = javaslang.collection.List.of(m.getParameters())
                     .map(p -> "${header." + p.getName() + "}")
                     .mkString(",");
             params = "(" + params + ")";
         }
 
-        if (method == HttpMethods.POST) {
+        if (httpMethod == HttpMethods.POST) {
             List<Parameter> parameterList = javaslang.collection.List.of(m.getParameters());
             java.util.List<String> methodParams = new ArrayList<>();
             if (parameterList.size() > 0) {
@@ -109,14 +166,13 @@ public class RestRouteBuilderHelper {
         return m.getName() + params;
     }
 
-    private static RouteDefinition routeToBean(RestDefinition rest, Object bean, String methodName) {
-        return rest.route()
-                .bean(bean, methodName);
+    private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, String methodName) {
+        return restDefinition.route().bean(bean, methodName);
     }
 
 
-    private static String getPath(Method m) {
-        Path methodPathAnnotation = (Path) m.getAnnotation(Path.class);
+    private static String getPath(Method method) {
+        Path methodPathAnnotation = method.getAnnotation(Path.class);
 
         if (methodPathAnnotation != null) {
             return methodPathAnnotation.value();

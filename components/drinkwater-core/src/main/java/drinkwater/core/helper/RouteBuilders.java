@@ -34,12 +34,7 @@ public class RouteBuilders {
 
                 Object bean = BeanFactory.createBean(app, config);
 
-                String methodPrefix = "save,create";
-                RestRouteBuilderHelper. buildRestRouteMappings(this, bean, HttpMethods.POST, methodPrefix);
-
-                methodPrefix = "get,find";
-                RestRouteBuilderHelper. buildRestRouteMappings(this, bean, HttpMethods.GET, methodPrefix);
-
+                RestRouteBuilderHelper.buildRestRoutes(this, bean);
 
             }
         };
