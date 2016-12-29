@@ -1,5 +1,6 @@
-package drinkwater.core.helper;
+package drinkwater.core.reflect;
 
+import drinkwater.core.helper.RouteBuilders;
 import org.apache.camel.ProducerTemplate;
 
 import java.lang.reflect.InvocationHandler;
@@ -10,11 +11,11 @@ import java.util.Map;
 /**
  * Created by A406775 on 27/12/2016.
  */
-public class ProducerTemplateInvocationHandler implements InvocationHandler {
+public class BeanClassInvocationHandler implements InvocationHandler {
 
     private final ProducerTemplate producerTemplate;
 
-    public ProducerTemplateInvocationHandler(ProducerTemplate template) {
+    public BeanClassInvocationHandler(ProducerTemplate template) {
         this.producerTemplate = template;
     }
 

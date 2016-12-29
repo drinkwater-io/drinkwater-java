@@ -1,19 +1,16 @@
 package drinkwater.core;
 
 import drinkwater.core.helper.InternalServiceConfiguration;
-import drinkwater.core.helper.ProducerTemplateInvocationHandler;
+import drinkwater.core.reflect.BeanClassInvocationHandler;
+import drinkwater.core.reflect.ReflectHelper;
 import drinkwater.core.helper.RouteBuilders;
 import javaslang.collection.List;
-import org.apache.camel.ProducerTemplate;
 import org.apache.camel.impl.DefaultCamelContext;
 
 //import javax.enterprise.inject.Vetoed;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
-import java.util.stream.Stream;
 
 /**
  * Created by A406775 on 27/12/2016.
@@ -28,10 +25,9 @@ public class DrinkWaterApplication {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
     }
 
-    Map<Class, ProducerTemplate> producertemplates = new HashMap<>();
-
     List<InternalServiceConfiguration> serviceConfigurations = List.empty();
 
+    Map<Class, Object>  serviceProxies = new HashMap<>();
 
     public void start() {
 
@@ -70,11 +66,14 @@ public class DrinkWaterApplication {
                     new InternalServiceConfiguration(serviceConfig, ctx);
             if (config.getScheme() == ServiceScheme.BeanClass) {
                 ctx.addRoutes(RouteBuilders.mapBeanClassRoutes(this, config));
+                serviceProxies.put(config.getServiceClass(),
+                        ReflectHelper.simpleProxy(config.getServiceClass(),
+                                new BeanClassInvocationHandler(ctx.createProducerTemplate())));
             } else if (config.getScheme() == ServiceScheme.Rest) {
                 ctx.addRoutes(RouteBuilders.mapRestRoutes(this, config));
             }
 
-            producertemplates.put(config.getServiceClass(), ctx.createProducerTemplate());
+
 
             serviceConfigurations = serviceConfigurations.append(config);
 
@@ -83,21 +82,8 @@ public class DrinkWaterApplication {
         }
     }
 
-    private <T> T simpleProxy(Class<? extends T> iface, InvocationHandler handler, Class<?>... otherIfaces) {
-        Class<?>[] allInterfaces = Stream.concat(
-                Stream.of(iface),
-                Stream.of(otherIfaces))
-                .distinct()
-                .toArray(Class<?>[]::new);
-
-        return (T) Proxy.newProxyInstance(
-                iface.getClassLoader(),
-                allInterfaces,
-                handler);
-    }
-
     public <T> T getService(Class<? extends T> iface) {
-        ProducerTemplate template = producertemplates.get(iface);
-        return simpleProxy(iface, new ProducerTemplateInvocationHandler(template));
+        return (T) serviceProxies.get(iface);
     }
+
 }
