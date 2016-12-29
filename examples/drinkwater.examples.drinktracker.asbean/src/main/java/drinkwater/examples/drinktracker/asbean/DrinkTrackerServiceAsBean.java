@@ -1,15 +1,14 @@
 package drinkwater.examples.drinktracker.asbean;
 
-import drinkwater.core.DrinkWaterApplicationConfig;
-import drinkwater.core.InjectionStrategy;
-import drinkwater.core.ServiceConfiguration;
-import drinkwater.core.ServiceConfigurationCollection;
+import drinkwater.core.*;
 import drinkwater.examples.drinktracker.model.*;
 
-@DrinkWaterApplicationConfig
-public class DrinkTrackerServiceAsBean {
+import java.util.List;
 
-    public ServiceConfigurationCollection getServiceConfigurations(){
+public class DrinkTrackerServiceAsBean extends ServiceConfigurationBuilder{
+
+    @Override
+    public List<ServiceConfiguration> build(){
 
         //create service using classes
         AccountService accountService = new AccountService();
@@ -35,10 +34,11 @@ public class DrinkTrackerServiceAsBean {
                 .dependsOn(iaccountService, ivolumeFormatter, ivolumeRepositoryService);
 
         //FIXME order is important here, we should sort by deps...
-        return ServiceConfigurationCollection.of(
+        return javaslang.collection.List.of(
                 iaccountService,
                 ivolumeRepositoryService,
                 ivolumeFormatter,
-                ivolumeService);
+                ivolumeService
+        ).toJavaList();
     }
 }
