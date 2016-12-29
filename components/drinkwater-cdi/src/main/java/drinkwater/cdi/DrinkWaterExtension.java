@@ -17,7 +17,6 @@ public class DrinkWaterExtension implements Extension {
 
     void configureDrinkWater(@Observes AfterDeploymentValidation adv, BeanManager manager) throws Exception {
 
-
         DrinkWaterApplication dwapp =
                 (DrinkWaterApplication) manager.getReference(
                         manager.resolve(manager.getBeans(DrinkWaterApplication.class)),
