@@ -1,7 +1,6 @@
 package drinkwater.examples.drinktracker.asbean.test;
 
 
-import drinkwater.boot.DrinkWaterBoot;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.examples.drinktracker.model.Account;
 import drinkwater.examples.drinktracker.model.IAccountService;

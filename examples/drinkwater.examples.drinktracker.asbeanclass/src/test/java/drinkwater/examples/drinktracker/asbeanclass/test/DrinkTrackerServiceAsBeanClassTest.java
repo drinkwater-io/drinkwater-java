@@ -1,8 +1,8 @@
 package drinkwater.examples.drinktracker.asbeanclass.test;
 
 
-import drinkwater.boot.DrinkWaterBoot;
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.examples.drinktracker.asbeanclass.DrinkTrackerServiceAsBeanClass;
 import drinkwater.examples.drinktracker.model.Account;
 import drinkwater.examples.drinktracker.model.IAccountService;
 import drinkwater.examples.drinktracker.model.IWaterVolumeFormatter;
@@ -14,20 +14,18 @@ import static org.junit.Assert.*;
  * Unit test for simple App.
  */
 public class DrinkTrackerServiceAsBeanClassTest {
-    private int LOOP_COUNT = 10;
     static DrinkWaterApplication app;
-    static DrinkWaterBoot booter;
 
     @BeforeClass
     public static void setup() throws Exception {
-        booter = new DrinkWaterBoot();
-        booter.start();
-        app = booter.getDrinkWaterMain().getDrinkWaterApplication();
+        app = new DrinkWaterApplication();
+        app.addServiceBuilder(new DrinkTrackerServiceAsBeanClass());
+        app.start();
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
-        booter.stop();
+        app.stop();
     }
 
     @Test

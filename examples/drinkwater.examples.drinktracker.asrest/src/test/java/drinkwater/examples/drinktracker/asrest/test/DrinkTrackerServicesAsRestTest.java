@@ -1,7 +1,7 @@
 package drinkwater.examples.drinktracker.asrest.test;
 
-import drinkwater.boot.DrinkWaterBoot;
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.examples.drinktracker.asrest.DrinkTrackerServicesAsRest;
 import drinkwater.examples.drinktracker.model.Account;
 import drinkwater.examples.drinktracker.model.IAccountService;
 import drinkwater.test.HttpUnitTest;
@@ -15,19 +15,18 @@ import org.junit.Test;
 public class DrinkTrackerServicesAsRestTest extends HttpUnitTest
 {
     static DrinkWaterApplication app;
-    static DrinkWaterBoot booter;
     static String apiEnpoint = "http://localhost:8889";
 
     @BeforeClass
     public static void setup() throws Exception {
-        booter = new DrinkWaterBoot();
-        booter.start();
-        app = booter.getDrinkWaterMain().getDrinkWaterApplication();
+        app = new DrinkWaterApplication();
+        app.addServiceBuilder(new DrinkTrackerServicesAsRest());
+        app.start();
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
-        booter.stop();
+        app.stop();
     }
 
     @Test

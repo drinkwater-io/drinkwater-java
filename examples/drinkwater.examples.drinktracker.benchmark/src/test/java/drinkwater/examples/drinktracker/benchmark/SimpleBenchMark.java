@@ -1,17 +1,15 @@
-package drinkwater.examples.drinktracker.asbeanclass;
+package drinkwater.examples.drinktracker.benchmark;
 
-import drinkwater.boot.DrinkWaterBoot;
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.examples.drinktracker.asbeanclass.DrinkTrackerServiceAsBeanClass;
 import drinkwater.examples.drinktracker.model.*;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by A406775 on 28/12/2016.
@@ -20,18 +18,17 @@ public class SimpleBenchMark {
 
     private int LOOP_COUNT = 1;
     DrinkWaterApplication app;
-    DrinkWaterBoot booter;
 
     @Before
     public void setup() throws Exception {
-        booter = new DrinkWaterBoot();
-        booter.start();
-        app = booter.getDrinkWaterMain().getDrinkWaterApplication();
+        app = new DrinkWaterApplication();
+        app.addServiceBuilder(new DrinkTrackerServiceAsBeanClass());
+        app.start();
     }
 
     @After
     public void tearDown() throws Exception {
-        booter.stop();
+        app.stop();
     }
 
     @Test
@@ -68,7 +65,7 @@ public class SimpleBenchMark {
         System.out.println("test with DIRECT_OBJECT was faster  by  :" + TimeUnit.NANOSECONDS.toMillis(difference) + " millis ("+TimeUnit.NANOSECONDS.toSeconds(difference) + " sec)");
         System.out.println("");
 
-        assertTrue(true);
+        Assert.assertTrue(true);
     }
 
     private void dowork(IAccountService accountService, IDrinkTrackerService numberService) throws Exception {
@@ -84,7 +81,7 @@ public class SimpleBenchMark {
             List<String> numbers = numberService.getVolumes(acc);
 
             //perfrom some assertions
-            assertEquals(6, numbers.size());
+            Assert.assertEquals(6, numbers.size());
             //delete file and logoff
             numberService.clearVolumes(acc);
             accountService.logoff(acc);
