@@ -12,7 +12,6 @@ import java.util.List;
  */
 public class NumberFileRepository implements INumberRepository {
 
-
     public String directory;
 
     public NumberFileRepository() {

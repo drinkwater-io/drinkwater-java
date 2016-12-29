@@ -1,4 +1,4 @@
-package drinkwater.examples.numberservice.asrest;
+package drinkwater.examples.numberservice.asbean;
 
 import drinkwater.boot.DrinkWaterBoot;
 import drinkwater.core.DrinkWaterApplication;

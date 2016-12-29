@@ -112,7 +112,7 @@ public class DrinkWaterApplication {
                 ctx.addRoutes(beanRouteBuilder.mapBeanMethods(this, prop, config));
             }
             else if(config.getScheme() == ServiceScheme.Rest){
-                ctx.addRoutes(restRouteBuilder.createRestRouteBuilder(config));
+                ctx.addRoutes(restRouteBuilder.createRestRouteBuilder(this, prop, config));
             }
             ProducerTemplate template = ctx.createProducerTemplate();
             producertemplates.put(config.getServiceClass(), template);

@@ -1,4 +1,4 @@
-package drinkwater.examples.numberservice.asrest;
+package drinkwater.examples.numberservice.asbean;
 
 import drinkwater.core.DrinkWaterApplicationConfig;
 import drinkwater.core.InjectionStrategy;

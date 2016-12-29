@@ -39,6 +39,11 @@ public class ServiceConfiguration {
         return this;
     }
 
+    public ServiceConfiguration asRest(){
+        this.scheme = ServiceScheme.Rest;
+        return this;
+    }
+
     public ServiceConfiguration withInjectionStrategy(InjectionStrategy strategy){
         this.injectionStrategy = strategy;
         return this;

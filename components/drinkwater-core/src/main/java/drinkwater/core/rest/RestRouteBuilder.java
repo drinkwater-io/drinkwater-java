@@ -8,6 +8,8 @@ import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.rest.RestDefinition;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 
 /**
  * Created by A406775 on 20/12/2016.
@@ -64,30 +66,51 @@ class RestRouteBuilder {//extends RouteBuilder {
 //    }
 
 
-    public static List<RouteDefinition> buildPostRoutemappings(RouteBuilder builder, Object obj) {
+    public static List<RouteDefinition> buildPostRoutemappings(RouteBuilder builder, Object bean) {
 
-        ServiceComponent sc = obj.getClass().getAnnotation(ServiceComponent.class);
+//        ServiceComponent sc = obj.getClass().getAnnotation(ServiceComponent.class);
+//
+//        List<RouteDefinition> GetrouteDefinitions =
+//                javaslang.collection.List.of(obj.getClass().getDeclaredMethods())
+//                        .filter(m -> httpMethodPredicate(m, sc.restPostPrefix()))
+//                        .map(m -> Tuple.of(toGetRestDefinition(builder, sc.restPath(), m, HttpMethods.POST), m))
+//                        .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, HttpMethods.POST)))
+//                        .map((t2) -> routeToBean(t2._1, obj, t2._2));
+
+        //FIXME get default or from a config
+        String restPOSTPrefixes = "save,create";
+        String restPath = "rest";
 
         List<RouteDefinition> GetrouteDefinitions =
-                javaslang.collection.List.of(obj.getClass().getDeclaredMethods())
-                        .filter(m -> httpMethodPredicate(m, sc.restPostPrefix()))
-                        .map(m -> Tuple.of(toGetRestDefinition(builder, sc.restPath(), m, HttpMethods.POST), m))
+                javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
+                        .filter(m -> httpMethodPredicate(m, restPOSTPrefixes))
+                        .map(m -> Tuple.of(toGetRestDefinition(builder, restPath, m, HttpMethods.POST, restPOSTPrefixes), m))
                         .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, HttpMethods.POST)))
-                        .map((t2) -> routeToBean(t2._1, obj, t2._2));
+                        .map((t2) -> routeToBean(t2._1, bean, t2._2));
 
         return GetrouteDefinitions;
     }
 
-    public static List<RouteDefinition> buildGetRoutemappings(RouteBuilder builder, Object obj) {
+    public static List<RouteDefinition> buildGetRoutemappings(RouteBuilder builder, Object bean) {
 
-        ServiceComponent sc = obj.getClass().getAnnotation(ServiceComponent.class);
+        //ServiceComponent sc = obj.getClass().getAnnotation(ServiceComponent.class);
+//        List<RouteDefinition> GetrouteDefinitions =
+//                javaslang.collection.List.of(obj.getClass().getDeclaredMethods())
+//                        .filter(m -> httpMethodPredicate(m, sc.restGetPrefix()))
+//                        .map(m -> Tuple.of(toGetRestDefinition(builder, sc.restPath(), m, HttpMethods.GET), m))
+//                        .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2,HttpMethods.GET)))
+//                        .map((t2) -> routeToBean(t2._1, obj, t2._2));
+
+        //FIXME get default or from a config
+        String restGETPrefixes = "get,find";
+        String restPath = "rest";
 
         List<RouteDefinition> GetrouteDefinitions =
-                javaslang.collection.List.of(obj.getClass().getDeclaredMethods())
-                        .filter(m -> httpMethodPredicate(m, sc.restGetPrefix()))
-                        .map(m -> Tuple.of(toGetRestDefinition(builder, sc.restPath(), m, HttpMethods.GET), m))
+                javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
+                        .filter(m -> httpMethodPredicate(m, restGETPrefixes))
+                        .map(m -> Tuple.of(toGetRestDefinition(builder, restPath, m, HttpMethods.GET, restGETPrefixes), m))
                         .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2,HttpMethods.GET)))
-                        .map((t2) -> routeToBean(t2._1, obj, t2._2));
+                        .map((t2) -> routeToBean(t2._1, bean, t2._2));
 
         return GetrouteDefinitions;
     }
@@ -121,13 +144,21 @@ class RestRouteBuilder {//extends RouteBuilder {
     private static RestDefinition toGetRestDefinition(RouteBuilder builder,
                                                       String restPath,
                                                       Method m,
-                                                      HttpMethods method) {
+                                                      HttpMethods method,
+                                                        String prefixes) {
         RestDefinition answer = builder.rest(restPath);
 
         String fromPath = getPath(m);
 
+        if(fromPath == null){
+            fromPath = List.of(prefixes.toLowerCase().split(","))
+                    .filter(prefix -> m.getName().toLowerCase().startsWith(prefix))
+                    .map(prefix -> m.getName().replace(prefix, "").toLowerCase())
+                    .getOrElse("");
+        }
+
         if(method == HttpMethods.GET) {
-            if (fromPath == null) {
+            if (fromPath == null || fromPath.isEmpty()) {
                 fromPath = javaslang.collection.List.of(m.getParameters())
                         .map(p -> "{" + p.getName() + "}").getOrElse("");
             }
@@ -162,7 +193,17 @@ class RestRouteBuilder {//extends RouteBuilder {
         }
 
         if(method == HttpMethods.POST) {
-            params = "(${body})";
+            List<Parameter> parameterList = javaslang.collection.List.of(m.getParameters());
+            java.util.List<String> methodParams = new ArrayList<>();
+            if(parameterList.size() > 0){
+                methodParams.add("${body}");
+                parameterList.tail().forEach(p -> {
+                    methodParams.add("${header." + p.getName() + "}");
+                });
+
+            }
+
+            params = "("+ String.join(",", methodParams) + ")";
         }
 
         return m.getName() +  params ;

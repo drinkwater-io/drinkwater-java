@@ -1,13 +1,10 @@
-package drinkwater.examples.numberservice.asrest;
+package drinkwater.examples.numberservice.asbean;
 
 
 import drinkwater.boot.DrinkWaterBoot;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.examples.numberservice.*;
 import org.junit.*;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 

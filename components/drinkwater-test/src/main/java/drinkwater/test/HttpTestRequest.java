@@ -20,6 +20,8 @@ public class HttpTestRequest {
 
     private HttpResponse<JsonNode> response;
 
+    private HttpResponse<String> responseString;
+
     public HttpTestRequest(HttpMethod method, String request, String body){
         this.request = request;
 
@@ -28,11 +30,12 @@ public class HttpTestRequest {
                 response = Unirest.get(request).asJson();
             }
             else if (method == HttpMethod.POST){
-                response = Unirest.post(request)
-                        .header("accept", "application/json")
+                responseString = Unirest.post(request)
+                        //.header("accept", "application/json")
+                        .header("accept", "text/plain")
                         .header("Content-Type", "application/json")
                         .body(rs(body))
-                        .asJson();
+                        .asString();
             }
             else if (method == HttpMethod.PUT){
                 response = Unirest.put(request)
@@ -46,7 +49,12 @@ public class HttpTestRequest {
     }
 
     public HttpTestRequest expectsBody(String expected) throws UnirestException {
-        assertJsonEquals(rs(expected), response.getBody().toString(), when(Option.IGNORING_ARRAY_ORDER));
+        if(responseString != null){
+            assertEquals(expected, responseString.getBody());
+        }
+        else {
+            assertJsonEquals(rs(expected), response.getBody().toString(), when(Option.IGNORING_ARRAY_ORDER));
+        }
         return this;
     }
 

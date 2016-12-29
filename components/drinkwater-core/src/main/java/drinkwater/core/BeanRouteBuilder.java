@@ -16,6 +16,7 @@ import java.util.function.Function;
  */
 public class BeanRouteBuilder {
 
+    //FIXME to many params
     public static RouteBuilder mapBeanMethods(DrinkWaterApplication app, PropertiesComponent pc, ServiceConfiguration config) {
 
         return new RouteBuilder() {
@@ -24,25 +25,7 @@ public class BeanRouteBuilder {
                 List<Method> methods = javaslang.collection.List.of(config.getServiceClass().getDeclaredMethods());
 
                 // create an instance of the bean
-                Object beanToUse = config.getTargetBean().newInstance();
-
-                //inject fields eventually
-                if(config.getInjectionStrategy() == InjectionStrategy.Default){
-                    injectFields(beanToUse, pc, config);
-                }
-
-                for (ServiceConfiguration dependency: config.getServiceDependencies()) {
-                    Object dependencyBean = app.getService(dependency.getServiceClass());
-
-                    //get a field corresponding to ype in the target bean
-                    for (Field f: beanToUse.getClass().getDeclaredFields()) {
-                        if(f.getType().equals(dependency.getServiceClass()))
-                        {
-                            f.setAccessible(true);
-                            f.set(beanToUse, dependencyBean);
-                        }
-                    }
-                }
+                Object beanToUse = BeanFactory.createBean( app,  pc,  config);
 
                 for (Method m : methods) {
                     if(Modifier.isPublic(m.getModifiers())) {
@@ -52,18 +35,6 @@ public class BeanRouteBuilder {
                 }
             }
         };
-    }
-
-    public static Object injectFields(Object bean, PropertiesComponent pc, ServiceConfiguration config) throws Exception{
-
-        for (Field f: bean.getClass().getFields()) {
-            String value = pc.parseUri(config.getServiceClass().getSimpleName() + "." + f.getName());
-            if(value != null){
-                f.set(bean, value);
-            }
-        }
-
-        return bean;
     }
 
     public static String formatRoute(Method m){
