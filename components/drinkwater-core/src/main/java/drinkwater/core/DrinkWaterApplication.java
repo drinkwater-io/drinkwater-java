@@ -4,6 +4,7 @@ import drinkwater.core.helper.InternalServiceConfiguration;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.reflect.ReflectHelper;
 import drinkwater.core.helper.RouteBuilders;
+import drinkwater.core.reflect.RestInvocationHandler;
 import javaslang.collection.List;
 import org.apache.camel.impl.DefaultCamelContext;
 
@@ -27,7 +28,7 @@ public class DrinkWaterApplication {
 
     List<InternalServiceConfiguration> serviceConfigurations = List.empty();
 
-    Map<Class, Object>  serviceProxies = new HashMap<>();
+    Map<Class, Object> serviceProxies = new HashMap<>();
 
     public void start() {
 
@@ -71,9 +72,10 @@ public class DrinkWaterApplication {
                                 new BeanClassInvocationHandler(ctx.createProducerTemplate())));
             } else if (config.getScheme() == ServiceScheme.Rest) {
                 ctx.addRoutes(RouteBuilders.mapRestRoutes(this, config));
+                serviceProxies.put(config.getServiceClass(),
+                        ReflectHelper.simpleProxy(config.getServiceClass(),
+                                new RestInvocationHandler(ctx.createProducerTemplate())));
             }
-
-
 
             serviceConfigurations = serviceConfigurations.append(config);
 

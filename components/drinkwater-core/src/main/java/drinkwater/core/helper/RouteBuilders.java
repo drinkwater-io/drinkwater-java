@@ -31,6 +31,7 @@ public class RouteBuilders {
                         .bindingMode(RestBindingMode.json);
 
                 Object bean = BeanFactory.createBean(app, config);
+
                 RestRouteBuilderHelper.buildGetRoutemappings(this, bean);
                 RestRouteBuilderHelper.buildPostRoutemappings(this, bean);
 

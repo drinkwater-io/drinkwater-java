@@ -42,7 +42,7 @@ public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
 
         accountService.clear();
     }
-
+//
 //    @Test
 //    public void shouldSaveNumberThroughRestWithServiceReference() throws Exception {
 //        IAccountService accountService = app.getService(IAccountService.class);

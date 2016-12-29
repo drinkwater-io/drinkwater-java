@@ -1,9 +1,13 @@
 package drinkwater.core.rest;
 
+import drinkwater.core.ServiceConfiguration;
+import drinkwater.core.helper.InternalServiceConfiguration;
 import javaslang.Tuple;
 import javaslang.collection.List;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.http.common.HttpMethods;
+import org.apache.camel.impl.DefaultProducerTemplate;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.rest.RestDefinition;
 
@@ -17,19 +21,22 @@ import java.util.ArrayList;
 
 public class RestRouteBuilderHelper {//extends RouteBuilder {
 
+
     public static List<RouteDefinition> buildPostRoutemappings(RouteBuilder builder, Object bean) {
         //FIXME get default or from a config
         String restPOSTPrefixes = "save,create";
         String restPath = "rest";
 
-        List<RouteDefinition> GetrouteDefinitions =
-                javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
-                        .filter(m -> httpMethodPredicate(m, restPOSTPrefixes))
-                        .map(m -> Tuple.of(toGetRestDefinition(builder, restPath, m, HttpMethods.POST, restPOSTPrefixes), m))
-                        .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, HttpMethods.POST)))
-                        .map((t2) -> routeToBean(t2._1, bean, t2._2));
+        return buildRestRouteMappings(builder, bean, HttpMethods.POST, restPath, restPOSTPrefixes);
 
-        return GetrouteDefinitions;
+//        List<RouteDefinition> GetrouteDefinitions =
+//                javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
+//                        .filter(m -> httpMethodPredicate(m, restPOSTPrefixes))
+//                        .map(m -> Tuple.of(toGetRestDefinition(builder, restPath, m, HttpMethods.POST, restPOSTPrefixes), m))
+//                        .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, HttpMethods.POST)))
+//                        .map((t2) -> routeToBean(t2._1, bean, t2._2));
+//
+//        return GetrouteDefinitions;
     }
 
     public static List<RouteDefinition> buildGetRoutemappings(RouteBuilder builder, Object bean) {
@@ -37,11 +44,30 @@ public class RestRouteBuilderHelper {//extends RouteBuilder {
         String restGETPrefixes = "get,find";
         String restPath = "rest";
 
+        return buildRestRouteMappings(builder, bean, HttpMethods.GET, restPath, restGETPrefixes);
+//
+//        List<RouteDefinition> GetrouteDefinitions =
+//                javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
+//                        .filter(m -> httpMethodPredicate(m, restGETPrefixes))
+//                        .map(m -> Tuple.of(toGetRestDefinition(builder, restPath, m, HttpMethods.GET, restGETPrefixes), m))
+//                        .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, HttpMethods.GET)))
+//                        .map((t2) -> routeToBean(t2._1, bean, t2._2));
+//
+//        return GetrouteDefinitions;
+    }
+
+    public static List<RouteDefinition> buildRestRouteMappings(
+            RouteBuilder builder,
+            Object bean,
+            HttpMethods method,
+            String restInitialPath,
+            String methodPrefixes) {
+
         List<RouteDefinition> GetrouteDefinitions =
                 javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
-                        .filter(m -> httpMethodPredicate(m, restGETPrefixes))
-                        .map(m -> Tuple.of(toGetRestDefinition(builder, restPath, m, HttpMethods.GET, restGETPrefixes), m))
-                        .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, HttpMethods.GET)))
+                        .filter(m -> httpMethodPredicate(m, methodPrefixes))
+                        .map(m -> Tuple.of(toGetRestDefinition(builder, restInitialPath, m, method, methodPrefixes), m))
+                        .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, method)))
                         .map((t2) -> routeToBean(t2._1, bean, t2._2));
 
         return GetrouteDefinitions;
