@@ -18,7 +18,7 @@ import java.util.ArrayList;
  */
 public class RouteBuilders {
 
-    public static RouteBuilder mapRestRoutes(DrinkWaterApplication app, PropertiesComponent pc, IServiceConfiguration config) {
+    public static RouteBuilder mapRestRoutes(DrinkWaterApplication app, IServiceConfiguration config) {
 
         return new RouteBuilder() {
             @Override
@@ -30,7 +30,7 @@ public class RouteBuilders {
                         .contextPath(config.getServiceClass().getSimpleName().toLowerCase())
                         .bindingMode(RestBindingMode.json);
 
-                Object bean = BeanFactory.createBean(app, pc, config);
+                Object bean = BeanFactory.createBean(app, config);
                 RestRouteBuilderHelper.buildGetRoutemappings(this, bean);
                 RestRouteBuilderHelper.buildPostRoutemappings(this, bean);
 
@@ -39,7 +39,7 @@ public class RouteBuilders {
     }
 
     //FIXME to many params
-    public static RouteBuilder mapBeanClassRoutes(DrinkWaterApplication app, PropertiesComponent pc, IServiceConfiguration config) {
+    public static RouteBuilder mapBeanClassRoutes(DrinkWaterApplication app, IServiceConfiguration config) {
 
         return new RouteBuilder() {
             @Override
@@ -47,7 +47,7 @@ public class RouteBuilders {
                 List<Method> methods = javaslang.collection.List.of(config.getServiceClass().getDeclaredMethods());
 
                 // create an instance of the bean
-                Object beanToUse = BeanFactory.createBean( app,  pc,  config);
+                Object beanToUse = BeanFactory.createBean( app,  config);
 
                 for (Method m : methods) {
                     if(Modifier.isPublic(m.getModifiers())) {

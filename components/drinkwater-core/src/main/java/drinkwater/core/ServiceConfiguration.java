@@ -1,5 +1,7 @@
 package drinkwater.core;
 
+import org.apache.camel.component.properties.PropertiesComponent;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +23,10 @@ public class ServiceConfiguration implements IServiceConfiguration {
     private ServiceScheme scheme = ServiceScheme.BeanClass; //default to bean
 
     private List<IServiceConfiguration> serviceDependencies = new ArrayList<>();
+
+
+
+    PropertiesComponent component;
 
     protected ServiceConfiguration(){}
 
@@ -103,4 +109,15 @@ public class ServiceConfiguration implements IServiceConfiguration {
     public List<IServiceConfiguration> getServiceDependencies() {
         return serviceDependencies;
     }
+
+    @Override
+    public String lookupProperty(String s) throws Exception {
+        return component.parseUri(s);
+    }
+
+    //FIXME : not the correct way to configure this
+    void setComponent(PropertiesComponent component) {
+        this.component = component;
+    }
+
 }

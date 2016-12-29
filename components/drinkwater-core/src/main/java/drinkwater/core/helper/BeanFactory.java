@@ -11,13 +11,13 @@ import java.lang.reflect.Field;
  * Created by A406775 on 28/12/2016.
  */
 public class BeanFactory {
-    public static Object createBean(DrinkWaterApplication app, PropertiesComponent pc, IServiceConfiguration config) throws Exception {
+    public static Object createBean(DrinkWaterApplication app, IServiceConfiguration config) throws Exception {
         // create an instance of the bean
         Object beanToUse = config.getTargetBeanClass().newInstance();
 
         //inject fields eventually
         if(config.getInjectionStrategy() == InjectionStrategy.Default){
-            injectFields(beanToUse, pc, config);
+            injectFields(beanToUse, config);
         }
 
         for (IServiceConfiguration dependency: config.getServiceDependencies()) {
@@ -37,10 +37,10 @@ public class BeanFactory {
 
     }
 
-    public static Object injectFields(Object bean, PropertiesComponent pc, IServiceConfiguration config) throws Exception{
+    public static Object injectFields(Object bean, IServiceConfiguration config) throws Exception{
 
         for (Field f: bean.getClass().getFields()) {
-            String value = pc.parseUri(config.getServiceClass().getSimpleName() + "." + f.getName());
+            String value = config.lookupProperty(config.getServiceClass().getSimpleName() + "." + f.getName());
             if(value != null){
                 f.set(bean, value);
             }
