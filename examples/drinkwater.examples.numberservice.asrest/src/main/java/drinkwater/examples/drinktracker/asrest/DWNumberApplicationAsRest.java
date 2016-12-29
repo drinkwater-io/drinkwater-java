@@ -1,19 +1,19 @@
-package drinkwater.examples.numberservice.asrest;
+package drinkwater.examples.drinktracker.asrest;
 
 import drinkwater.core.DrinkWaterApplicationConfig;
 import drinkwater.core.InjectionStrategy;
 import drinkwater.core.ServiceConfiguration;
 import drinkwater.core.ServiceConfigurationCollection;
-import drinkwater.examples.numberservice.*;
+import drinkwater.examples.drinktracker.model.*;
 
 @DrinkWaterApplicationConfig
 public class DWNumberApplicationAsRest {
     public ServiceConfigurationCollection getServiceConfigurations(){
 
         ServiceConfiguration numberRepositoryService =ServiceConfiguration
-                .forService(INumberRepository.class)
+                .forService(IWaterVolumeRepository.class)
                 .withProperties("classpath:numberRepositoryService.properties")
-                .useBean(NumberFileRepository.class)
+                .useBean(WaterVolumeFileRepository.class)
                 .withInjectionStrategy(InjectionStrategy.Default);
 
         ServiceConfiguration accountService =ServiceConfiguration
@@ -21,12 +21,12 @@ public class DWNumberApplicationAsRest {
                 .useBean(AccountService.class);
 
         ServiceConfiguration numberFormatter =ServiceConfiguration
-                .forService(INumberFormatter.class)
-                .useBean(NumberFormatter.class);
+                .forService(IWaterVolumeFormatter.class)
+                .useBean(DefaultWaterVolumeFormatter.class);
 
         ServiceConfiguration numberServiceAsRest =ServiceConfiguration
-                .forService(INumberService.class)
-                .useBean(NumberService.class)
+                .forService(IDrinkTrackerService.class)
+                .useBean(DrinkTrackerService.class)
                 .asRest()
                 .dependsOn(accountService, numberFormatter, numberRepositoryService);
 

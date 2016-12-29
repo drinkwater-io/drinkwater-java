@@ -1,4 +1,4 @@
-package drinkwater.examples.numberservice;
+package drinkwater.examples.drinktracker.model;
 
 import java.util.List;
 

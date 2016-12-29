@@ -1,21 +1,21 @@
-package drinkwater.examples.numberservice;
+package drinkwater.examples.drinktracker.model;
 
 /**
  * Created by A406775 on 27/12/2016.
  */
-public class NumberFormatter implements INumberFormatter {
+public class DefaultWaterVolumeFormatter implements IWaterVolumeFormatter {
 
     @Override
-    public String prependZero(String s){
+    public String formatVolume(String volume){
 
         //cpu time consumption
         consumeCpuFor(Constants.LATENCY);
 
-        if(s == null){
+        if(volume == null){
             return "0";
         }
 
-        return "0" + s;
+        return "0" + volume;
     }
 
     private void consumeCpuFor(int milliseconds) {

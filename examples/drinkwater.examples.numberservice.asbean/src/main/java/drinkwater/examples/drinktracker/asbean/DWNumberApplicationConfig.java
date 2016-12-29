@@ -1,19 +1,19 @@
-package drinkwater.examples.numberservice.asbean;
+package drinkwater.examples.drinktracker.asbean;
 
 import drinkwater.core.DrinkWaterApplicationConfig;
 import drinkwater.core.InjectionStrategy;
 import drinkwater.core.ServiceConfiguration;
 import drinkwater.core.ServiceConfigurationCollection;
-import drinkwater.examples.numberservice.*;
+import drinkwater.examples.drinktracker.model.*;
 
 @DrinkWaterApplicationConfig
 public class DWNumberApplicationConfig {
     public ServiceConfigurationCollection getServiceConfigurations(){
 
         ServiceConfiguration numberRepositoryService =ServiceConfiguration
-                .forService(INumberRepository.class)
+                .forService(IWaterVolumeRepository.class)
                 .withProperties("classpath:first-number-repository.properties")
-                .useBean(NumberFileRepository.class)
+                .useBean(WaterVolumeFileRepository.class)
                 .withInjectionStrategy(InjectionStrategy.Default);
 
         ServiceConfiguration accountService =ServiceConfiguration
@@ -21,12 +21,12 @@ public class DWNumberApplicationConfig {
                 .useBean(AccountService.class);
 
         ServiceConfiguration numberFormatter =ServiceConfiguration
-                .forService(INumberFormatter.class)
-                .useBean(NumberFormatter.class);
+                .forService(IWaterVolumeFormatter.class)
+                .useBean(DefaultWaterVolumeFormatter.class);
 
         ServiceConfiguration numberService =ServiceConfiguration
-                .forService(INumberService.class)
-                .useBean(NumberService.class)
+                .forService(IDrinkTrackerService.class)
+                .useBean(DrinkTrackerService.class)
                 .dependsOn(accountService, numberFormatter, numberRepositoryService);
 
         //FIXME order is important here, we should sort by deps...

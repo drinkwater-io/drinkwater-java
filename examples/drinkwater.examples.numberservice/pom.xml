@@ -9,7 +9,7 @@
   </parent>
   <groupId>drinkwater</groupId>
   <artifactId>drinkwater.examples.numberservice</artifactId>
-  <name>drinkwater.examples.numberservice</name>
+  <name>drinkwater.examples.drinktracker</name>
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>

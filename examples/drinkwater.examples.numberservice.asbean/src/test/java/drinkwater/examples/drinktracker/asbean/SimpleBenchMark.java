@@ -1,8 +1,8 @@
-package drinkwater.examples.numberservice.asbean;
+package drinkwater.examples.drinktracker.asbean;
 
 import drinkwater.boot.DrinkWaterBoot;
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.examples.numberservice.*;
+import drinkwater.examples.drinktracker.model.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,13 +39,13 @@ public class SimpleBenchMark {
 
         //get service from DrinkWater configuration was set in APP
         IAccountService accountDWService = app.getService(IAccountService.class);
-        INumberService numberDWService = app.getService(INumberService.class);
+        IDrinkTrackerService numberDWService = app.getService(IDrinkTrackerService.class);
 
         //create service using classes
         AccountService accountService = new AccountService();
-        NumberService numberService = new NumberService();
-        numberService.setNumberFormatter(new NumberFormatter());
-        numberService.setNumberRepository(new NumberFileRepository("c:/temp"));
+        DrinkTrackerService numberService = new DrinkTrackerService();
+        numberService.setWaterVolumeFormatter(new DefaultWaterVolumeFormatter());
+        numberService.setWaterVolumeRepository(new WaterVolumeFileRepository("c:/temp"));
         numberService.setAccountService(accountService);
 
         long startObjectTime = System.nanoTime();
@@ -71,22 +71,22 @@ public class SimpleBenchMark {
         assertTrue(true);
     }
 
-    private void dowork(IAccountService accountService, INumberService numberService) throws Exception {
+    private void dowork(IAccountService accountService, IDrinkTrackerService numberService) throws Exception {
         Account acc = accountService.createAccount("cedric", "secret");
         for (int i = 0; i < LOOP_COUNT ; i++) {
             acc = accountService.login("cedric", "secret");
-            numberService.saveNumber(acc, 10);
-            numberService.saveNumber(acc, 20);
-            numberService.saveNumber(acc, 30);
-            numberService.saveNumber(acc, 40);
-            numberService.saveNumber(acc, 50);
-            numberService.saveNumber(acc, 60);
-            List<String> numbers = numberService.getNumberList(acc);
+            numberService.saveVolume(acc, 10);
+            numberService.saveVolume(acc, 20);
+            numberService.saveVolume(acc, 30);
+            numberService.saveVolume(acc, 40);
+            numberService.saveVolume(acc, 50);
+            numberService.saveVolume(acc, 60);
+            List<String> numbers = numberService.getVolumes(acc);
 
             //perfrom some assertions
             assertEquals(6, numbers.size());
             //delete file and logoff
-            numberService.clear(acc);
+            numberService.clearVolumes(acc);
             accountService.logoff(acc);
         }
 

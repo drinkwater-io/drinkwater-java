@@ -1,9 +1,11 @@
-package drinkwater.examples.numberservice.asbean;
+package drinkwater.examples.drinktracker.asbean;
 
 
 import drinkwater.boot.DrinkWaterBoot;
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.examples.numberservice.*;
+import drinkwater.examples.drinktracker.model.Account;
+import drinkwater.examples.drinktracker.model.IAccountService;
+import drinkwater.examples.drinktracker.model.IWaterVolumeFormatter;
 import org.junit.*;
 
 import static org.junit.Assert.*;
@@ -30,8 +32,8 @@ public class DWNumberApplicationTest {
 
     @Test
     public void shouldFormatNumber() {
-        INumberFormatter formatter = app.getService(INumberFormatter.class);
-        String result = formatter.prependZero("10");
+        IWaterVolumeFormatter formatter = app.getService(IWaterVolumeFormatter.class);
+        String result = formatter.formatVolume("10");
         assertEquals("010", result);
 
     }

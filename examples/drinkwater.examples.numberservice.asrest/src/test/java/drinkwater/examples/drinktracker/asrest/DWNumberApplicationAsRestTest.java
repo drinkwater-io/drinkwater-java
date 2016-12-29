@@ -1,9 +1,9 @@
-package drinkwater.examples.numberservice.asrest;
+package drinkwater.examples.drinktracker.asrest;
 
 import drinkwater.boot.DrinkWaterBoot;
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.examples.numberservice.Account;
-import drinkwater.examples.numberservice.IAccountService;
+import drinkwater.examples.drinktracker.model.Account;
+import drinkwater.examples.drinktracker.model.IAccountService;
 import drinkwater.test.HttpUnitTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -35,7 +35,7 @@ public class DWNumberApplicationAsRestTest extends HttpUnitTest
         IAccountService accountService = app.getService(IAccountService.class);
         Account account = accountService.createAccount("cedric", "secret");
 
-        httpPost(apiEnpoint + "/inumberservice/rest/number?number=10",
+        httpPost(apiEnpoint + "/idrinktrackerservice/rest/volume?volume=10",
                 "{'accountName':'cedric','authenticated':true, 'accountPassword':'secret'}")
                 .expectsBody("\"00010\"");
     }
