@@ -34,7 +34,7 @@ public class WaterVolumeFileRepository implements IWaterVolumeRepository {
         try {
             volume = volume + "\n";
             Thread.sleep(Constants.LATENCY);
-            Files.write(Paths.get(directory, "water-volumes-of-" + account.getAcountId() + ".txt"), volume.getBytes(),
+            Files.write(Paths.get(directory, createPath(account.getAcountId())), volume.getBytes(),
                     StandardOpenOption.APPEND, StandardOpenOption.CREATE);
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,7 +47,7 @@ public class WaterVolumeFileRepository implements IWaterVolumeRepository {
 
         try {
             lines =
-                    Files.readAllLines(Paths.get(directory, account.getAcountId() + ".txt"), Charset.defaultCharset());
+                    Files.readAllLines(Paths.get(directory, createPath(account.getAcountId())), Charset.defaultCharset());
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,10 +56,14 @@ public class WaterVolumeFileRepository implements IWaterVolumeRepository {
 
     }
 
+    private static String createPath(String accountId){
+        return "water-volumes-of-" + accountId + ".txt";
+    }
+
     public synchronized void clearVolumes(Account account) {
         try {
 
-            Files.delete(Paths.get(directory, account.getAcountId() + ".txt"));
+            Files.delete(Paths.get(directory, createPath(account.getAcountId())));
 
         } catch (IOException e) {
             e.printStackTrace();

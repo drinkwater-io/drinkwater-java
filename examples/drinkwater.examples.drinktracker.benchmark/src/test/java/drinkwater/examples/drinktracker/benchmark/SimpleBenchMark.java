@@ -1,7 +1,9 @@
 package drinkwater.examples.drinktracker.benchmark;
 
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.core.ServiceConfigurationBuilder;
 import drinkwater.examples.drinktracker.asbeanclass.DrinkTrackerServiceAsBeanClass;
+import drinkwater.examples.drinktracker.asrest.DrinkTrackerServicesAsRest;
 import drinkwater.examples.drinktracker.model.*;
 import org.junit.After;
 import org.junit.Assert;
@@ -17,27 +19,22 @@ import java.util.concurrent.TimeUnit;
 public class SimpleBenchMark {
 
     private int LOOP_COUNT = 1;
-    DrinkWaterApplication app;
-
-    @Before
-    public void setup() throws Exception {
-        app = new DrinkWaterApplication();
-        app.addServiceBuilder(new DrinkTrackerServiceAsBeanClass());
-        app.start();
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        app.stop();
-    }
 
     @Test
     public void performBenchMark() throws Exception {
 
-        //get service from DrinkWater configuration was set in APP
-        IAccountService accountDWService = app.getService(IAccountService.class);
-        IDrinkTrackerService numberDWService = app.getService(IDrinkTrackerService.class);
+        long timeWithoutDW = benchMarkWithoutDW();
+        long timeAsBeanClass = benchMarkThisConfig(new DrinkTrackerServiceAsBeanClass());
+        long timeAsRest = 0;
+        //long timeAsRest = benchMarkThisConfig(new DrinkTrackerServicesAsRest());
 
+        printReport(timeWithoutDW, timeAsBeanClass, timeAsRest);
+
+        //just to be green
+        Assert.assertTrue(true);
+    }
+
+    private long benchMarkWithoutDW() throws Exception {
         //create service using classes
         AccountService accountService = new AccountService();
         DrinkTrackerService numberService = new DrinkTrackerService();
@@ -45,32 +42,52 @@ public class SimpleBenchMark {
         numberService.setWaterVolumeRepository(new WaterVolumeFileRepository("c:/temp"));
         numberService.setAccountService(accountService);
 
-        long startObjectTime = System.nanoTime();
-        dowork(accountService, numberService);
-        long estimatedObjectTime = System.nanoTime() - startObjectTime;
+        return dowork(accountService, numberService);
+    }
 
-        long startDWTime = System.nanoTime();
-        dowork(accountDWService, numberDWService);
-        long estimatedDWTime = System.nanoTime() - startDWTime;
+    private long benchMarkThisConfig(ServiceConfigurationBuilder builder) throws Exception {
 
+        DrinkWaterApplication app = new DrinkWaterApplication();
+        try {
 
+            app.addServiceBuilder(builder);
+            app.start();
 
-        long difference = estimatedDWTime - estimatedObjectTime;
+            //get ref to the services
+            IAccountService accountDWService = app.getService(IAccountService.class);
+            IDrinkTrackerService numberDWService = app.getService(IDrinkTrackerService.class);
+
+            //start bench
+            return dowork(accountDWService, numberDWService);
+        } finally {
+            app.stop();
+        }
+
+    }
+
+    private void printReport(long timeWithoutDW, long timeAsBeanClass, long timeAsRest) {
+        long diff_with_bean_class = timeAsBeanClass - timeWithoutDW;
+        long diff_with_rest = timeAsRest - timeWithoutDW;
 
         System.out.println("BENCHMARK WITH loop count : " + LOOP_COUNT);
         System.out.println("---------------------------------------------------");
         System.out.println("");
-        System.out.println("test with DRINKWATER took               :" + TimeUnit.NANOSECONDS.toMillis(estimatedDWTime) + " millis ("+TimeUnit.NANOSECONDS.toSeconds(estimatedDWTime) + " sec)");
-        System.out.println("test with DIRECT_OBJECT took            :" + TimeUnit.NANOSECONDS.toMillis(estimatedObjectTime) + " millis ("+TimeUnit.NANOSECONDS.toSeconds(estimatedObjectTime) + " sec)");
-        System.out.println("test with DIRECT_OBJECT was faster  by  :" + TimeUnit.NANOSECONDS.toMillis(difference) + " millis ("+TimeUnit.NANOSECONDS.toSeconds(difference) + " sec)");
+        System.out.println("test with DIRECT_OBJECT took            :  " + TimeUnit.NANOSECONDS.toMillis(timeWithoutDW) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(timeWithoutDW) + " sec)");
+        System.out.println("test with BEANCLASS took                :  " + TimeUnit.NANOSECONDS.toMillis(timeAsBeanClass) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(timeAsBeanClass) + " sec)");
+        System.out.println("test with REST took                     :  " + TimeUnit.NANOSECONDS.toMillis(timeAsRest) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(timeAsRest) + " sec)");
         System.out.println("");
-
-        Assert.assertTrue(true);
+        System.out.println("test with BEANCLASS  was slower  by     :  " + TimeUnit.NANOSECONDS.toMillis(diff_with_bean_class) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(diff_with_bean_class) + " sec)");
+        System.out.println("test with RESTCLASS was slower   by     :  " + TimeUnit.NANOSECONDS.toMillis(diff_with_rest) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(diff_with_rest) + " sec)");
+        System.out.println("");
+        System.out.println("---------------------------------------------------");
     }
 
-    private void dowork(IAccountService accountService, IDrinkTrackerService numberService) throws Exception {
+    private long dowork(IAccountService accountService, IDrinkTrackerService numberService) throws Exception {
         Account acc = accountService.createAccount("cedric", "secret");
-        for (int i = 0; i < LOOP_COUNT ; i++) {
+
+        //start counter here
+        long startTime = System.nanoTime();
+        for (int i = 0; i < LOOP_COUNT; i++) {
             acc = accountService.login("cedric", "secret");
             numberService.saveVolume(acc, 10);
             numberService.saveVolume(acc, 20);
@@ -88,5 +105,9 @@ public class SimpleBenchMark {
         }
 
         accountService.clear();
+
+        long ellapsedTime = System.nanoTime() - startTime;
+
+        return ellapsedTime;
     }
 }
