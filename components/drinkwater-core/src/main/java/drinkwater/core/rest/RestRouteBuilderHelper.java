@@ -19,54 +19,18 @@ import java.util.ArrayList;
  * Created by A406775 on 20/12/2016.
  */
 
-public class RestRouteBuilderHelper {//extends RouteBuilder {
-
-
-    public static List<RouteDefinition> buildPostRoutemappings(RouteBuilder builder, Object bean) {
-        //FIXME get default or from a config
-        String restPOSTPrefixes = "save,create";
-        String restPath = "rest";
-
-        return buildRestRouteMappings(builder, bean, HttpMethods.POST, restPath, restPOSTPrefixes);
-
-//        List<RouteDefinition> GetrouteDefinitions =
-//                javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
-//                        .filter(m -> httpMethodPredicate(m, restPOSTPrefixes))
-//                        .map(m -> Tuple.of(toGetRestDefinition(builder, restPath, m, HttpMethods.POST, restPOSTPrefixes), m))
-//                        .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, HttpMethods.POST)))
-//                        .map((t2) -> routeToBean(t2._1, bean, t2._2));
-//
-//        return GetrouteDefinitions;
-    }
-
-    public static List<RouteDefinition> buildGetRoutemappings(RouteBuilder builder, Object bean) {
-        //FIXME get default or from a config
-        String restGETPrefixes = "get,find";
-        String restPath = "rest";
-
-        return buildRestRouteMappings(builder, bean, HttpMethods.GET, restPath, restGETPrefixes);
-//
-//        List<RouteDefinition> GetrouteDefinitions =
-//                javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
-//                        .filter(m -> httpMethodPredicate(m, restGETPrefixes))
-//                        .map(m -> Tuple.of(toGetRestDefinition(builder, restPath, m, HttpMethods.GET, restGETPrefixes), m))
-//                        .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, HttpMethods.GET)))
-//                        .map((t2) -> routeToBean(t2._1, bean, t2._2));
-//
-//        return GetrouteDefinitions;
-    }
+public class RestRouteBuilderHelper {
 
     public static List<RouteDefinition> buildRestRouteMappings(
             RouteBuilder builder,
             Object bean,
             HttpMethods method,
-            String restInitialPath,
             String methodPrefixes) {
 
         List<RouteDefinition> GetrouteDefinitions =
                 javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
                         .filter(m -> httpMethodPredicate(m, methodPrefixes))
-                        .map(m -> Tuple.of(toGetRestDefinition(builder, restInitialPath, m, method, methodPrefixes), m))
+                        .map(m -> Tuple.of(toGetRestDefinition(builder, "", m, method, methodPrefixes), m))
                         .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, method)))
                         .map((t2) -> routeToBean(t2._1, bean, t2._2));
 
@@ -81,22 +45,6 @@ public class RestRouteBuilderHelper {//extends RouteBuilder {
                 .length() > 0;
 
     }
-
-//    private static RestDefinition toPostRestDefinition(RouteBuilder builder, String restPath, Method m) {
-//        RestDefinition answer = builder.rest(restPath);
-//
-//        String fromPath = getPath(m);
-//
-//        if (fromPath == null) {
-//            fromPath = javaslang.collection.List.of(m.getParameters())
-//                    .map(p -> "{" + p.getName() + "}").getOrElse("");
-//        }
-//
-//        answer.post(fromPath);
-//
-//        return answer;
-//    }
-
 
     private static RestDefinition toGetRestDefinition(RouteBuilder builder,
                                                       String restPath,

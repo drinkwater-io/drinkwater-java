@@ -36,7 +36,7 @@ public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
         IAccountService accountService = app.getService(IAccountService.class);
         Account account = accountService.createAccount("cedric", "secret");
 
-        httpPost(apiEnpoint + "/idrinktrackerservice/rest/volume?volume=10",
+        httpPost(apiEnpoint + "/idrinktrackerservice/volume?volume=10",
                 "{'accountName':'cedric','authenticated':true, 'accountPassword':'secret'}")
                 .expectsBody("\"00010\"");
 

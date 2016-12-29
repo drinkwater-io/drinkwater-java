@@ -6,6 +6,8 @@ import drinkwater.core.rest.RestRouteBuilderHelper;
 import javaslang.collection.List;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.properties.PropertiesComponent;
+import org.apache.camel.http.common.HttpMethods;
+import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.rest.RestBindingMode;
 
 import java.lang.reflect.Method;
@@ -32,8 +34,12 @@ public class RouteBuilders {
 
                 Object bean = BeanFactory.createBean(app, config);
 
-                RestRouteBuilderHelper.buildGetRoutemappings(this, bean);
-                RestRouteBuilderHelper.buildPostRoutemappings(this, bean);
+                String methodPrefix = "save,create";
+                RestRouteBuilderHelper. buildRestRouteMappings(this, bean, HttpMethods.POST, methodPrefix);
+
+                methodPrefix = "get,find";
+                RestRouteBuilderHelper. buildRestRouteMappings(this, bean, HttpMethods.GET, methodPrefix);
+
 
             }
         };
