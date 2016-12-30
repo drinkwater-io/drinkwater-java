@@ -1,4 +1,4 @@
-package drinkwater.examples.drinktracker.asrest.test;
+package test.drinkwater.examples.drinktracker.asrest;
 
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.examples.drinktracker.asrest.DrinkTrackerServicesAsRest;

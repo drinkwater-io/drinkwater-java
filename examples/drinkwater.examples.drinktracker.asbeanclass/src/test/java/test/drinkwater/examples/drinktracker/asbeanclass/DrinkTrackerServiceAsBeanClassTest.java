@@ -1,4 +1,4 @@
-package drinkwater.examples.drinktracker.asbeanclass.test;
+package test.drinkwater.examples.drinktracker.asbeanclass;
 
 
 import drinkwater.core.DrinkWaterApplication;

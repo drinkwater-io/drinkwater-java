@@ -1,4 +1,4 @@
-package drinkwater.examples.drinktracker.asbean.test;
+package test.drinkwater.examples.drinktracker.asbean;
 
 
 /**

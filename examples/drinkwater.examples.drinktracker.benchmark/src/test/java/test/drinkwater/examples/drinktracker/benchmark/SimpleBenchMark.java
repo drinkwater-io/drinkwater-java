@@ -1,4 +1,4 @@
-package drinkwater.examples.drinktracker.benchmark;
+package test.drinkwater.examples.drinktracker.benchmark;
 
 import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.core.DrinkWaterApplication;

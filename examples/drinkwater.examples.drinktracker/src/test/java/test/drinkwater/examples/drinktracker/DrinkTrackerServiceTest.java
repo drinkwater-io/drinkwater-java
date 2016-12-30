@@ -1,4 +1,4 @@
-package drinkwater.examples.drinktracker.test;
+package test.drinkwater.examples.drinktracker;
 
 
 import drinkwater.examples.drinktracker.model.Account;
