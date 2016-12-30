@@ -47,7 +47,7 @@ public class DrinkTrackerServiceAsBeanClassTest {
         assertNotNull(account.getAcountId());
         assertFalse(account.isAuthenticated());
 
-        accountService.clear();
+        accountService.clearAccounts();
 
     }
 
@@ -57,6 +57,6 @@ public class DrinkTrackerServiceAsBeanClassTest {
         account = accountService.login("cedric", "secret");
         assertTrue(account.isAuthenticated());
 
-        accountService.clear();
+        accountService.clearAccounts();
     }
 }

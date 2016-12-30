@@ -22,6 +22,9 @@ public class RestService {
 
             public <T> T readValue(String value, Class<T> valueType) {
                 try {
+                    if (valueType.equals(Void.TYPE)) {
+                        return null;
+                    }
                     return jacksonObjectMapper.readValue(value, valueType);
                 } catch (IOException e) {
                     throw new RuntimeException(e);

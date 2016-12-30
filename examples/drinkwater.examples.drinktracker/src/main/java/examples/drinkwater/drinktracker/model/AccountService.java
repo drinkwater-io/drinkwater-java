@@ -65,7 +65,8 @@ public class AccountService implements IAccountService {
     }
 
     @Override
-    public void clear() {
+    public void clearAccounts() {
+
         accounts = List.empty();
     }
 }

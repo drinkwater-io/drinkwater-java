@@ -101,7 +101,7 @@ public class SimpleBenchMark {
             accountService.logoff(acc);
         }
 
-        accountService.clear();
+        accountService.clearAccounts();
 
         long ellapsedTime = System.nanoTime() - startTime;
 

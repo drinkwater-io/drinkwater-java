@@ -13,10 +13,9 @@ import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.model.rest.RestDefinition;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import static drinkwater.helper.StringHelper.startsWithOneOf;
 
@@ -25,20 +24,25 @@ import static drinkwater.helper.StringHelper.startsWithOneOf;
  */
 public class RestHelper {
 
+    private static Logger logger = Logger.getLogger(RestHelper.class.getName());
+
     private static Map<HttpMethod, String[]> prefixesMap = new HashMap<>();
 
     //FIXME : get it from some config?
     static {
         prefixesMap.put(HttpMethod.GET, new String[]{"get", "find", "check"});
-        prefixesMap.put(HttpMethod.POST, new String[]{"save", "create", "set"});
+        prefixesMap.put(HttpMethod.POST, new String[]{"save", "create", "set", "is"});
         prefixesMap.put(HttpMethod.DELETE, new String[]{"delete", "remove", "clear"});
     }
 
     public static HttpMethod httpMethodFor(Method method) {
+
+        HttpMethod defaultHttpMethod = HttpMethod.GET;
+
         return List.ofAll(prefixesMap.entrySet())
                 .filter(prefix -> startsWithOneOf(method.getName(), prefix.getValue()))
                 .map(entryset -> entryset.getKey())
-                .getOrElse(HttpMethod.OPTIONS);
+                .getOrElse(defaultHttpMethod);
     }
 
 
@@ -60,7 +64,7 @@ public class RestHelper {
         RestDefinition restDefinition =
                 toRestdefinition(builder, method, httpMethod, restPath);
 
-        String camelMethod = camelMethodBuilder(method, httpMethod);
+        String camelMethod = camelMethodBuilder(method);
 
         return Tuple.of(restDefinition, camelMethod);
 
@@ -99,13 +103,18 @@ public class RestHelper {
         if (httpMethod == HttpMethod.OPTIONS) {
             return "";
         }
-        String fromPath = getPath(method);
+        String fromPath = getPathFromAnnotation(method);
 
-        if (fromPath == null) {
+        if (fromPath == null || fromPath.isEmpty()) {
             fromPath = List.of(prefixesMap.get(httpMethod))
                     .filter(prefix -> method.getName().toLowerCase().startsWith(prefix))
                     .map(prefix -> method.getName().replace(prefix, "").toLowerCase())
                     .getOrElse("");
+
+            //if still empty
+            if (fromPath.isEmpty()) {
+                fromPath = method.getName();
+            }
         }
 
         if (httpMethod == HttpMethod.GET) {
@@ -144,30 +153,36 @@ public class RestHelper {
         return answer;
     }
 
-    private static String camelMethodBuilder(Method m, HttpMethod httpMethod) {
-        String params = "";
-        if (httpMethod == HttpMethod.GET) {
-            params = javaslang.collection.List.of(m.getParameters())
-                    .map(p -> "${header." + p.getName() + "}")
-                    .mkString(",");
-            params = "(" + params + ")";
-        }
 
-        if (httpMethod == HttpMethod.POST) {
-            List<Parameter> parameterList = javaslang.collection.List.of(m.getParameters());
-            java.util.List<String> methodParams = new ArrayList<>();
-            if (parameterList.size() > 0) {
-                methodParams.add("${body}");
-                parameterList.tail().forEach(p -> {
-                    methodParams.add("${header." + p.getName() + "}");
-                });
+    private static String camelMethodBuilder(Method m) {
 
-            }
+        MethodToRestParameters methodtoRoute = new MethodToRestParameters(m);
 
-            params = "(" + String.join(",", methodParams) + ")";
-        }
+        return methodtoRoute.exchangeToBean();
 
-        return m.getName() + params;
+//        String params = "";
+//        if (httpMethod == HttpMethod.GET) {
+//            params = javaslang.collection.List.of(m.getParameters())
+//                    .map(p -> "${header." + p.getName() + "}")
+//                    .mkString(",");
+//            params = "(" + params + ")";
+//        }
+//
+//        if (httpMethod == HttpMethod.POST) {
+//            List<Parameter> parameterList = javaslang.collection.List.of(m.getParameters());
+//            java.util.List<String> methodParams = new ArrayList<>();
+//            if (parameterList.size() > 0) {
+//                methodParams.add("${body}");
+//                parameterList.tail().forEach(p -> {
+//                    methodParams.add("${header." + p.getName() + "}");
+//                });
+//
+//            }
+//
+//            params = "(" + String.join(",", methodParams) + ")";
+//        }
+//
+//        return m.getName() + params;
     }
 
     private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, String methodName) {
@@ -177,7 +192,7 @@ public class RestHelper {
     }
 
 
-    private static String getPath(Method method) {
+    private static String getPathFromAnnotation(Method method) {
         Path methodPathAnnotation = method.getAnnotation(Path.class);
 
         if (methodPathAnnotation != null) {

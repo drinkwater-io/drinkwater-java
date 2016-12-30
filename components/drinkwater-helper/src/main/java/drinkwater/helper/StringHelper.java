@@ -8,8 +8,17 @@ import javaslang.collection.List;
 public final class StringHelper {
 
     public static boolean startsWithOneOf(String value, String[] prefixes) {
-        return List.of(prefixes)
+        boolean result = List.of(prefixes)
                 .filter(p -> value.toLowerCase().startsWith(p))
                 .length() > 0;
+
+        return result;
+    }
+
+    public static String trimEnclosingQuotes(String tobetrimmed) {
+        if (tobetrimmed == null) {
+            return null;
+        }
+        return tobetrimmed.replaceAll("^\"|\"$", "");
     }
 }

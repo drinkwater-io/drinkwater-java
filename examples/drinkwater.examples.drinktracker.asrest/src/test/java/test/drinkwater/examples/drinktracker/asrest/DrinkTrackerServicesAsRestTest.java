@@ -40,7 +40,7 @@ public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
                 "{'accountName':'cedric','authenticated':true, 'accountPassword':'secret'}")
                 .expectsBody("\"00010\"");
 
-        accountService.clear();
+        accountService.clearAccounts();
     }
 
     //
@@ -55,7 +55,7 @@ public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
 
         assertEquals("00010", savedVolume);
 
-        accountService.clear();
+        accountService.clearAccounts();
     }
 
 

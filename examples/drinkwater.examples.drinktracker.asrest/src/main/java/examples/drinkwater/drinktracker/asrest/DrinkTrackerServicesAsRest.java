@@ -16,20 +16,18 @@ public class DrinkTrackerServicesAsRest extends ServiceConfigurationBuilder {
                 .forService(IWaterVolumeRepository.class)
                 .withProperties("classpath:drinktracker.properties")
                 .useBeanClass(WaterVolumeFileRepository.class)
-//                .asRest()
+                .asRest()
                 .withInjectionStrategy(InjectionStrategy.Default);
 
         IServiceConfiguration accountService = ServiceConfiguration
                 .forService(IAccountService.class)
                 .useBeanClass(AccountService.class)
-//                .asRest()
-                ;
+                .asRest();
 
         IServiceConfiguration drinktrackerFormatter = ServiceConfiguration
                 .forService(IWaterVolumeFormatter.class)
                 .useBeanClass(DefaultWaterVolumeFormatter.class)
-//                .asRest()
-                ;
+                .asRest();
 
         IServiceConfiguration drinktrackerServiceAsRest = ServiceConfiguration
                 .forService(IDrinkTrackerService.class)

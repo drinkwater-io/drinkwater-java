@@ -18,5 +18,5 @@ public interface IAccountService {
 
     List<Account> getAll();
 
-    void clear();
+    void clearAccounts();
 }
