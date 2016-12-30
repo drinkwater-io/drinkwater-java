@@ -21,6 +21,10 @@ public class WaterVolumeFileRepository implements IWaterVolumeRepository {
         this.directory = directory;
     }
 
+    private static String createPath(String accountId) {
+        return "water-volumes-of-" + accountId + ".txt";
+    }
+
     public String getDirectory() {
         return directory;
     }
@@ -54,10 +58,6 @@ public class WaterVolumeFileRepository implements IWaterVolumeRepository {
         }
         return lines;
 
-    }
-
-    private static String createPath(String accountId){
-        return "water-volumes-of-" + accountId + ".txt";
     }
 
     public synchronized void clearVolumes(Account account) {

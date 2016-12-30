@@ -9,9 +9,9 @@ import java.util.UUID;
  */
 public class AccountService implements IAccountService {
 
-    private static List<Account> accounts ;
+    private static List<Account> accounts;
 
-    public AccountService(){
+    public AccountService() {
         accounts = List.empty();
     }
 
@@ -20,7 +20,7 @@ public class AccountService implements IAccountService {
 
         List<Account> existing = accounts.filter(a -> a.getAccountName().equals(name)).toList();
 
-        if(existing.size() > 0){
+        if (existing.size() > 0) {
             throw new Exception("account already exists");
         }
 
@@ -56,12 +56,11 @@ public class AccountService implements IAccountService {
         acc.setAuthenticated(false);
     }
 
-    public boolean isAuthenticated(Account acc){
+    public boolean isAuthenticated(Account acc) {
         return acc.isAuthenticated();
     }
 
-    public java.util.List<Account> getAll()
-    {
+    public java.util.List<Account> getAll() {
         return accounts.toJavaList();
     }
 

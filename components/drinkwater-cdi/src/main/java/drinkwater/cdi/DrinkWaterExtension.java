@@ -1,7 +1,7 @@
 package drinkwater.cdi;
 
-import drinkwater.core.DrinkWaterApplication;
 import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.core.DrinkWaterApplication;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.*;
@@ -11,7 +11,7 @@ import javax.enterprise.inject.spi.*;
  */
 public class DrinkWaterExtension implements Extension {
 
-    void addDrinkWater(@Observes AfterBeanDiscovery abdEvent, BeanManager manager){
+    void addDrinkWater(@Observes AfterBeanDiscovery abdEvent, BeanManager manager) {
         abdEvent.addBean(new DrinkWaterApplicationBean());
     }
 
@@ -24,9 +24,9 @@ public class DrinkWaterExtension implements Extension {
                         manager.createCreationalContext(null)
                 );
 
-        for (Bean<?> serviceConfigBean :manager.getBeans(ServiceConfigurationBuilder.class)) {
+        for (Bean<?> serviceConfigBean : manager.getBeans(ServiceConfigurationBuilder.class)) {
 
-            ServiceConfigurationBuilder builder = (ServiceConfigurationBuilder)manager.getReference(serviceConfigBean,
+            ServiceConfigurationBuilder builder = (ServiceConfigurationBuilder) manager.getReference(serviceConfigBean,
                     ServiceConfigurationBuilder.class,
                     manager.createCreationalContext(serviceConfigBean));
 

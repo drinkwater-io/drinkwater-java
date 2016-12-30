@@ -1,15 +1,7 @@
 package drinkwater.boot;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.FluentProducerTemplate;
-import org.apache.camel.builder.DefaultFluentProducerTemplate;
-
-import java.util.List;
-
-
 /**
  * Hello world!
- *
  */
 public class DrinkWaterBoot {
 

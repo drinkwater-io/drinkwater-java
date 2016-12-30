@@ -7,15 +7,15 @@ import com.mashape.unirest.http.HttpMethod;
  */
 public class HttpUnitTest {
 
-    public static HttpTestRequest httpGet(String request){
+    public static HttpTestRequest httpGet(String request) {
         return new HttpTestRequest(HttpMethod.GET, request, null);
     }
 
-    public static HttpTestRequest httpPost(String request, String body){
+    public static HttpTestRequest httpPost(String request, String body) {
         return new HttpTestRequest(HttpMethod.POST, request, body);
     }
 
-    public static HttpTestRequest httpPut(String request, String body){
+    public static HttpTestRequest httpPut(String request, String body) {
         return new HttpTestRequest(HttpMethod.PUT, request, body);
     }
 }

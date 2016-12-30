@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,18 +17,12 @@
 package drinkwater.boot;
 
 import drinkwater.core.DrinkWaterApplication;
-import javaslang.collection.*;
 import org.apache.camel.support.ServiceSupport;
 import org.apache.deltaspike.cdise.api.CdiContainer;
 import org.apache.deltaspike.cdise.api.CdiContainerLoader;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.CDI;
 import java.util.*;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -40,7 +34,7 @@ import java.util.logging.Logger;
  *
  * @version
  */
-public class Main extends ServiceSupport{
+public class Main extends ServiceSupport {
     protected static final Logger LOG = Logger.getLogger(Main.class.getName());
     protected static final int UNINITIALIZED_EXIT_CODE = Integer.MIN_VALUE;
     protected static final int DEFAULT_EXIT_CODE = 0;
@@ -54,42 +48,6 @@ public class Main extends ServiceSupport{
     protected boolean hangupInterceptorEnabled = true;
     protected int durationHitExitCode = DEFAULT_EXIT_CODE;
     private CdiContainer cdiContainer;
-
-    /**
-     * A class for intercepting the hang up signal and do a graceful shutdown of the Camel.
-     */
-    private static final class HangupInterceptor extends Thread {
-        Logger log = Logger.getLogger(this.getClass().getName());
-        final Main mainInstance;
-
-        HangupInterceptor(Main main) {
-            mainInstance = main;
-        }
-
-        @Override
-        public void run() {
-            log.info("Received hang up - stopping the main instance.");
-            try {
-                mainInstance.stop();
-            } catch (Exception ex) {
-                log.severe("Error during stopping the main instance." + ex.getMessage());
-            }
-        }
-    }
-
-    public DrinkWaterApplication getDrinkWaterApplication(){
-        BeanManager mgr = cdiContainer.getBeanManager();
-        DrinkWaterApplication dwapp =
-                (DrinkWaterApplication) mgr.getReference(
-                        mgr.resolve(mgr.getBeans(DrinkWaterApplication.class)),
-                        DrinkWaterApplication.class,
-                        mgr.createCreationalContext(null)
-                );
-
-        return dwapp;
-
-    }
-
 
     protected Main() {
         addOption(new Option("h", "help", "Displays the help screen") {
@@ -117,14 +75,25 @@ public class Main extends ServiceSupport{
         });
         addOption(new ParameterOption("e", "exitcode",
                 "Sets the exit code if duration was hit",
-                "exitcode")  {
+                "exitcode") {
             protected void doProcess(String arg, String parameter, LinkedList<String> remainingArgs) {
                 setDurationHitExitCode(Integer.parseInt(parameter));
             }
         });
     }
 
+    public DrinkWaterApplication getDrinkWaterApplication() {
+        BeanManager mgr = cdiContainer.getBeanManager();
+        DrinkWaterApplication dwapp =
+                (DrinkWaterApplication) mgr.getReference(
+                        mgr.resolve(mgr.getBeans(DrinkWaterApplication.class)),
+                        DrinkWaterApplication.class,
+                        mgr.createCreationalContext(null)
+                );
 
+        return dwapp;
+
+    }
 
     /**
      * Runs this process with the given arguments, and will wait until completed, or the JVM terminates.
@@ -147,8 +116,6 @@ public class Main extends ServiceSupport{
         }
     }
 
-
-
     /**
      * Disable the hangup support. No graceful stop by calling stop() on a
      * Hangup signal.
@@ -166,8 +133,6 @@ public class Main extends ServiceSupport{
     public void enableHangupSupport() {
         hangupInterceptorEnabled = true;
     }
-
-
 
     private void internalBeforeStart() {
         if (hangupInterceptorEnabled) {
@@ -271,15 +236,15 @@ public class Main extends ServiceSupport{
         this.timeUnit = timeUnit;
     }
 
+    public int getDurationHitExitCode() {
+        return durationHitExitCode;
+    }
+
     /**
      * Sets the exit code for the application if duration was hit
      */
     public void setDurationHitExitCode(int durationHitExitCode) {
         this.durationHitExitCode = durationHitExitCode;
-    }
-
-    public int getDurationHitExitCode() {
-        return durationHitExitCode;
     }
 
     public int getExitCode() {
@@ -298,7 +263,7 @@ public class Main extends ServiceSupport{
         // call completed to properly stop as we count down the waiting latch
         completed();
 
-        if(this.cdiContainer != null) {
+        if (this.cdiContainer != null) {
             this.cdiContainer.shutdown();
         }
 
@@ -346,8 +311,27 @@ public class Main extends ServiceSupport{
         System.out.println();
     }
 
+    /**
+     * A class for intercepting the hang up signal and do a graceful shutdown of the Camel.
+     */
+    private static final class HangupInterceptor extends Thread {
+        final Main mainInstance;
+        Logger log = Logger.getLogger(this.getClass().getName());
 
+        HangupInterceptor(Main main) {
+            mainInstance = main;
+        }
 
+        @Override
+        public void run() {
+            log.info("Received hang up - stopping the main instance.");
+            try {
+                mainInstance.stop();
+            } catch (Exception ex) {
+                log.severe("Error during stopping the main instance." + ex.getMessage());
+            }
+        }
+    }
 
     public abstract class Option {
         private String abbreviation;

@@ -1,10 +1,10 @@
 package drinkwater.examples.drinktracker.asbeanclass;
 
-import drinkwater.examples.drinktracker.model.*;
 import drinkwater.IServiceConfiguration;
 import drinkwater.InjectionStrategy;
 import drinkwater.ServiceConfiguration;
 import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.examples.drinktracker.model.*;
 
 import java.util.List;
 

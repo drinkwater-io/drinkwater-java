@@ -1,19 +1,22 @@
 package drinkwater.core;
 
-import drinkwater.*;
-import drinkwater.helper.reflect.ReflectHelper;
+import drinkwater.IServiceConfiguration;
+import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ServiceScheme;
 import drinkwater.core.helper.InternalServiceConfiguration;
-import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.helper.RouteBuilders;
+import drinkwater.core.reflect.BeanClassInvocationHandler;
+import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.RestInvocationHandler;
-import drinkwater.rest.RestServiceConfiguration;
+import drinkwater.rest.RestService;
 import javaslang.collection.List;
 import org.apache.camel.impl.DefaultCamelContext;
 
-//import javax.enterprise.inject.Vetoed;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+
+//import javax.enterprise.inject.Vetoed;
 
 /**
  * Created by A406775 on 27/12/2016.
@@ -28,7 +31,7 @@ public class DrinkWaterApplication {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
     }
 
-    RestServiceConfiguration restConfiguration = new RestServiceConfiguration();
+    RestService restConfiguration = new RestService();
 
     List<InternalServiceConfiguration> serviceConfigurations = List.empty();
 

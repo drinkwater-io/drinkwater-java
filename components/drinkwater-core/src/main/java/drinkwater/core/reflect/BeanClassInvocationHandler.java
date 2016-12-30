@@ -23,6 +23,16 @@ public class BeanClassInvocationHandler implements InvocationHandler {
         this.producerTemplate = context.createProducerTemplate();
     }
 
+    public static Map<String, Object> getMap(Object[] args) {
+
+        Map<String, Object> answer = new HashMap<>();
+
+        for (int i = 1; i < args.length; i++) {
+            answer.put("param" + i, args[i]);
+        }
+        return answer;
+    }
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result = null;
@@ -38,15 +48,5 @@ public class BeanClassInvocationHandler implements InvocationHandler {
         }
 
         return result;
-    }
-
-    public static Map<String, Object> getMap(Object[] args) {
-
-        Map<String, Object> answer = new HashMap<>();
-
-        for (int i = 1; i < args.length; i++) {
-            answer.put("param" + i, args[i]);
-        }
-        return answer;
     }
 }

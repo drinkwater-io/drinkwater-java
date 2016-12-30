@@ -45,10 +45,10 @@ public class RouteBuilders {
                 List<Method> methods = javaslang.collection.List.of(config.getServiceClass().getDeclaredMethods());
 
                 // create an instance of the bean
-                Object beanToUse = BeanFactory.createBean( app,  config);
+                Object beanToUse = BeanFactory.createBean(app, config);
 
                 for (Method m : methods) {
-                    if(Modifier.isPublic(m.getModifiers())) {
+                    if (Modifier.isPublic(m.getModifiers())) {
                         from("direct:" + formatBeanMethodRoute(m))
                                 .bean(beanToUse, formatBeanEndpointRoute(m), true);
                     }
@@ -57,7 +57,7 @@ public class RouteBuilders {
         };
     }
 
-    public static String formatBeanMethodRoute(Method m){
+    public static String formatBeanMethodRoute(Method m) {
         String answer = m.getName();
 
         Parameter[] params = m.getParameters();
@@ -68,19 +68,19 @@ public class RouteBuilders {
             paramList.add(param.getType().getName());
         }
 
-        answer =  answer + "(" + String.join(",", paramList) + ")";
+        answer = answer + "(" + String.join(",", paramList) + ")";
 
         return answer;
 
     }
 
-    public static String formatBeanEndpointRoute(Method m){
+    public static String formatBeanEndpointRoute(Method m) {
         String answer = m.getName();
 
         Parameter[] params = m.getParameters();
         java.util.List<String> paramList = new ArrayList<>();
 
-        if(params.length > 0){
+        if (params.length > 0) {
 
             paramList.add("${body}");
             for (int i = 1; i < params.length; i++) {
@@ -88,7 +88,7 @@ public class RouteBuilders {
             }
         }
 
-        answer =  answer + "(" + String.join(",", paramList) + ")";
+        answer = answer + "(" + String.join(",", paramList) + ")";
 
         return answer;
     }

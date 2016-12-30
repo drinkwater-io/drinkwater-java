@@ -22,49 +22,45 @@ public class HttpTestRequest {
 
     private HttpResponse<String> responseString;
 
-    public HttpTestRequest(HttpMethod method, String request, String body){
+    public HttpTestRequest(HttpMethod method, String request, String body) {
         this.request = request;
 
         try {
-            if(method == HttpMethod.GET) {
+            if (method == HttpMethod.GET) {
                 response = Unirest.get(request).asJson();
-            }
-            else if (method == HttpMethod.POST){
+            } else if (method == HttpMethod.POST) {
                 responseString = Unirest.post(request)
                         //.header("accept", "application/json")
                         .header("accept", "text/plain")
                         .header("Content-Type", "application/json")
                         .body(rs(body))
                         .asString();
-            }
-            else if (method == HttpMethod.PUT){
+            } else if (method == HttpMethod.PUT) {
                 response = Unirest.put(request)
                         .body(body)
                         .asJson();
             }
-        }
-        catch(Exception ex){
+        } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
 
     public HttpTestRequest expectsBody(String expected) throws UnirestException {
-        if(responseString != null){
+        if (responseString != null) {
             assertEquals(expected, responseString.getBody());
-        }
-        else {
+        } else {
             assertJsonEquals(rs(expected), response.getBody().toString(), when(Option.IGNORING_ARRAY_ORDER));
         }
         return this;
     }
 
     public HttpTestRequest expectsStatus(int statusCode) throws UnirestException {
-        assertEquals(response.getStatus() ,statusCode);
+        assertEquals(response.getStatus(), statusCode);
         return this;
     }
 
-    private String rs(String s){
-        String answer = s.replaceAll("'","\"");
+    private String rs(String s) {
+        String answer = s.replaceAll("'", "\"");
         return answer;
     }
 

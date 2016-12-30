@@ -6,12 +6,12 @@ package drinkwater.examples.drinktracker.model;
 public class DefaultWaterVolumeFormatter implements IWaterVolumeFormatter {
 
     @Override
-    public String formatVolume(String volume){
+    public String formatVolume(String volume) {
 
         //cpu time consumption
         consumeCpuFor(Constants.LATENCY);
 
-        if(volume == null){
+        if (volume == null) {
             return "0";
         }
 
@@ -19,7 +19,7 @@ public class DefaultWaterVolumeFormatter implements IWaterVolumeFormatter {
     }
 
     private void consumeCpuFor(int milliseconds) {
-        long sleepTime = milliseconds*1000000L; // convert to nanoseconds
+        long sleepTime = milliseconds * 1000000L; // convert to nanoseconds
         long startTime = System.nanoTime();
         while ((System.nanoTime() - startTime) < sleepTime) {
         }

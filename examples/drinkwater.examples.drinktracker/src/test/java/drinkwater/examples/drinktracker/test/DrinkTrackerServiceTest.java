@@ -1,7 +1,6 @@
 package drinkwater.examples.drinktracker.test;
 
 
-
 import drinkwater.examples.drinktracker.model.Account;
 import drinkwater.examples.drinktracker.model.AccountService;
 import drinkwater.examples.drinktracker.model.IAccountService;
@@ -15,8 +14,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit test for simple App.
  */
-public class DrinkTrackerServiceTest
-{
+public class DrinkTrackerServiceTest {
 
     @Test
     public void shouldCreateAccounts() throws Exception {
@@ -41,7 +39,7 @@ public class DrinkTrackerServiceTest
             Account acc = accountservice.createAccount("cedric", "secret");
             Account acc2 = accountservice.createAccount("cedric", "secret2");
             assertTrue(false);
-        }catch(Exception ex){
+        } catch (Exception ex) {
         }
 
         List<Account> accounts = accountservice.getAll();

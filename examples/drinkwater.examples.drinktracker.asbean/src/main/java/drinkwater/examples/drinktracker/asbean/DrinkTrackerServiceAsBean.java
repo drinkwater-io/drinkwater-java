@@ -1,17 +1,16 @@
 package drinkwater.examples.drinktracker.asbean;
 
-import drinkwater.examples.drinktracker.model.*;
 import drinkwater.IServiceConfiguration;
-import drinkwater.InjectionStrategy;
 import drinkwater.ServiceConfiguration;
 import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.examples.drinktracker.model.*;
 
 import java.util.List;
 
-public class DrinkTrackerServiceAsBean extends ServiceConfigurationBuilder{
+public class DrinkTrackerServiceAsBean extends ServiceConfigurationBuilder {
 
     @Override
-    public List<IServiceConfiguration> build(){
+    public List<IServiceConfiguration> build() {
 
         //create service using classes
         AccountService accountService = new AccountService();
@@ -19,7 +18,7 @@ public class DrinkTrackerServiceAsBean extends ServiceConfigurationBuilder{
         WaterVolumeFileRepository waterVolumeFileRepository = new WaterVolumeFileRepository("c:/temp");
         DrinkTrackerService drinkTrackerService = new DrinkTrackerService();
 
-        IServiceConfiguration iaccountService =ServiceConfiguration
+        IServiceConfiguration iaccountService = ServiceConfiguration
                 .forService(IAccountService.class)
                 .useBean(accountService);
 
@@ -27,11 +26,11 @@ public class DrinkTrackerServiceAsBean extends ServiceConfigurationBuilder{
                 .forService(IWaterVolumeRepository.class)
                 .useBean(waterVolumeFileRepository);
 
-        IServiceConfiguration ivolumeFormatter =ServiceConfiguration
+        IServiceConfiguration ivolumeFormatter = ServiceConfiguration
                 .forService(IWaterVolumeFormatter.class)
                 .useBean(waterVolumeFormatter);
 
-        IServiceConfiguration ivolumeService =ServiceConfiguration
+        IServiceConfiguration ivolumeService = ServiceConfiguration
                 .forService(IDrinkTrackerService.class)
                 .useBean(drinkTrackerService)
                 .dependsOn(iaccountService, ivolumeFormatter, ivolumeRepositoryService);

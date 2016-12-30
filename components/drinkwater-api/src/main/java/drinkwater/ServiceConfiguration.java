@@ -23,44 +23,45 @@ public class ServiceConfiguration implements IServiceConfiguration {
 
     private List<IServiceConfiguration> serviceDependencies = new ArrayList<>();
 
-    protected ServiceConfiguration(){}
+    protected ServiceConfiguration() {
+    }
 
-    public static ServiceConfiguration forService(Class serviceClass){
+    public static ServiceConfiguration forService(Class serviceClass) {
         ServiceConfiguration sc = new ServiceConfiguration();
         sc.serviceClass = serviceClass;
         return sc;
     }
 
-    public ServiceConfiguration withProperties(String propertyFile){
+    public ServiceConfiguration withProperties(String propertyFile) {
         this.properties = propertyFile;
         return this;
     }
 
-    public ServiceConfiguration useBeanClass(Class bean){
+    public ServiceConfiguration useBeanClass(Class bean) {
         this.targetBeanClass = bean;
         this.scheme = ServiceScheme.BeanClass;
         return this;
     }
 
-    public ServiceConfiguration useBean(Object bean){
+    public ServiceConfiguration useBean(Object bean) {
         this.targetBean = bean;
         this.scheme = ServiceScheme.BeanObject;
         return this;
     }
 
-    public ServiceConfiguration asRest(){
+    public ServiceConfiguration asRest() {
         this.scheme = ServiceScheme.Rest;
         return this;
     }
 
-    public IServiceConfiguration withInjectionStrategy(InjectionStrategy strategy){
+    public IServiceConfiguration withInjectionStrategy(InjectionStrategy strategy) {
         this.injectionStrategy = strategy;
         return this;
     }
 
-    public IServiceConfiguration dependsOn(IServiceConfiguration... configs){
+    public IServiceConfiguration dependsOn(IServiceConfiguration... configs) {
 
-        for (IServiceConfiguration conf:configs) {
+        for (IServiceConfiguration conf : configs) {
             this.serviceDependencies.add(conf);
         }
 

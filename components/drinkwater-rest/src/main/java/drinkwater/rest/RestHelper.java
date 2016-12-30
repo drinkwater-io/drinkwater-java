@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static drinkwater.helper.reflect.StringHelper.startsWithOneOf;
+
 /**
  * Created by A406775 on 30/12/2016.
  */
@@ -23,35 +25,30 @@ public class RestHelper {
     private static Map<HttpMethod, String[]> prefixesMap = new HashMap<>();
 
     //FIXME : get it from some config?
-    static{
-        prefixesMap.put(HttpMethod.GET, new String[]{"get","find", "check"});
-        prefixesMap.put(HttpMethod.POST, new String[]{"save","create", "set"});
+    static {
+        prefixesMap.put(HttpMethod.GET, new String[]{"get", "find", "check"});
+        prefixesMap.put(HttpMethod.POST, new String[]{"save", "create", "set"});
         prefixesMap.put(HttpMethod.DELETE, new String[]{"delete", "remove", "clear"});
     }
 
-    public static HttpMethod httpMethodFor(Method method){
+    public static HttpMethod httpMethodFor(Method method) {
         return List.ofAll(prefixesMap.entrySet())
                 .filter(prefix -> startsWithOneOf(method.getName(), prefix.getValue()))
                 .map(entryset -> entryset.getKey())
                 .getOrElse(HttpMethod.OPTIONS);
     }
 
-    private static boolean startsWithOneOf(String value, String[] prefixes){
-        return List.of(prefixes)
-                .filter(p -> value.toLowerCase().startsWith(p))
-                .length() > 0;
-    }
 
-    public static String restPathFor(Method method){
+    public static String restPathFor(Method method) {
         HttpMethod httpMethod = httpMethodFor(method);
 
         String restPath = restPath(method, httpMethod);
 
-        return  restPath;
+        return restPath;
     }
 
 
-    public static Tuple2<RestDefinition,String> buildRestRoute(RouteBuilder builder, Method method){
+    public static Tuple2<RestDefinition, String> buildRestRoute(RouteBuilder builder, Method method) {
 
         HttpMethod httpMethod = httpMethodFor(method);
 
@@ -66,14 +63,14 @@ public class RestHelper {
 
     }
 
-    public static void buildRestRoutes(RouteBuilder builder, Object bean){
+    public static void buildRestRoutes(RouteBuilder builder, Object bean) {
         javaslang.collection.List.of(ReflectHelper.getPublicDeclaredMethods(bean.getClass()))
                 .map(method -> buildRestRoute(builder, method))
                 .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2));
     }
 
-    private static String restPath(Method method, HttpMethod httpMethod){
-        if(httpMethod == HttpMethod.OPTIONS){
+    private static String restPath(Method method, HttpMethod httpMethod) {
+        if (httpMethod == HttpMethod.OPTIONS) {
             return "";
         }
         String fromPath = getPath(method);
@@ -114,8 +111,7 @@ public class RestHelper {
             answer = answer.delete(fromPath);
         } else if (httpMethod == HttpMethod.PATCH) {
             answer = answer.patch(fromPath);
-        }
-        else {
+        } else {
             throw new RuntimeException("method currently not supported in Rest Paths : " + httpMethod);
         }
 
@@ -149,13 +145,9 @@ public class RestHelper {
     }
 
     private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, String methodName) {
-
-
-        RouteDefinition def =  restDefinition.route();
+        RouteDefinition def = restDefinition.route();
 
         return def.bean(bean, methodName);
-
-
     }
 
 

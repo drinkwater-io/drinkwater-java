@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * Created by A406775 on 29/12/2016.
  */
-public class DrinkWaterApplicationBean  implements Bean<DrinkWaterApplication>{
+public class DrinkWaterApplicationBean implements Bean<DrinkWaterApplication> {
     @Override
     public Class<?> getBeanClass() {
         return DrinkWaterApplication.class;
@@ -49,7 +49,8 @@ public class DrinkWaterApplicationBean  implements Bean<DrinkWaterApplication>{
 
     @Override
     public Set<Annotation> getQualifiers() {
-        return Collections.singleton((Annotation) new AnnotationLiteral<Default>(){});
+        return Collections.singleton((Annotation) new AnnotationLiteral<Default>() {
+        });
     }
 
     @Override

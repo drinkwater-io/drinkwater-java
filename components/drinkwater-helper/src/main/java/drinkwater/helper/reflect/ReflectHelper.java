@@ -25,7 +25,7 @@ public final class ReflectHelper {
                 handler);
     }
 
-    public static Method[] getPublicDeclaredMethods(Class clazz){
+    public static Method[] getPublicDeclaredMethods(Class clazz) {
         return List.of(clazz.getDeclaredMethods())
                 .filter(m -> Modifier.isPublic(m.getModifiers()))
                 .toJavaArray(Method.class);

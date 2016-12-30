@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * Created by A406775 on 30/12/2016.
  */
-public class RestServiceConfiguration {
+public class RestService {
 
     public void start() {
         Unirest.setObjectMapper(new ObjectMapper() {
