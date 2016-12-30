@@ -23,6 +23,7 @@ public class RestInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+
         return Rest.invoke(proxy, method, args, resolver, config);
     }
 }

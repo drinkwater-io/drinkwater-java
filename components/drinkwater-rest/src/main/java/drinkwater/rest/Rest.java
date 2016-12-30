@@ -10,6 +10,7 @@ import drinkwater.IPropertyResolver;
 import drinkwater.IServiceConfiguration;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import static drinkwater.helper.StringHelper.trimEnclosingQuotes;
 import static drinkwater.helper.reflect.ReflectHelper.isPrimitiveOrString;
@@ -50,21 +51,59 @@ public final class Rest {
 
     public static Object get(String endpoint, Method method, Object[] args) throws UnirestException {
 
-        MethodToRestParameters params = new MethodToRestParameters(method);
-
         HttpRequest request = Unirest.get(endpoint + "/" + restPathFor(method));
+
+        MethodToRestParameters params = new MethodToRestParameters(method);
 
         request = setAcceptHeader(method, request);
 
-        if (params.hasHeaders()) {
-            int i = 0;
-            for (String header : params.getHeaders()) {
-                request = request.queryString(header, args[i]);
-                i++;
-            }
-        }
+        request = request.header("Content-Type", "application/json");
+
+        request = buildQueryStringFromHeaders(params.getHeaders(), args, 0, request);
 
         return executeRequest(method, request);
+    }
+
+    public static Object post(String endpoint, Method method, Object[] args) throws UnirestException {
+
+        HttpRequestWithBody request = Unirest.post(endpoint + "/" + restPathFor(method));
+
+        MethodToRestParameters params = new MethodToRestParameters(method);
+
+        request = (HttpRequestWithBody) setAcceptHeader(method, request);
+
+        request = (HttpRequestWithBody) buildQueryStringFromHeaders(params.getHeaders(), args, 1, request);
+
+        //execute request
+        if (params.hasBody()) {
+            request = request.header("Content-Type", "application/json");
+            RequestBodyEntity entity = request.body(args[0]);
+            HttpResponse resp = entity.asObject(returnTypeof(method));
+            return extractBody(method, resp);
+        } else {
+            return executeRequest(method, request); //request.body("").asObject(returnTypeof(method));
+        }
+    }
+
+    public static Object delete(String endpoint, Method method, Object[] args) throws UnirestException {
+
+        HttpRequestWithBody request = Unirest.delete(endpoint + "/" + restPathFor(method));
+
+        MethodToRestParameters params = new MethodToRestParameters(method);
+
+        request = (HttpRequestWithBody) setAcceptHeader(method, request);
+
+        request = (HttpRequestWithBody) buildQueryStringFromHeaders(params.getHeaders(), args, 1, request);
+
+        //execute request
+        if (params.hasBody()) {
+            request = request.header("Content-Type", "application/json");
+            RequestBodyEntity entity = request.body(args[0]);
+            HttpResponse resp = entity.asObject(returnTypeof(method));
+            return extractBody(method, resp);
+        } else {
+            return executeRequest(method, request); //request.body("").asObject(returnTypeof(method));
+        }
     }
 
 
@@ -101,62 +140,27 @@ public final class Rest {
         return extractBody(method, response);
     }
 
-    public static Object post(String endpoint, Method method, Object[] args) throws UnirestException {
 
-        MethodToRestParameters params = new MethodToRestParameters(method);
-
-        HttpRequestWithBody request = Unirest.post(endpoint + "/" + restPathFor(method));
-
-        request = (HttpRequestWithBody) setAcceptHeader(method, request);
-
-        HttpResponse<Object> result;
-
-        if (params.hasHeaders()) {
-            int i = 1;
-            for (String header : params.getHeaders()) {
-                request = request.queryString(header, args[i]);
+    private static HttpRequest buildQueryStringFromHeaders(
+            List<String> headers,
+            Object[] args,
+            int startAt,
+            HttpRequest request) {
+        if (headers.size() > 0) {
+            int i = startAt;
+            for (String header : headers) {
+                String headerValue;
+                if (!isPrimitiveOrString(args[i].getClass())) {
+                    headerValue = new JacksonObjectMapper().writeValue(args[i]);
+                } else {
+                    headerValue = args[i].toString();
+                }
+                request = request.queryString(header, headerValue);
                 i++;
             }
         }
-
-        //execute request
-        if (params.hasBody()) {
-            request = request.header("Content-Type", "application/json");
-            RequestBodyEntity entity = request.body(args[0]);
-            HttpResponse resp = entity.asObject(returnTypeof(method));
-            return extractBody(method, resp);
-        } else {
-            return executeRequest(method, request); //request.body("").asObject(returnTypeof(method));
-        }
+        return request;
     }
 
-    public static Object delete(String endpoint, Method method, Object[] args) throws UnirestException {
-
-        MethodToRestParameters params = new MethodToRestParameters(method);
-
-        HttpRequestWithBody request = Unirest.delete(endpoint + "/" + restPathFor(method));
-
-        request = (HttpRequestWithBody) setAcceptHeader(method, request);
-
-        HttpResponse<Object> result;
-
-        if (params.hasHeaders()) {
-            int i = 1;
-            for (String header : params.getHeaders()) {
-                request = request.queryString(header, args[i]);
-                i++;
-            }
-        }
-
-        //execute request
-        if (params.hasBody()) {
-            request = request.header("Content-Type", "application/json");
-            RequestBodyEntity entity = request.body(args[0]);
-            HttpResponse resp = entity.asObject(returnTypeof(method));
-            return extractBody(method, resp);
-        } else {
-            return executeRequest(method, request); //request.body("").asObject(returnTypeof(method));
-        }
-    }
 
 }

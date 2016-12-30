@@ -3,6 +3,9 @@ package drinkwater.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mashape.unirest.http.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
+import org.apache.camel.Exchange;
+import org.apache.camel.FallbackConverter;
+import org.apache.camel.spi.TypeConverterRegistry;
 
 import java.io.IOException;
 
@@ -16,29 +19,7 @@ public class RestService {
     public static final String REST_CONTEXT_KEY = "drinkwater.rest.contextpath";
 
     public void start() {
-        Unirest.setObjectMapper(new ObjectMapper() {
-            private com.fasterxml.jackson.databind.ObjectMapper jacksonObjectMapper
-                    = new com.fasterxml.jackson.databind.ObjectMapper();
-
-            public <T> T readValue(String value, Class<T> valueType) {
-                try {
-                    if (valueType.equals(Void.TYPE)) {
-                        return null;
-                    }
-                    return jacksonObjectMapper.readValue(value, valueType);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            public String writeValue(Object value) {
-                try {
-                    return jacksonObjectMapper.writeValueAsString(value);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
+        Unirest.setObjectMapper(new JacksonObjectMapper());
     }
 
     public void stop() {
@@ -48,6 +29,8 @@ public class RestService {
             throw new RuntimeException(e);
         }
     }
+
+
 
 
 }

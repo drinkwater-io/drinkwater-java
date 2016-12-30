@@ -10,6 +10,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -43,7 +45,6 @@ public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
         accountService.clearAccounts();
     }
 
-    //
     @Test
     public void shouldSaveNumberThroughRestWithServiceReference() throws Exception {
         IAccountService accountService = app.getService(IAccountService.class);
@@ -58,5 +59,15 @@ public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
         accountService.clearAccounts();
     }
 
+    @Test
+    public void shouldTestGetWithObject() throws Exception {
+        Account account = Account.from("1", "cedric", "secret", true);
+
+        IDrinkTrackerService drinkTracker = app.getService(IDrinkTrackerService.class);
+
+        List<String> volumes= drinkTracker.getVolumes(account);
+
+        assertEquals(0, volumes.size());
+    }
 
 }

@@ -5,6 +5,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,7 +48,7 @@ public class WaterVolumeFileRepository implements IWaterVolumeRepository {
 
     public synchronized List<String> getVolumes(Account account) {
 
-        List<String> lines = null;
+        List<String> lines = new ArrayList<>(0);
 
         try {
             lines =

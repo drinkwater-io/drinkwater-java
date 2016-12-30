@@ -44,4 +44,13 @@ public class Account {
     public void setAuthenticated(boolean authenticated) {
         isAuthenticated = authenticated;
     }
+
+    public static Account from(String accountId, String accountName, String accountPassword, boolean isAuthenticated) {
+        Account acc = new Account();
+        acc.accountName = accountName;
+        acc.isAuthenticated = isAuthenticated;
+        acc.accountPassword = accountPassword;
+        acc.acountId = accountId;
+        return acc;
+    }
 }

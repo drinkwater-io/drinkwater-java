@@ -3,6 +3,7 @@ package test.drinkwater.examples.drinktracker.benchmark;
 import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.core.DrinkWaterApplication;
 import examples.drinkwater.drinktracker.asbeanclass.DrinkTrackerServiceAsBeanClass;
+import examples.drinkwater.drinktracker.asrest.DrinkTrackerServicesAsRest;
 import examples.drinkwater.drinktracker.model.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -22,8 +23,8 @@ public class SimpleBenchMark {
 
         long timeWithoutDW = benchMarkWithoutDW();
         long timeAsBeanClass = benchMarkThisConfig(new DrinkTrackerServiceAsBeanClass());
-        long timeAsRest = 0;
-        //long timeAsRest = benchMarkThisConfig(new DrinkTrackerServicesAsRest());
+//        long timeAsRest = 0;
+        long timeAsRest = benchMarkThisConfig(new DrinkTrackerServicesAsRest());
 
         printReport(timeWithoutDW, timeAsBeanClass, timeAsRest);
 
