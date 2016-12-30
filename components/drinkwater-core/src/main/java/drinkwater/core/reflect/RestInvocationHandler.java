@@ -1,7 +1,10 @@
 package drinkwater.core.reflect;
 
+import com.mashape.unirest.http.Unirest;
 import drinkwater.core.helper.RouteBuilders;
+import drinkwater.core.rest.RestRouteBuilderHelper;
 import org.apache.camel.ProducerTemplate;
+import org.apache.commons.lang3.ClassUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -24,17 +27,35 @@ public class RestInvocationHandler implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result = null;
 
-        String route = "direct:" + RouteBuilders.formatBeanMethodRoute(method);
 
-        if (args == null || args.length == 0) {
-            result = producerTemplate.requestBody(route, (Object) null);
-        } else if (args.length == 1) {
-            result = producerTemplate.requestBody(route, args[0]);
-        } else {
-            result = producerTemplate.requestBodyAndHeaders(route, args[0], getMap(args));
-        }
+        String restPath = RestRouteBuilderHelper.restPathFor(method);
+//
+//        Class returnType = method.getReturnType();
+//
+//        boolean isPrimitiveOrWrapped =
+//                ClassUtils.isPrimitiveOrWrapper(returnType);
+//
+//        if(isPrimitiveOrWrapped) {
+//            Unirest.get("http://localhost:8889/idrinktrackerservice/" + restPath).asJ;
+//        }
 
-        return result;
+        String endoint = "restlet:http://localhost:8889/idrinktrackerservice/" + restPath + "?restletMethod=POST";
+
+        producerTemplate.setDefaultEndpointUri(endoint);
+
+//        Object obj = producerTemplate.requestBodyAndHeader(endoint, null, "CamelHttpQuery" , "volume=10");
+        Object obj = producerTemplate.requestBodyAndHeader(endoint, args[0], "volume" , args[1]);
+
+
+//        if (args == null || args.length == 0) {
+//            result = producerTemplate.requestBody(route, (Object) null);
+//        } else if (args.length == 1) {
+//            result = producerTemplate.requestBody(route, args[0]);
+//        } else {
+//            result = producerTemplate.requestBodyAndHeaders(route, args[0], getMap(args));
+//        }
+
+        return obj;
     }
 
     public static Map<String, Object> getMap(Object[] args) {

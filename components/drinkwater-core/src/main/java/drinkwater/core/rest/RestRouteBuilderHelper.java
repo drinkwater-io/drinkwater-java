@@ -6,6 +6,7 @@ import javaslang.Tuple2;
 import javaslang.collection.List;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.http.common.HttpMethods;
+import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.rest.RestDefinition;
 
@@ -26,7 +27,8 @@ public class RestRouteBuilderHelper {
     //FIXME : get it from some config?
     static{
         prefixesMap.put(HttpMethods.GET, new String[]{"get","find", "check"});
-        prefixesMap.put(HttpMethods.POST, new String[]{"save","create", "set", "clear"});
+        prefixesMap.put(HttpMethods.POST, new String[]{"save","create", "set"});
+        prefixesMap.put(HttpMethods.DELETE, new String[]{"delete", "remove", "clear"});
     }
 
     public static HttpMethods getCorrespondingHttpMethod(String methodName){
@@ -42,12 +44,20 @@ public class RestRouteBuilderHelper {
                 .length() > 0;
     }
 
+    public static String restPathFor(Method method){
+        HttpMethods httpMethod = getCorrespondingHttpMethod(method.getName());
+
+        String restPath = restPath(method, httpMethod);
+
+        return  restPath;
+    }
+
 
     public static Tuple2<RestDefinition,String> buildRestRoute(RouteBuilder builder, Method method){
 
         HttpMethods httpMethod = getCorrespondingHttpMethod(method.getName());
 
-        String restPath = restPath(method, httpMethod);
+        String restPath = restPathFor(method);
 
         RestDefinition restDefinition =
                 toRestdefinition(builder, method, httpMethod, restPath);
@@ -63,32 +73,6 @@ public class RestRouteBuilderHelper {
                 .map(method -> buildRestRoute(builder, method))
                 .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2));
     }
-
-//    public static void buildRestRouteMappings(
-//            RouteBuilder builder,
-//            Object bean,
-//            HttpMethods httpMethod,
-//            String methodPrefixes) {
-//
-//        javaslang.collection.List.of(bean.getClass().getDeclaredMethods())
-//                .filter(method -> filterOnPrefixes(method, methodPrefixes))
-//                .map(filteredMethod -> Tuple.of(
-//                        toRestdefinition(builder, filteredMethod, httpMethod,
-//                                restPath(filteredMethod, httpMethod)),
-//                        filteredMethod))
-//                .map((t) -> Tuple.of(t._1, camelMethodBuilder(t._2, httpMethod)))
-//                .map((t2) -> routeToBeanMethod(t2._1, bean, t2._2));
-//
-//    }
-
-//    private static boolean filterOnPrefixes(Method m, String prefixes) {
-//
-//        return List.of(
-//                prefixes.toLowerCase().split(","))
-//                .filter(prefix -> m.getName().toLowerCase().startsWith(prefix))
-//                .length() > 0;
-//
-//    }
 
     private static String restPath(Method method, HttpMethods httpMethod){
         if(httpMethod == HttpMethods.OPTIONS){
@@ -167,7 +151,13 @@ public class RestRouteBuilderHelper {
     }
 
     private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, String methodName) {
-        return restDefinition.route().bean(bean, methodName);
+
+
+        RouteDefinition def =  restDefinition.route();
+
+                return def.bean(bean, methodName);
+
+
     }
 
 
