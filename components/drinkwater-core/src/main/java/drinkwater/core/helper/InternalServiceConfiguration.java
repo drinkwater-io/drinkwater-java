@@ -35,6 +35,11 @@ public class InternalServiceConfiguration implements IServiceConfiguration {
     }
 
     @Override
+    public Object getTargetBean() {
+        return serviceConfiguration.getTargetBean();
+    }
+
+    @Override
     public String getProperties() {
         return serviceConfiguration.getProperties();
     }

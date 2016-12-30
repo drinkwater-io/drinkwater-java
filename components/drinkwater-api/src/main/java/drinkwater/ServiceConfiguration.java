@@ -106,4 +106,8 @@ public class ServiceConfiguration implements IServiceConfiguration {
         return serviceDependencies;
     }
 
+    @Override
+    public Object getTargetBean() {
+        return targetBean;
+    }
 }

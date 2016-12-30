@@ -2,6 +2,7 @@ package test.drinkwater.examples.drinktracker.benchmark;
 
 import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.core.DrinkWaterApplication;
+import examples.drinkwater.drinktracker.asbean.DrinkTrackerServiceAsBean;
 import examples.drinkwater.drinktracker.asbeanclass.DrinkTrackerServiceAsBeanClass;
 import examples.drinkwater.drinktracker.asrest.DrinkTrackerServicesAsRest;
 import examples.drinkwater.drinktracker.model.*;
@@ -10,6 +11,8 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by A406775 on 28/12/2016.
@@ -21,15 +24,20 @@ public class SimpleBenchMark {
     @Test
     public void performBenchMark() throws Exception {
 
-        long timeWithoutDW = benchMarkWithoutDW();
-        long timeAsBeanClass = benchMarkThisConfig(new DrinkTrackerServiceAsBeanClass());
-//        long timeAsRest = 0;
+        //will burn the vm
         long timeAsRest = benchMarkThisConfig(new DrinkTrackerServicesAsRest());
 
-        printReport(timeWithoutDW, timeAsBeanClass, timeAsRest);
+        //will run faster placed here
+        long timeAsBeanObject = benchMarkThisConfig(new DrinkTrackerServiceAsBean());
+        long timeAsBeanClass = benchMarkThisConfig(new DrinkTrackerServiceAsBeanClass());
+
+        //should always be faster
+        long timeWithoutDW = benchMarkWithoutDW();
+
+        printReport(timeWithoutDW, timeAsBeanObject, timeAsBeanClass, timeAsRest);
 
         //just to be green
-        Assert.assertTrue(true);
+        assertTrue(true);
     }
 
     private long benchMarkWithoutDW() throws Exception {
@@ -63,7 +71,8 @@ public class SimpleBenchMark {
 
     }
 
-    private void printReport(long timeWithoutDW, long timeAsBeanClass, long timeAsRest) {
+    private void printReport(long timeWithoutDW, long timeAsBeanObject, long timeAsBeanClass, long timeAsRest) {
+        long diff_with_bean_object = timeAsBeanObject - timeWithoutDW;
         long diff_with_bean_class = timeAsBeanClass - timeWithoutDW;
         long diff_with_rest = timeAsRest - timeWithoutDW;
 
@@ -71,9 +80,11 @@ public class SimpleBenchMark {
         System.out.println("---------------------------------------------------");
         System.out.println("");
         System.out.println("test with DIRECT_OBJECT took            :  " + TimeUnit.NANOSECONDS.toMillis(timeWithoutDW) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(timeWithoutDW) + " sec)");
+        System.out.println("test with BEANOBJECT took               :  " + TimeUnit.NANOSECONDS.toMillis(timeAsBeanObject) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(timeAsBeanObject) + " sec)");
         System.out.println("test with BEANCLASS took                :  " + TimeUnit.NANOSECONDS.toMillis(timeAsBeanClass) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(timeAsBeanClass) + " sec)");
         System.out.println("test with REST took                     :  " + TimeUnit.NANOSECONDS.toMillis(timeAsRest) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(timeAsRest) + " sec)");
         System.out.println("");
+        System.out.println("test with BEANOBJECT  was slower  by    :  " + TimeUnit.NANOSECONDS.toMillis(diff_with_bean_object) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(diff_with_bean_object) + " sec)");
         System.out.println("test with BEANCLASS  was slower  by     :  " + TimeUnit.NANOSECONDS.toMillis(diff_with_bean_class) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(diff_with_bean_class) + " sec)");
         System.out.println("test with RESTCLASS was slower   by     :  " + TimeUnit.NANOSECONDS.toMillis(diff_with_rest) + " millis (" + TimeUnit.NANOSECONDS.toSeconds(diff_with_rest) + " sec)");
         System.out.println("");
@@ -100,6 +111,8 @@ public class SimpleBenchMark {
             //delete file and logoff
             numberService.clearVolumes(acc);
             accountService.logoff(acc);
+
+            assertTrue(true);
         }
 
         accountService.clearAccounts();

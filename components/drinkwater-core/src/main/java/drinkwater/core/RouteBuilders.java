@@ -5,6 +5,7 @@ import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.InternalServiceConfiguration;
 import drinkwater.rest.RestHelper;
 import javaslang.collection.List;
+import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
 
 import java.lang.reflect.Method;
@@ -17,13 +18,33 @@ import java.util.ArrayList;
  */
 public class RouteBuilders {
 
+    public static RoutesBuilder mapBeanRoutes(DrinkWaterApplication drinkWaterApplication,
+                                              InternalServiceConfiguration config) {
+        return new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                List<Method> methods = javaslang.collection.List.of(config.getServiceClass().getDeclaredMethods());
+
+                // create an instance of the bean
+                Object beanToUse = config.getTargetBean();
+
+                for (Method m : methods) {
+                    if (Modifier.isPublic(m.getModifiers())) {
+                        from("direct:" + formatBeanMethodRoute(m))
+                                .bean(beanToUse, formatBeanEndpointRoute(m), true);
+                    }
+                }
+            }
+        };
+    }
+
     public static RouteBuilder mapRestRoutes(DrinkWaterApplication app, InternalServiceConfiguration config) {
 
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
 
-                Object bean = BeanFactory.createBean(app, config);
+                Object bean = BeanFactory.createBeanClass(app, config);
 
                 RestHelper.buildRestRoutes(this, bean, new DefaultPropertyResolver(config), config);
 
@@ -40,7 +61,7 @@ public class RouteBuilders {
                 List<Method> methods = javaslang.collection.List.of(config.getServiceClass().getDeclaredMethods());
 
                 // create an instance of the bean
-                Object beanToUse = BeanFactory.createBean(app, config);
+                Object beanToUse = BeanFactory.createBeanClass(app, config);
 
                 for (Method m : methods) {
                     if (Modifier.isPublic(m.getModifiers())) {
@@ -87,4 +108,6 @@ public class RouteBuilders {
 
         return answer;
     }
+
+
 }
