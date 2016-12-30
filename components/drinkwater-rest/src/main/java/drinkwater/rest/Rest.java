@@ -4,6 +4,7 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import drinkwater.IPropertyResolver;
+import drinkwater.IServiceConfiguration;
 
 import java.lang.reflect.Method;
 
@@ -14,11 +15,11 @@ import static drinkwater.rest.RestHelper.*;
  */
 public final class Rest {
 
-    public static Object invoke(Object obj, Method method, Object[] args, IPropertyResolver resolver) {
+    public static Object invoke(Object obj, Method method, Object[] args, IPropertyResolver resolver, IServiceConfiguration config) {
         Object result = null;
 
         try {
-            String endpoint = "http://" + host(resolver) + ":" + port(resolver) + "/" + context(resolver);
+            String endpoint = "http://" + host(resolver) + ":" + port(resolver) + "/" + context(resolver, config);
 
             switch (httpMethodFor(method)) {
                 case GET:

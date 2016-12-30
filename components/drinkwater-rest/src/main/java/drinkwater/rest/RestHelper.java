@@ -2,6 +2,7 @@ package drinkwater.rest;
 
 import com.mashape.unirest.http.HttpMethod;
 import drinkwater.IPropertyResolver;
+import drinkwater.IServiceConfiguration;
 import drinkwater.helper.reflect.ReflectHelper;
 import javaslang.Tuple;
 import javaslang.Tuple2;
@@ -73,17 +74,17 @@ public class RestHelper {
         return propertiesResolver.lookupProperty(RestService.REST_PORT_KEY + ":8889");
     }
 
-    public static String context(IPropertyResolver propertiesResolver) throws Exception {
-        return propertiesResolver.lookupProperty(RestService.REST_CONTEXT_KEY + ":");
+    public static String context(IPropertyResolver propertiesResolver, IServiceConfiguration config) throws Exception {
+        return propertiesResolver.lookupProperty(RestService.REST_CONTEXT_KEY + ":" + config.getServiceClass().getName().toLowerCase());
     }
 
-    public static void buildRestRoutes(RouteBuilder builder, Object bean, IPropertyResolver propertiesResolver) {
+    public static void buildRestRoutes(RouteBuilder builder, Object bean, IPropertyResolver propertiesResolver, IServiceConfiguration config) {
 
         try {
             builder.restConfiguration().component("jetty")
                     .host(host(propertiesResolver))
                     .port(port(propertiesResolver))
-                    .contextPath(context(propertiesResolver))
+                    .contextPath(context(propertiesResolver, config))
                     .bindingMode(RestBindingMode.json);
         } catch (Exception ex) {
             throw new RuntimeException("could not configure the rest service correctly", ex);

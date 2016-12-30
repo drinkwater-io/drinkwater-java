@@ -17,7 +17,7 @@ import static org.junit.Assert.assertEquals;
  */
 public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
     static DrinkWaterApplication app;
-    static String apiEnpoint = "http://localhost:8889";
+    static String apiEnpoint = "http://localhost:8889/examples.drinkwater.drinktracker.model.idrinktrackerservice";
 
     @BeforeClass
     public static void setup() throws Exception {

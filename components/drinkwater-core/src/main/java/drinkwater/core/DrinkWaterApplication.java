@@ -5,7 +5,6 @@ import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.ServiceScheme;
 import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.InternalServiceConfiguration;
-import drinkwater.core.helper.RouteBuilders;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.RestInvocationHandler;
@@ -88,7 +87,7 @@ public class DrinkWaterApplication {
                 ctx.addRoutes(RouteBuilders.mapRestRoutes(this, config));
                 serviceProxies.put(config.getServiceClass(),
                         ReflectHelper.simpleProxy(config.getServiceClass(),
-                                new RestInvocationHandler(new DefaultPropertyResolver(config))));
+                                new RestInvocationHandler(new DefaultPropertyResolver(config), config)));
             }
 
             serviceConfigurations = serviceConfigurations.append(config);

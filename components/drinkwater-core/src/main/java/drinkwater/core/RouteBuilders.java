@@ -1,6 +1,9 @@
-package drinkwater.core.helper;
+package drinkwater.core;
 
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.core.helper.BeanFactory;
+import drinkwater.core.helper.DefaultPropertyResolver;
+import drinkwater.core.helper.InternalServiceConfiguration;
 import drinkwater.rest.RestHelper;
 import javaslang.collection.List;
 import org.apache.camel.builder.RouteBuilder;
@@ -23,7 +26,7 @@ public class RouteBuilders {
 
                 Object bean = BeanFactory.createBean(app, config);
 
-                RestHelper.buildRestRoutes(this, bean, new DefaultPropertyResolver(config));
+                RestHelper.buildRestRoutes(this, bean, new DefaultPropertyResolver(config), config);
 
             }
         };
