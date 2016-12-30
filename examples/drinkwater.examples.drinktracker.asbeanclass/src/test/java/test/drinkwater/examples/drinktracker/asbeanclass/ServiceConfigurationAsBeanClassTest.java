@@ -2,7 +2,7 @@ package test.drinkwater.examples.drinktracker.asbeanclass;
 
 
 import drinkwater.core.DrinkWaterApplication;
-import examples.drinkwater.drinktracker.asbeanclass.DrinkTrackerServiceAsBeanClass;
+import examples.drinkwater.drinktracker.asbeanclass.ServiceConfigurationAsBeanClass;
 import examples.drinkwater.drinktracker.model.Account;
 import examples.drinkwater.drinktracker.model.IAccountService;
 import examples.drinkwater.drinktracker.model.IWaterVolumeFormatter;
@@ -15,13 +15,13 @@ import static org.junit.Assert.*;
 /**
  * Unit test for simple App.
  */
-public class DrinkTrackerServiceAsBeanClassTest {
+public class ServiceConfigurationAsBeanClassTest {
     static DrinkWaterApplication app;
 
     @BeforeClass
     public static void setup() throws Exception {
         app = new DrinkWaterApplication();
-        app.addServiceBuilder(new DrinkTrackerServiceAsBeanClass());
+        app.addServiceBuilder(new ServiceConfigurationAsBeanClass());
         app.start();
     }
 

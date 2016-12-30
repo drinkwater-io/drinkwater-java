@@ -2,7 +2,7 @@ package test.drinkwater.examples.drinktracker.asrest;
 
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.test.HttpUnitTest;
-import examples.drinkwater.drinktracker.asrest.DrinkTrackerServicesAsRest;
+import examples.drinkwater.drinktracker.asrest.ServiceConfigurationAsRest;
 import examples.drinkwater.drinktracker.model.Account;
 import examples.drinkwater.drinktracker.model.IAccountService;
 import examples.drinkwater.drinktracker.model.IDrinkTrackerService;
@@ -18,14 +18,14 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit test for simple App.
  */
-public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
+public class ServiceConfigurationAsRestTest extends HttpUnitTest {
     static DrinkWaterApplication app;
     static String apiEnpoint = "http://localhost:8889/examples.drinkwater.drinktracker.model.idrinktrackerservice";
 
     @BeforeClass
     public static void setup() throws Exception {
         app = new DrinkWaterApplication();
-        app.addServiceBuilder(new DrinkTrackerServicesAsRest());
+        app.addServiceBuilder(new ServiceConfigurationAsRest());
         app.start();
     }
 

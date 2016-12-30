@@ -2,9 +2,9 @@ package test.drinkwater.examples.drinktracker.benchmark;
 
 import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.core.DrinkWaterApplication;
-import examples.drinkwater.drinktracker.asbean.DrinkTrackerServiceAsBean;
-import examples.drinkwater.drinktracker.asbeanclass.DrinkTrackerServiceAsBeanClass;
-import examples.drinkwater.drinktracker.asrest.DrinkTrackerServicesAsRest;
+import examples.drinkwater.drinktracker.asbean.ServiceConfigurationAsBeanObject;
+import examples.drinkwater.drinktracker.asbeanclass.ServiceConfigurationAsBeanClass;
+import examples.drinkwater.drinktracker.asrest.ServiceConfigurationAsRest;
 import examples.drinkwater.drinktracker.model.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,11 +25,11 @@ public class SimpleBenchMark {
     public void performBenchMark() throws Exception {
 
         //will burn the vm
-        long timeAsRest = benchMarkThisConfig(new DrinkTrackerServicesAsRest());
+        long timeAsRest = benchMarkThisConfig(new ServiceConfigurationAsRest());
 
         //will run faster placed here
-        long timeAsBeanObject = benchMarkThisConfig(new DrinkTrackerServiceAsBean());
-        long timeAsBeanClass = benchMarkThisConfig(new DrinkTrackerServiceAsBeanClass());
+        long timeAsBeanObject = benchMarkThisConfig(new ServiceConfigurationAsBeanObject());
+        long timeAsBeanClass = benchMarkThisConfig(new ServiceConfigurationAsBeanClass());
 
         //should always be faster
         long timeWithoutDW = benchMarkWithoutDW();

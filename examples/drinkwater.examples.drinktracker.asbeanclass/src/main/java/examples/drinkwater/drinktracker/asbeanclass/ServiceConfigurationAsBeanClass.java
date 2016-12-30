@@ -9,7 +9,7 @@ import examples.drinkwater.drinktracker.model.IWaterVolumeRepository;
 
 import java.util.List;
 
-public class DrinkTrackerServiceAsBeanClass extends ServiceConfigurationBuilder {
+public class ServiceConfigurationAsBeanClass extends ServiceConfigurationBuilder {
     @Override
     public List<IServiceConfiguration> build() {
 
