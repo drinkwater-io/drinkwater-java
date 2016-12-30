@@ -30,5 +30,6 @@
     <module>drinkwater-cdi</module>
     <module>drinkwater-rest</module>
     <module>drinkwater-helper</module>
+    <module>drinkwater-api</module>
   </modules>
 </project>

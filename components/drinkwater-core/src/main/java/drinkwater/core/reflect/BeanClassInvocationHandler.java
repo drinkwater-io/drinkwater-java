@@ -1,6 +1,7 @@
 package drinkwater.core.reflect;
 
 import drinkwater.core.helper.RouteBuilders;
+import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 
 import java.lang.reflect.InvocationHandler;
@@ -15,8 +16,11 @@ public class BeanClassInvocationHandler implements InvocationHandler {
 
     private final ProducerTemplate producerTemplate;
 
-    public BeanClassInvocationHandler(ProducerTemplate template) {
-        this.producerTemplate = template;
+    private final CamelContext context;
+
+    public BeanClassInvocationHandler(CamelContext context) {
+        this.context = context;
+        this.producerTemplate = context.createProducerTemplate();
     }
 
     @Override
