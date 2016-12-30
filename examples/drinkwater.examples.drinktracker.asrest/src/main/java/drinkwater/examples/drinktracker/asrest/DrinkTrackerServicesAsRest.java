@@ -1,15 +1,18 @@
 package drinkwater.examples.drinktracker.asrest;
 
-import drinkwater.core.*;
+import drinkwater.IServiceConfiguration;
+import drinkwater.InjectionStrategy;
+import drinkwater.ServiceConfiguration;
+import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.examples.drinktracker.model.*;
 
 import java.util.List;
 
-public class DrinkTrackerServicesAsRest extends ServiceConfigurationBuilder{
+public class DrinkTrackerServicesAsRest extends ServiceConfigurationBuilder {
     @Override
     public List<IServiceConfiguration> build(){
 
-        IServiceConfiguration drinktrackerRepositoryService =ServiceConfiguration
+        IServiceConfiguration drinktrackerRepositoryService = ServiceConfiguration
                 .forService(IWaterVolumeRepository.class)
                 .withProperties("classpath:drinktracker.properties")
                 .useBeanClass(WaterVolumeFileRepository.class)

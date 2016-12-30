@@ -1,6 +1,5 @@
-package drinkwater.core;
+package drinkwater;
 
-import org.apache.camel.component.properties.PropertiesComponent;
 
 import java.util.ArrayList;
 import java.util.List;

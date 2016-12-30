@@ -1,9 +1,8 @@
 package drinkwater.core.helper;
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.core.IServiceConfiguration;
-import drinkwater.core.InjectionStrategy;
-import org.apache.camel.component.properties.PropertiesComponent;
+import drinkwater.IServiceConfiguration;
+import drinkwater.InjectionStrategy;
 
 import java.lang.reflect.Field;
 

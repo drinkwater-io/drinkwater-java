@@ -1,8 +1,8 @@
 package drinkwater.core.helper;
 
-import drinkwater.core.IServiceConfiguration;
-import drinkwater.core.InjectionStrategy;
-import drinkwater.core.ServiceScheme;
+import drinkwater.IServiceConfiguration;
+import drinkwater.InjectionStrategy;
+import drinkwater.ServiceScheme;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.properties.PropertiesComponent;
 

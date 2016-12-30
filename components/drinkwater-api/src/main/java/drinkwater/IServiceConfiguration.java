@@ -1,4 +1,4 @@
-package drinkwater.core;
+package drinkwater;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
 package drinkwater.cdi;
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.core.ServiceConfigurationBuilder;
+import drinkwater.ServiceConfigurationBuilder;
 
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.spi.*;
