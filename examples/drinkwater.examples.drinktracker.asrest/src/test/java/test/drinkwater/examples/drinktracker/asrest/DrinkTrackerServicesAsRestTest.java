@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test for simple App.
@@ -68,6 +69,18 @@ public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
         List<String> volumes= drinkTracker.getVolumes(account);
 
         assertEquals(0, volumes.size());
+    }
+
+    @Test
+    public void shouldClearVolumes() throws Exception {
+        Account account = Account.from("1", "cedric", "secret", true);
+
+        IDrinkTrackerService drinkTracker = app.getService(IDrinkTrackerService.class);
+
+        drinkTracker.clearVolumes(account);
+
+        assertTrue(true);
+
     }
 
 }

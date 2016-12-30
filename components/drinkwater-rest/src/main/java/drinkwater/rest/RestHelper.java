@@ -31,8 +31,8 @@ public class RestHelper {
     //FIXME : get it from some config?
     static {
         prefixesMap.put(HttpMethod.GET, new String[]{"get", "find", "check"});
-        prefixesMap.put(HttpMethod.POST, new String[]{"save", "create", "set", "is"});
-        prefixesMap.put(HttpMethod.DELETE, new String[]{"delete", "remove", "clear"});
+        prefixesMap.put(HttpMethod.POST, new String[]{"save", "create", "set", "is", "clear"});
+        prefixesMap.put(HttpMethod.DELETE, new String[]{"delete", "remove"});
     }
 
     public static HttpMethod httpMethodFor(Method method) {
@@ -139,7 +139,7 @@ public class RestHelper {
         if (httpMethod == HttpMethod.GET) {
             answer = answer.get(fromPath);
         } else if (httpMethod == HttpMethod.POST) {
-            answer = answer.post(fromPath).type(method.getParameters()[0].getType());
+            answer = answer.post(fromPath);
         } else if (httpMethod == HttpMethod.PUT) {
             answer = answer.put(fromPath);
         } else if (httpMethod == HttpMethod.DELETE) {
@@ -150,7 +150,17 @@ public class RestHelper {
             throw new RuntimeException("method currently not supported in Rest Paths : " + httpMethod);
         }
 
+        answer = setBodyType(answer, method);
+
         return answer;
+    }
+
+    private static RestDefinition setBodyType(RestDefinition rd,  Method method){
+        //This is necessary for the RestBindings of camel
+        if(method.getParameters().length > 0){
+            rd = rd.type(method.getParameters()[0].getType());
+        }
+        return rd;
     }
 
 

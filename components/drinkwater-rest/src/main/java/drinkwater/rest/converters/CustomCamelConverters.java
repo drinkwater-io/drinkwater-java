@@ -17,7 +17,9 @@ public class CustomCamelConverters {
 
         if (value != null && value.getClass().equals(String.class)) {
             if(value.toString().startsWith("{") || value.toString().startsWith("[")) {
-                return new JacksonObjectMapper().readValue(value.toString(), type);
+                T result =  new JacksonObjectMapper().readValue(value.toString(), type);
+
+                return result;
             }
         }
         return null;
