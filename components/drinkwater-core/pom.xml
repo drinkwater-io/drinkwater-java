@@ -1,11 +1,9 @@
-<?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>drinkwater</groupId>
         <artifactId>components</artifactId>
+        <groupId>drinkwater</groupId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
     <artifactId>drinkwater-core</artifactId>
@@ -14,7 +12,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <dependencies>
-
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-api</artifactId>
@@ -47,15 +44,12 @@
             <artifactId>slf4j-simple</artifactId>
             <version>1.7.21</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-dbcp2</artifactId>
             <version>2.1.1</version>
         </dependency>
-
         <!--functional deps -->
-
         <dependency>
             <groupId>io.javaslang</groupId>
             <artifactId>javaslang</artifactId>
@@ -97,7 +91,6 @@
             <artifactId>jackson-datatype-jsr310</artifactId>
             <version>2.6.7</version>
         </dependency>
-
         <!--unirest-->
         <dependency>
             <groupId>com.mashape.unirest</groupId>
@@ -136,6 +129,5 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 </project>
