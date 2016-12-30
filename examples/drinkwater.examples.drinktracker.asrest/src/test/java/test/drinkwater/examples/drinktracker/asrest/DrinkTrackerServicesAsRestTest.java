@@ -1,11 +1,11 @@
 package test.drinkwater.examples.drinktracker.asrest;
 
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.test.HttpUnitTest;
 import examples.drinkwater.drinktracker.asrest.DrinkTrackerServicesAsRest;
 import examples.drinkwater.drinktracker.model.Account;
 import examples.drinkwater.drinktracker.model.IAccountService;
 import examples.drinkwater.drinktracker.model.IDrinkTrackerService;
-import drinkwater.test.HttpUnitTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

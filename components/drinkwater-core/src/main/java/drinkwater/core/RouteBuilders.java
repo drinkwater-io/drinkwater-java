@@ -1,6 +1,5 @@
 package drinkwater.core;
 
-import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.helper.BeanFactory;
 import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.InternalServiceConfiguration;
