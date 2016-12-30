@@ -43,16 +43,17 @@ public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
         accountService.clear();
     }
 //
-//    @Test
-//    public void shouldSaveNumberThroughRestWithServiceReference() throws Exception {
-//        IAccountService accountService = app.getService(IAccountService.class);
-//        IDrinkTrackerService drinkTracker = app.getService(IDrinkTrackerService.class);
-//        Account account = accountService.createAccount("cedric", "secret");
-//
-//        String savedVolume = drinkTracker.saveVolume(account, 10);
-//
-//        assertEquals("00010", savedVolume);
-//
-//        accountService.clear();
-//    }
+    @Test
+    public void shouldSaveNumberThroughRestWithServiceReference() throws Exception {
+        IAccountService accountService = app.getService(IAccountService.class);
+        IDrinkTrackerService drinkTracker = app.getService(IDrinkTrackerService.class);
+        Account account = accountService.createAccount("cedric", "secret");
+
+        account = accountService.login("cedric", "secret");
+        String savedVolume = drinkTracker.saveVolume(account, 10);
+
+        assertEquals("00010", savedVolume);
+
+        accountService.clear();
+    }
 }

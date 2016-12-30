@@ -5,6 +5,7 @@ import drinkwater.core.helper.InternalServiceConfiguration;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.helper.RouteBuilders;
 import drinkwater.core.reflect.RestInvocationHandler;
+import drinkwater.rest.RestServiceConfiguration;
 import javaslang.collection.List;
 import org.apache.camel.impl.DefaultCamelContext;
 
@@ -26,11 +27,16 @@ public class DrinkWaterApplication {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
     }
 
+    RestServiceConfiguration restConfiguration = new RestServiceConfiguration();
+
     List<InternalServiceConfiguration> serviceConfigurations = List.empty();
 
     Map<Class, Object> serviceProxies = new HashMap<>();
 
     public void start() {
+
+        //start services
+        restConfiguration.start();
 
         for (InternalServiceConfiguration config : serviceConfigurations) {
             try {
@@ -43,6 +49,7 @@ public class DrinkWaterApplication {
 
     public void stop() {
 
+        //stop services
         for (InternalServiceConfiguration config : serviceConfigurations) {
             try {
                 config.getCamelContext().stop();
@@ -50,6 +57,8 @@ public class DrinkWaterApplication {
                 e.printStackTrace();
             }
         }
+
+        restConfiguration.stop();
     }
 
     public void addServiceBuilder(ServiceConfigurationBuilder builder) {
