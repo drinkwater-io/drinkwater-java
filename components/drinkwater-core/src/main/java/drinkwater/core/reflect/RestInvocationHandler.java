@@ -1,10 +1,7 @@
 package drinkwater.core.reflect;
 
-import com.mashape.unirest.http.Unirest;
-import drinkwater.core.helper.RouteBuilders;
-import drinkwater.core.rest.RestRouteBuilderHelper;
+import drinkwater.rest.RestRouteBuilder;
 import org.apache.camel.ProducerTemplate;
-import org.apache.commons.lang3.ClassUtils;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -28,7 +25,7 @@ public class RestInvocationHandler implements InvocationHandler {
         Object result = null;
 
 
-        String restPath = RestRouteBuilderHelper.restPathFor(method);
+        String restPath = RestRouteBuilder.restPathFor(method);
 //
 //        Class returnType = method.getReturnType();
 //

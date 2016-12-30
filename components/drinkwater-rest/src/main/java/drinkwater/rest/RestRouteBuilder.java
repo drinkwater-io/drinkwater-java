@@ -1,12 +1,11 @@
-package drinkwater.core.rest;
+package drinkwater.rest;
 
-import drinkwater.core.reflect.ReflectHelper;
+import drinkwater.helper.reflect.ReflectHelper;
 import javaslang.Tuple;
 import javaslang.Tuple2;
 import javaslang.collection.List;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.http.common.HttpMethods;
-import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.rest.RestDefinition;
 
@@ -17,10 +16,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by A406775 on 20/12/2016.
+ * Created by A406775 on 30/12/2016.
  */
-
-public class RestRouteBuilderHelper {
+public class RestRouteBuilder {
 
     private static Map<HttpMethods, String[]> prefixesMap = new HashMap<>();
 
@@ -155,7 +153,7 @@ public class RestRouteBuilderHelper {
 
         RouteDefinition def =  restDefinition.route();
 
-                return def.bean(bean, methodName);
+        return def.bean(bean, methodName);
 
 
     }
@@ -170,6 +168,5 @@ public class RestRouteBuilderHelper {
 
         return null;
     }
-
 
 }

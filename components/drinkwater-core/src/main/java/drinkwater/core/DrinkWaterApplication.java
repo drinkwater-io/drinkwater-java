@@ -1,8 +1,8 @@
 package drinkwater.core;
 
+import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.core.helper.InternalServiceConfiguration;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
-import drinkwater.core.reflect.ReflectHelper;
 import drinkwater.core.helper.RouteBuilders;
 import drinkwater.core.reflect.RestInvocationHandler;
 import javaslang.collection.List;
