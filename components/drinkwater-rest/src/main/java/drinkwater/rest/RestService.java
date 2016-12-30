@@ -11,6 +11,10 @@ import java.io.IOException;
  */
 public class RestService {
 
+    public static final String REST_HOST_KEY = "drinkwater.rest.host";
+    public static final String REST_PORT_KEY = "drinkwater.rest.port";
+    public static final String REST_CONTEXT_KEY = "drinkwater.rest.contextpath";
+
     public void start() {
         Unirest.setObjectMapper(new ObjectMapper() {
             private com.fasterxml.jackson.databind.ObjectMapper jacksonObjectMapper
@@ -41,4 +45,6 @@ public class RestService {
             throw new RuntimeException(e);
         }
     }
+
+
 }

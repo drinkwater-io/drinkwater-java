@@ -31,8 +31,6 @@ import java.util.logging.Logger;
 
 /**
  * Base class for main implementations to allow starting up a JVM with Camel embedded.
- *
- * @version
  */
 public class Main extends ServiceSupport {
     protected static final Logger LOG = Logger.getLogger(Main.class.getName());

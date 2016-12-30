@@ -4,7 +4,6 @@ import drinkwater.core.DrinkWaterApplication;
 import drinkwater.rest.RestHelper;
 import javaslang.collection.List;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.rest.RestBindingMode;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -21,16 +20,10 @@ public class RouteBuilders {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                //FIXME get all this from the config
-                restConfiguration().component("jetty")
-                        .host("localhost")
-                        .port("8889")
-                        .contextPath(config.getServiceClass().getSimpleName().toLowerCase())
-                        .bindingMode(RestBindingMode.json);
 
                 Object bean = BeanFactory.createBean(app, config);
 
-                RestHelper.buildRestRoutes(this, bean);
+                RestHelper.buildRestRoutes(this, bean, new DefaultPropertyResolver(config));
 
             }
         };

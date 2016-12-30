@@ -7,6 +7,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.component.properties.PropertiesComponent;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Created by A406775 on 29/12/2016.
@@ -14,11 +15,10 @@ import java.util.List;
 public class InternalServiceConfiguration implements IServiceConfiguration {
 
     IServiceConfiguration serviceConfiguration;
-
     CamelContext camelContext;
-
     //lazy initialized
     PropertiesComponent propertiesComponent;
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     public InternalServiceConfiguration(IServiceConfiguration serviceConfiguration, CamelContext camelContext) {
         this.serviceConfiguration = serviceConfiguration;
@@ -71,4 +71,6 @@ public class InternalServiceConfiguration implements IServiceConfiguration {
     public String lookupProperty(String s) throws Exception {
         return getPropertiesComponent().parseUri(s);
     }
+
+
 }

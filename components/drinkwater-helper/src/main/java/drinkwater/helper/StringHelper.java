@@ -1,4 +1,4 @@
-package drinkwater.helper.reflect;
+package drinkwater.helper;
 
 import javaslang.collection.List;
 

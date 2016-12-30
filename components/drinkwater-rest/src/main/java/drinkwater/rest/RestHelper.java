@@ -1,12 +1,14 @@
 package drinkwater.rest;
 
 import com.mashape.unirest.http.HttpMethod;
+import drinkwater.IPropertyResolver;
 import drinkwater.helper.reflect.ReflectHelper;
 import javaslang.Tuple;
 import javaslang.Tuple2;
 import javaslang.collection.List;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.model.rest.RestDefinition;
 
 import java.lang.reflect.Method;
@@ -15,7 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static drinkwater.helper.reflect.StringHelper.startsWithOneOf;
+import static drinkwater.helper.StringHelper.startsWithOneOf;
 
 /**
  * Created by A406775 on 30/12/2016.
@@ -63,7 +65,30 @@ public class RestHelper {
 
     }
 
-    public static void buildRestRoutes(RouteBuilder builder, Object bean) {
+    public static String host(IPropertyResolver propertiesResolver) throws Exception {
+        return propertiesResolver.lookupProperty(RestService.REST_HOST_KEY + ":localhost");
+    }
+
+    public static String port(IPropertyResolver propertiesResolver) throws Exception {
+        return propertiesResolver.lookupProperty(RestService.REST_PORT_KEY + ":8889");
+    }
+
+    public static String context(IPropertyResolver propertiesResolver) throws Exception {
+        return propertiesResolver.lookupProperty(RestService.REST_CONTEXT_KEY + ":");
+    }
+
+    public static void buildRestRoutes(RouteBuilder builder, Object bean, IPropertyResolver propertiesResolver) {
+
+        try {
+            builder.restConfiguration().component("jetty")
+                    .host(host(propertiesResolver))
+                    .port(port(propertiesResolver))
+                    .contextPath(context(propertiesResolver))
+                    .bindingMode(RestBindingMode.json);
+        } catch (Exception ex) {
+            throw new RuntimeException("could not configure the rest service correctly", ex);
+        }
+
         javaslang.collection.List.of(ReflectHelper.getPublicDeclaredMethods(bean.getClass()))
                 .map(method -> buildRestRoute(builder, method))
                 .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2));

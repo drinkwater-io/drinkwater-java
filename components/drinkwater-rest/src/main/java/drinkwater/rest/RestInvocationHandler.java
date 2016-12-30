@@ -1,6 +1,6 @@
 package drinkwater.rest;
 
-import org.apache.camel.CamelContext;
+import drinkwater.IPropertyResolver;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -11,14 +11,15 @@ import java.lang.reflect.Method;
 
 public class RestInvocationHandler implements InvocationHandler {
 
-    private final CamelContext context;
+    IPropertyResolver resolver;
 
-    public RestInvocationHandler(CamelContext context) {
-        this.context = context;
+    public RestInvocationHandler(IPropertyResolver resolver) {
+
+        this.resolver = resolver;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        return Rest.invoke(proxy, method, args);
+        return Rest.invoke(proxy, method, args, resolver);
     }
 }

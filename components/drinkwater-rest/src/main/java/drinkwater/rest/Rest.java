@@ -3,23 +3,23 @@ package drinkwater.rest;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import drinkwater.IPropertyResolver;
 
 import java.lang.reflect.Method;
 
-import static drinkwater.rest.RestHelper.httpMethodFor;
-import static drinkwater.rest.RestHelper.restPathFor;
+import static drinkwater.rest.RestHelper.*;
 
 /**
  * Created by A406775 on 30/12/2016.
  */
 public final class Rest {
 
-    public static Object invoke(Object obj, Method method, Object[] args) {
+    public static Object invoke(Object obj, Method method, Object[] args, IPropertyResolver resolver) {
         Object result = null;
-        //fixme get it from config
-        String endpoint = "http://localhost:8889/idrinktrackerservice";
 
         try {
+            String endpoint = "http://" + host(resolver) + ":" + port(resolver) + "/" + context(resolver);
+
             switch (httpMethodFor(method)) {
                 case GET:
                     return get(endpoint, method, args);
@@ -29,7 +29,7 @@ public final class Rest {
                     throw new RuntimeException(String.format("Could not map method %s to the corresponding httpVerb", method.getName()));
             }
 
-        } catch (UnirestException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
