@@ -1,15 +1,11 @@
 package drinkwater.core.reflect;
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.core.RouteBuilders;
 import drinkwater.core.helper.InternalServiceConfiguration;
 import org.apache.camel.CamelContext;
-import org.apache.camel.ProducerTemplate;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 
 import static drinkwater.core.helper.BeanFactory.createBeanObject;
 

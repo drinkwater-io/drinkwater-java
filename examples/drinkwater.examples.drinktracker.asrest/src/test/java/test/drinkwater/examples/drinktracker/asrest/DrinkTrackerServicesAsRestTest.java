@@ -66,7 +66,7 @@ public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
 
         IDrinkTrackerService drinkTracker = app.getService(IDrinkTrackerService.class);
 
-        List<String> volumes= drinkTracker.getVolumes(account);
+        List<String> volumes = drinkTracker.getVolumes(account);
 
         assertEquals(0, volumes.size());
     }

@@ -1,11 +1,6 @@
 package drinkwater.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.mashape.unirest.http.ObjectMapper;
 import com.mashape.unirest.http.Unirest;
-import org.apache.camel.Exchange;
-import org.apache.camel.FallbackConverter;
-import org.apache.camel.spi.TypeConverterRegistry;
 
 import java.io.IOException;
 
@@ -29,8 +24,6 @@ public class RestService {
             throw new RuntimeException(e);
         }
     }
-
-
 
 
 }

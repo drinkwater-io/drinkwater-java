@@ -80,12 +80,11 @@ public class DrinkWaterApplication {
             InternalServiceConfiguration config =
                     new InternalServiceConfiguration(serviceConfig, ctx);
             if (config.getScheme() == ServiceScheme.BeanObject) {
-               // ctx.addRoutes(RouteBuilders.mapBeanRoutes(this, config));
+                // ctx.addRoutes(RouteBuilders.mapBeanRoutes(this, config));
                 serviceProxies.put(config.getServiceClass(),
                         ReflectHelper.simpleProxy(config.getServiceClass(),
                                 new BeanInvocationHandler(ctx, this, config)));
-            }
-            else if (config.getScheme() == ServiceScheme.BeanClass) {
+            } else if (config.getScheme() == ServiceScheme.BeanClass) {
                 ctx.addRoutes(RouteBuilders.mapBeanClassRoutes(this, config));
                 serviceProxies.put(config.getServiceClass(),
                         ReflectHelper.simpleProxy(config.getServiceClass(),

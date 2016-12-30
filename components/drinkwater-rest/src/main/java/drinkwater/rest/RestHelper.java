@@ -155,9 +155,9 @@ public class RestHelper {
         return answer;
     }
 
-    private static RestDefinition setBodyType(RestDefinition rd,  Method method){
+    private static RestDefinition setBodyType(RestDefinition rd, Method method) {
         //This is necessary for the RestBindings of camel
-        if(method.getParameters().length > 0){
+        if (method.getParameters().length > 0) {
             rd = rd.type(method.getParameters()[0].getType());
         }
         return rd;

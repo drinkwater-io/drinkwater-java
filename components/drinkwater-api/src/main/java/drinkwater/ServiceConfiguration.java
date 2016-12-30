@@ -54,12 +54,12 @@ public class ServiceConfiguration implements IServiceConfiguration {
         return this;
     }
 
-    public IServiceConfiguration withInjectionStrategy(InjectionStrategy strategy) {
+    public ServiceConfiguration withInjectionStrategy(InjectionStrategy strategy) {
         this.injectionStrategy = strategy;
         return this;
     }
 
-    public IServiceConfiguration dependsOn(IServiceConfiguration... configs) {
+    public ServiceConfiguration dependsOn(IServiceConfiguration... configs) {
 
         for (IServiceConfiguration conf : configs) {
             this.serviceDependencies.add(conf);

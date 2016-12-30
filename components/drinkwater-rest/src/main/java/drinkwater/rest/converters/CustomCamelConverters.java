@@ -16,8 +16,8 @@ public class CustomCamelConverters {
     public static <T> T convertTo(Class<T> type, Exchange exchange, Object value, TypeConverterRegistry registry) {
 
         if (value != null && value.getClass().equals(String.class)) {
-            if(value.toString().startsWith("{") || value.toString().startsWith("[")) {
-                T result =  new JacksonObjectMapper().readValue(value.toString(), type);
+            if (value.toString().startsWith("{") || value.toString().startsWith("[")) {
+                T result = new JacksonObjectMapper().readValue(value.toString(), type);
 
                 return result;
             }

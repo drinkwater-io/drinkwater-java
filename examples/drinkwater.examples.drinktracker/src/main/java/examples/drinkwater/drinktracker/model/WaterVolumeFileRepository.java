@@ -67,7 +67,7 @@ public class WaterVolumeFileRepository implements IWaterVolumeRepository {
             Files.delete(Paths.get(directory, createPath(account.getAcountId())));
 
         } catch (IOException e) {
-            e.printStackTrace();
+            //perhaps file do not exists
         }
     }
 }
