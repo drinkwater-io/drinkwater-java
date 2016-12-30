@@ -1,9 +1,9 @@
-package drinkwater.examples.drinktracker.asbean;
+package examples.drinkwater.drinktracker.asbean;
 
 import drinkwater.IServiceConfiguration;
 import drinkwater.ServiceConfiguration;
 import drinkwater.ServiceConfigurationBuilder;
-import drinkwater.examples.drinktracker.model.*;
+import examples.drinkwater.drinktracker.model.*;
 
 import java.util.List;
 

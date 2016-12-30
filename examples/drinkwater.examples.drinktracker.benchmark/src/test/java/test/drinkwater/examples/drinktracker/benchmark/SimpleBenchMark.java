@@ -2,8 +2,8 @@ package test.drinkwater.examples.drinktracker.benchmark;
 
 import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.examples.drinktracker.asbeanclass.DrinkTrackerServiceAsBeanClass;
-import drinkwater.examples.drinktracker.model.*;
+import examples.drinkwater.drinktracker.asbeanclass.DrinkTrackerServiceAsBeanClass;
+import examples.drinkwater.drinktracker.model.*;
 import org.junit.Assert;
 import org.junit.Test;
 

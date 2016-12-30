@@ -1,10 +1,10 @@
 package test.drinkwater.examples.drinktracker.asrest;
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.examples.drinktracker.asrest.DrinkTrackerServicesAsRest;
-import drinkwater.examples.drinktracker.model.Account;
-import drinkwater.examples.drinktracker.model.IAccountService;
-import drinkwater.examples.drinktracker.model.IDrinkTrackerService;
+import examples.drinkwater.drinktracker.asrest.DrinkTrackerServicesAsRest;
+import examples.drinkwater.drinktracker.model.Account;
+import examples.drinkwater.drinktracker.model.IAccountService;
+import examples.drinkwater.drinktracker.model.IDrinkTrackerService;
 import drinkwater.test.HttpUnitTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -57,4 +57,6 @@ public class DrinkTrackerServicesAsRestTest extends HttpUnitTest {
 
         accountService.clear();
     }
+
+
 }

@@ -1,9 +1,9 @@
 package test.drinkwater.examples.drinktracker;
 
 
-import drinkwater.examples.drinktracker.model.Account;
-import drinkwater.examples.drinktracker.model.AccountService;
-import drinkwater.examples.drinktracker.model.IAccountService;
+import examples.drinkwater.drinktracker.model.Account;
+import examples.drinkwater.drinktracker.model.AccountService;
+import examples.drinkwater.drinktracker.model.IAccountService;
 import org.junit.Test;
 
 import java.util.List;

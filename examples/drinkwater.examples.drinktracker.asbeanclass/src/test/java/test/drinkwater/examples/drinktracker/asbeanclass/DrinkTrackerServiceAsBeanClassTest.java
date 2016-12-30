@@ -2,10 +2,10 @@ package test.drinkwater.examples.drinktracker.asbeanclass;
 
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.examples.drinktracker.asbeanclass.DrinkTrackerServiceAsBeanClass;
-import drinkwater.examples.drinktracker.model.Account;
-import drinkwater.examples.drinktracker.model.IAccountService;
-import drinkwater.examples.drinktracker.model.IWaterVolumeFormatter;
+import examples.drinkwater.drinktracker.asbeanclass.DrinkTrackerServiceAsBeanClass;
+import examples.drinkwater.drinktracker.model.Account;
+import examples.drinkwater.drinktracker.model.IAccountService;
+import examples.drinkwater.drinktracker.model.IWaterVolumeFormatter;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;

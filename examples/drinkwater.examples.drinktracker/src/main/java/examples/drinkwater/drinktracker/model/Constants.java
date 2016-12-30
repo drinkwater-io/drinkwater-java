@@ -1,4 +1,4 @@
-package drinkwater.examples.drinktracker.model;
+package examples.drinkwater.drinktracker.model;
 
 /**
  * Created by A406775 on 28/12/2016.

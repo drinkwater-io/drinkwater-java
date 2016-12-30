@@ -1,20 +1,20 @@
-package drinkwater.examples.drinktracker.asbeanclass;
+package examples.drinkwater.drinktracker.asrest;
 
 import drinkwater.IServiceConfiguration;
 import drinkwater.InjectionStrategy;
 import drinkwater.ServiceConfiguration;
 import drinkwater.ServiceConfigurationBuilder;
-import drinkwater.examples.drinktracker.model.*;
+import examples.drinkwater.drinktracker.model.*;
 
 import java.util.List;
 
-public class DrinkTrackerServiceAsBeanClass extends ServiceConfigurationBuilder {
+public class DrinkTrackerServicesAsRest extends ServiceConfigurationBuilder {
     @Override
     public List<IServiceConfiguration> build() {
 
-        IServiceConfiguration volumeRepositoryService = ServiceConfiguration
+        IServiceConfiguration drinktrackerRepositoryService = ServiceConfiguration
                 .forService(IWaterVolumeRepository.class)
-                .withProperties("classpath:volume-repository.properties")
+                .withProperties("classpath:drinktracker.properties")
                 .useBeanClass(WaterVolumeFileRepository.class)
                 .withInjectionStrategy(InjectionStrategy.Default);
 
@@ -22,21 +22,22 @@ public class DrinkTrackerServiceAsBeanClass extends ServiceConfigurationBuilder 
                 .forService(IAccountService.class)
                 .useBeanClass(AccountService.class);
 
-        IServiceConfiguration volumeFormatter = ServiceConfiguration
+        IServiceConfiguration drinktrackerFormatter = ServiceConfiguration
                 .forService(IWaterVolumeFormatter.class)
                 .useBeanClass(DefaultWaterVolumeFormatter.class);
 
-        IServiceConfiguration volumeService = ServiceConfiguration
+        IServiceConfiguration drinktrackerServiceAsRest = ServiceConfiguration
                 .forService(IDrinkTrackerService.class)
                 .useBeanClass(DrinkTrackerService.class)
-                .dependsOn(accountService, volumeFormatter, volumeRepositoryService);
+                .asRest()
+                .dependsOn(accountService, drinktrackerFormatter, drinktrackerRepositoryService);
 
-        //FIXME order is important here, we should sort by deps...
+        //FIXME order is important here, it should not be
         return javaslang.collection.List.of(
                 accountService,
-                volumeFormatter,
-                volumeRepositoryService,
-                volumeService
+                drinktrackerFormatter,
+                drinktrackerRepositoryService,
+                drinktrackerServiceAsRest
         ).toJavaList();
     }
 }
