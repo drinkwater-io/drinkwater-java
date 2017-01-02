@@ -19,20 +19,24 @@ import static org.junit.Assert.assertTrue;
  */
 public class SimpleBenchMark {
 
-    private int LOOP_COUNT = 1;
+    private int LOOP_COUNT = 10;
 
     @Test
     public void performBenchMark() throws Exception {
 
-        //will burn the vm
-        long timeAsRest = benchMarkThisConfig(new ServiceConfigurationAsRest());
+        long timeAsRest = 0;
+        long timeAsBeanObject = 0;
+        long timeAsBeanClass = 0;
+        long timeWithoutDW = 0;
 
-        //will run faster placed here
-        long timeAsBeanObject = benchMarkThisConfig(new ServiceConfigurationAsBeanObject());
-        long timeAsBeanClass = benchMarkThisConfig(new ServiceConfigurationAsBeanClass());
-
-        //should always be faster
-        long timeWithoutDW = benchMarkWithoutDW();
+//        //without DrinkWater
+//        timeWithoutDW = benchMarkWithoutDW();
+//        //rest
+//        timeAsRest = benchMarkThisConfig(new ServiceConfigurationAsRest());
+//        //beanobject
+        timeAsBeanObject = benchMarkThisConfig(new ServiceConfigurationAsBeanObject());
+//        //as beanClass
+//        timeAsBeanClass = benchMarkThisConfig(new ServiceConfigurationAsBeanClass());
 
         printReport(timeWithoutDW, timeAsBeanObject, timeAsBeanClass, timeAsRest);
 

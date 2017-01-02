@@ -1,5 +1,6 @@
 package drinkwater.core;
 
+import com.codahale.metrics.MetricRegistry;
 import drinkwater.IServiceConfiguration;
 import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.ServiceScheme;
@@ -37,6 +38,8 @@ public class DrinkWaterApplication {
     List<InternalServiceConfiguration> serviceConfigurations = List.empty();
 
     Map<Class, Object> serviceProxies = new HashMap<>();
+
+    public MetricRegistry metrics = new MetricRegistry();
 
     public void start() {
 
