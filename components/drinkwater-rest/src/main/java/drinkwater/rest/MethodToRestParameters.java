@@ -31,6 +31,8 @@ public class MethodToRestParameters {
     private void init() {
         HttpMethod httpMethod = httpMethodFor(method);
         List<Parameter> parameterInfos = javaslang.collection.List.of(method.getParameters());
+        NoBody noBodyAnnotation = method.getAnnotation(NoBody.class);
+
         hasReturn = returnsVoid(method);
 
         if (parameterInfos.size() == 0) {
@@ -38,17 +40,28 @@ public class MethodToRestParameters {
         }
 
         if (httpMethod == HttpMethod.GET) {
-            headerNames = parameterInfos.map(p -> p.getName()).toList();
+            hasBody = false;
         } else if (httpMethod == HttpMethod.POST || httpMethod == HttpMethod.DELETE || httpMethod == HttpMethod.PUT) {
             if (parameterInfos.size() > 0) {
                 hasBody = true;
             }
-            headerNames = parameterInfos.tail().map(p -> p.getName()).toList();
+            if(noBodyAnnotation != null) {
+                hasBody = false;
+            }
         } else {
             throw new RuntimeException("come back here : MethodToRestParameters.init()");
         }
 
+        if(hasBody) { // first parameter of the method will be assigned with the body content
+            headerNames = parameterInfos.tail().map(p -> p.getName()).toList();
+        }
+        else{
+            headerNames = parameterInfos.map(p -> p.getName()).toList();
+        }
+
     }
+
+
 
     public boolean hasBody() {
         return hasBody;

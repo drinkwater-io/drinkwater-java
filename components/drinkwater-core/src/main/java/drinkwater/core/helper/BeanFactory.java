@@ -2,7 +2,7 @@ package drinkwater.core.helper;
 
 import drinkwater.IServiceConfiguration;
 import drinkwater.InjectionStrategy;
-import drinkwater.core.DrinkWaterApplication;
+import drinkwater.core.ServiceRepository;
 
 import java.lang.reflect.Field;
 
@@ -10,7 +10,18 @@ import java.lang.reflect.Field;
  * Created by A406775 on 28/12/2016.
  */
 public class BeanFactory {
-    public static Object createBeanClass(DrinkWaterApplication app, InternalServiceConfiguration config) throws Exception {
+
+
+    public static Object createBean(ServiceRepository app, Service config) throws Exception {
+        if(config.getTargetBean() != null){
+            return createBeanObject(app, config);
+        }
+        return createBeanClass(app, config);
+
+    }
+
+
+    public static Object createBeanClass(ServiceRepository app, Service config) throws Exception {
         // create an instance of the bean
         Object beanToUse = config.getTargetBeanClass().newInstance();
 
@@ -38,7 +49,7 @@ public class BeanFactory {
 
     }
 
-    public static Object createBeanObject(DrinkWaterApplication app, InternalServiceConfiguration config) throws Exception {
+    public static Object createBeanObject(ServiceRepository app, Service config) throws Exception {
         // create an instance of the bean
         Object beanToUse = config.getTargetBean();
 
@@ -63,7 +74,7 @@ public class BeanFactory {
 
     }
 
-    public static Object injectFields(Object bean, InternalServiceConfiguration config) throws Exception {
+    public static Object injectFields(Object bean, Service config) throws Exception {
 
         for (Field f : bean.getClass().getFields()) {
             String value = config.lookupProperty(config.getServiceClass().getSimpleName() + "." + f.getName());

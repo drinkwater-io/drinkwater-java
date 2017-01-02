@@ -7,9 +7,9 @@ import drinkwater.IPropertyResolver;
  */
 public class DefaultPropertyResolver implements IPropertyResolver {
 
-    private InternalServiceConfiguration config;
+    private Service config;
 
-    public DefaultPropertyResolver(InternalServiceConfiguration config) {
+    public DefaultPropertyResolver(Service config) {
         this.config = config;
     }
 

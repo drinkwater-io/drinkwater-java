@@ -31,7 +31,7 @@ public class RestHelper {
     //FIXME : get it from some config?
     static {
         prefixesMap.put(HttpMethod.GET, new String[]{"get", "find", "check"});
-        prefixesMap.put(HttpMethod.POST, new String[]{"save", "create", "set", "is", "clear"});
+        prefixesMap.put(HttpMethod.POST, new String[]{"save", "create", "set", "is", "clear", "add"});
         prefixesMap.put(HttpMethod.DELETE, new String[]{"delete", "remove"});
     }
 
@@ -39,10 +39,27 @@ public class RestHelper {
 
         HttpMethod defaultHttpMethod = HttpMethod.GET;
 
+        drinkwater.rest.HttpMethod methodAsAnnotation = method.getDeclaredAnnotation(drinkwater.rest.HttpMethod.class);
+
+        if(methodAsAnnotation != null){
+            return mapToUnirestHttpMethod(methodAsAnnotation);
+        }
+
         return List.ofAll(prefixesMap.entrySet())
                 .filter(prefix -> startsWithOneOf(method.getName(), prefix.getValue()))
                 .map(entryset -> entryset.getKey())
                 .getOrElse(defaultHttpMethod);
+    }
+
+    public static HttpMethod mapToUnirestHttpMethod(drinkwater.rest.HttpMethod methodAsAnnotation){
+        switch (methodAsAnnotation.value().toUpperCase()){
+            case "GET" : return HttpMethod.GET;
+            case "POST" : return HttpMethod.POST;
+            case "DELETE" : return HttpMethod.DELETE;
+            case "PUT" : return HttpMethod.PUT;
+            case "PATCH" : return HttpMethod.PATCH;
+            default: throw new RuntimeException(String.format("could not map correct http method : %s", methodAsAnnotation.value()));
+        }
     }
 
 
@@ -79,10 +96,12 @@ public class RestHelper {
     }
 
     public static String context(IPropertyResolver propertiesResolver, IServiceConfiguration config) throws Exception {
-        return propertiesResolver.lookupProperty(RestService.REST_CONTEXT_KEY + ":" + config.getServiceClass().getName().toLowerCase());
+        return propertiesResolver.lookupProperty(RestService.REST_CONTEXT_KEY + ":" + config.getServiceName());
     }
 
-    public static void buildRestRoutes(RouteBuilder builder, Object bean, IPropertyResolver propertiesResolver, IServiceConfiguration config) {
+    public static void buildRestRoutes(RouteBuilder builder, Object bean,
+                                       IPropertyResolver propertiesResolver,
+                                       IServiceConfiguration config) {
 
         try {
             builder.restConfiguration().component("jetty")

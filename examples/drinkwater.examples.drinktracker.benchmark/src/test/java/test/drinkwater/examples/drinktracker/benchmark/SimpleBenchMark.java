@@ -3,8 +3,6 @@ package test.drinkwater.examples.drinktracker.benchmark;
 import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.core.DrinkWaterApplication;
 import examples.drinkwater.drinktracker.asbean.ServiceConfigurationAsBeanObject;
-import examples.drinkwater.drinktracker.asbeanclass.ServiceConfigurationAsBeanClass;
-import examples.drinkwater.drinktracker.asrest.ServiceConfigurationAsRest;
 import examples.drinkwater.drinktracker.model.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -57,7 +55,7 @@ public class SimpleBenchMark {
 
     private long benchMarkThisConfig(ServiceConfigurationBuilder builder) throws Exception {
 
-        DrinkWaterApplication app = new DrinkWaterApplication();
+        DrinkWaterApplication app = DrinkWaterApplication.create();
         try {
 
             app.addServiceBuilder(builder);

@@ -17,12 +17,12 @@
 package drinkwater.boot;
 
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.core.ServiceRepository;
 import org.apache.camel.support.ServiceSupport;
 import org.apache.deltaspike.cdise.api.CdiContainer;
 import org.apache.deltaspike.cdise.api.CdiContainerLoader;
 
 import javax.enterprise.inject.spi.BeanManager;
-import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -36,7 +36,7 @@ public class Main extends ServiceSupport {
     protected static final Logger LOG = Logger.getLogger(Main.class.getName());
     protected static final int UNINITIALIZED_EXIT_CODE = Integer.MIN_VALUE;
     protected static final int DEFAULT_EXIT_CODE = 0;
-    protected final List<Option> options = new ArrayList<Option>();
+//    protected final List<Option> options = new ArrayList<Option>();
     protected final CountDownLatch latch = new CountDownLatch(1);
     protected final AtomicBoolean completed = new AtomicBoolean(false);
     protected final AtomicInteger exitCode = new AtomicInteger(UNINITIALIZED_EXIT_CODE);
@@ -48,42 +48,12 @@ public class Main extends ServiceSupport {
     private CdiContainer cdiContainer;
 
     protected Main() {
-        addOption(new Option("h", "help", "Displays the help screen") {
-            protected void doProcess(String arg, LinkedList<String> remainingArgs) {
-                showOptions();
-                completed();
-            }
-        });
-        addOption(new ParameterOption("d", "duration",
-                "Sets the time duration that the application will run for, by default in milliseconds. You can use '10s' for 10 seconds etc",
-                "duration") {
-            protected void doProcess(String arg, String parameter, LinkedList<String> remainingArgs) {
-                String value = parameter.toUpperCase(Locale.ENGLISH);
-                if (value.endsWith("S")) {
-                    value = value.substring(0, value.length() - 1);
-                    setTimeUnit(TimeUnit.SECONDS);
-                }
-                setDuration(Integer.parseInt(value));
-            }
-        });
-        addOption(new Option("t", "trace", "Enables tracing") {
-            protected void doProcess(String arg, LinkedList<String> remainingArgs) {
-                enableTrace();
-            }
-        });
-        addOption(new ParameterOption("e", "exitcode",
-                "Sets the exit code if duration was hit",
-                "exitcode") {
-            protected void doProcess(String arg, String parameter, LinkedList<String> remainingArgs) {
-                setDurationHitExitCode(Integer.parseInt(parameter));
-            }
-        });
     }
 
-    public DrinkWaterApplication getDrinkWaterApplication() {
+    public ServiceRepository getDrinkWaterApplication() {
         BeanManager mgr = cdiContainer.getBeanManager();
-        DrinkWaterApplication dwapp =
-                (DrinkWaterApplication) mgr.getReference(
+        ServiceRepository dwapp =
+                (ServiceRepository) mgr.getReference(
                         mgr.resolve(mgr.getBeans(DrinkWaterApplication.class)),
                         DrinkWaterApplication.class,
                         mgr.createCreationalContext(null)
@@ -114,23 +84,23 @@ public class Main extends ServiceSupport {
         }
     }
 
-    /**
-     * Disable the hangup support. No graceful stop by calling stop() on a
-     * Hangup signal.
-     */
-    public void disableHangupSupport() {
-        hangupInterceptorEnabled = false;
-    }
-
-    /**
-     * Hangup support is enabled by default.
-     *
-     * @deprecated is enabled by default now, so no longer need to call this method.
-     */
-    @Deprecated
-    public void enableHangupSupport() {
-        hangupInterceptorEnabled = true;
-    }
+//    /**
+//     * Disable the hangup support. No graceful stop by calling stop() on a
+//     * Hangup signal.
+//     */
+//    public void disableHangupSupport() {
+//        hangupInterceptorEnabled = false;
+//    }
+//
+//    /**
+//     * Hangup support is enabled by default.
+//     *
+//     * @deprecated is enabled by default now, so no longer need to call this method.
+//     */
+//    @Deprecated
+//    public void enableHangupSupport() {
+//        hangupInterceptorEnabled = true;
+//    }
 
     private void internalBeforeStart() {
         if (hangupInterceptorEnabled) {
@@ -166,54 +136,54 @@ public class Main extends ServiceSupport {
         latch.countDown();
     }
 
-    /**
-     * Displays the command line options.
-     */
-    public void showOptions() {
-        showOptionsHeader();
-
-        for (Option option : options) {
-            System.out.println(option.getInformation());
-        }
-    }
+//    /**
+//     * Displays the command line options.
+//     */
+//    public void showOptions() {
+//        showOptionsHeader();
+//
+//        for (Option option : options) {
+//            System.out.println(option.getInformation());
+//        }
+//    }
 
     /**
      * Parses the command line arguments.
      */
-    public void parseArguments(String[] arguments) {
-        LinkedList<String> args = new LinkedList<String>(Arrays.asList(arguments));
+//    public void parseArguments(String[] arguments) {
+//        LinkedList<String> args = new LinkedList<String>(Arrays.asList(arguments));
+//
+//        boolean valid = true;
+//        while (!args.isEmpty()) {
+//            String arg = args.removeFirst();
+//
+//            boolean handled = false;
+//            for (Option option : options) {
+//                if (option.processOption(arg, args)) {
+//                    handled = true;
+//                    break;
+//                }
+//            }
+//            if (!handled) {
+//                System.out.println("Unknown option: " + arg);
+//                System.out.println();
+//                valid = false;
+//                break;
+//            }
+//        }
+//        if (!valid) {
+//            showOptions();
+//            completed();
+//        }
+//    }
 
-        boolean valid = true;
-        while (!args.isEmpty()) {
-            String arg = args.removeFirst();
-
-            boolean handled = false;
-            for (Option option : options) {
-                if (option.processOption(arg, args)) {
-                    handled = true;
-                    break;
-                }
-            }
-            if (!handled) {
-                System.out.println("Unknown option: " + arg);
-                System.out.println();
-                valid = false;
-                break;
-            }
-        }
-        if (!valid) {
-            showOptions();
-            completed();
-        }
-    }
-
-    public void addOption(Option option) {
-        options.add(option);
-    }
-
-    public long getDuration() {
-        return duration;
-    }
+//    public void addOption(Option option) {
+//        options.add(option);
+//    }
+//
+//    public long getDuration() {
+//        return duration;
+//    }
 
     /**
      * Sets the duration to run the application for in milliseconds until it
@@ -230,32 +200,32 @@ public class Main extends ServiceSupport {
     /**
      * Sets the time unit duration.
      */
-    public void setTimeUnit(TimeUnit timeUnit) {
-        this.timeUnit = timeUnit;
-    }
-
-    public int getDurationHitExitCode() {
-        return durationHitExitCode;
-    }
-
-    /**
-     * Sets the exit code for the application if duration was hit
-     */
-    public void setDurationHitExitCode(int durationHitExitCode) {
-        this.durationHitExitCode = durationHitExitCode;
-    }
-
-    public int getExitCode() {
-        return exitCode.get();
-    }
-
-    public boolean isTrace() {
-        return trace;
-    }
-
-    public void enableTrace() {
-        this.trace = true;
-    }
+//    public void setTimeUnit(TimeUnit timeUnit) {
+//        this.timeUnit = timeUnit;
+//    }
+//
+//    public int getDurationHitExitCode() {
+//        return durationHitExitCode;
+//    }
+//
+//    /**
+//     * Sets the exit code for the application if duration was hit
+//     */
+//    public void setDurationHitExitCode(int durationHitExitCode) {
+//        this.durationHitExitCode = durationHitExitCode;
+//    }
+//
+//    public int getExitCode() {
+//        return exitCode.get();
+//    }
+//
+//    public boolean isTrace() {
+//        return trace;
+//    }
+//
+//    public void enableTrace() {
+//        this.trace = true;
+//    }
 
     protected void doStop() throws Exception {
         // call completed to properly stop as we count down the waiting latch
@@ -293,21 +263,13 @@ public class Main extends ServiceSupport {
         }
     }
 
-    /**
-     * Parses the command line arguments then runs the program.
-     */
-    public void run(String[] args) throws Exception {
-        parseArguments(args);
-        run();
-    }
-
-    /**
-     * Displays the header message for the command line options.
-     */
-    public void showOptionsHeader() {
-        System.out.println("Apache Camel Runner takes the following options");
-        System.out.println();
-    }
+//    /**
+//     * Displays the header message for the command line options.
+//     */
+//    public void showOptionsHeader() {
+//        System.out.println("Apache Camel Runner takes the following options");
+//        System.out.println();
+//    }
 
     /**
      * A class for intercepting the hang up signal and do a graceful shutdown of the Camel.
@@ -331,69 +293,69 @@ public class Main extends ServiceSupport {
         }
     }
 
-    public abstract class Option {
-        private String abbreviation;
-        private String fullName;
-        private String description;
+//    public abstract class Option {
+//        private String abbreviation;
+//        private String fullName;
+//        private String description;
+//
+//        protected Option(String abbreviation, String fullName, String description) {
+//            this.abbreviation = "-" + abbreviation;
+//            this.fullName = "-" + fullName;
+//            this.description = description;
+//        }
+//
+//        public boolean processOption(String arg, LinkedList<String> remainingArgs) {
+//            if (arg.equalsIgnoreCase(abbreviation) || fullName.startsWith(arg)) {
+//                doProcess(arg, remainingArgs);
+//                return true;
+//            }
+//            return false;
+//        }
+//
+//        public String getAbbreviation() {
+//            return abbreviation;
+//        }
+//
+//        public String getDescription() {
+//            return description;
+//        }
+//
+//        public String getFullName() {
+//            return fullName;
+//        }
+//
+//        public String getInformation() {
+//            return "  " + getAbbreviation() + " or " + getFullName() + " = " + getDescription();
+//        }
+//
+//        protected abstract void doProcess(String arg, LinkedList<String> remainingArgs);
+//    }
 
-        protected Option(String abbreviation, String fullName, String description) {
-            this.abbreviation = "-" + abbreviation;
-            this.fullName = "-" + fullName;
-            this.description = description;
-        }
-
-        public boolean processOption(String arg, LinkedList<String> remainingArgs) {
-            if (arg.equalsIgnoreCase(abbreviation) || fullName.startsWith(arg)) {
-                doProcess(arg, remainingArgs);
-                return true;
-            }
-            return false;
-        }
-
-        public String getAbbreviation() {
-            return abbreviation;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public String getFullName() {
-            return fullName;
-        }
-
-        public String getInformation() {
-            return "  " + getAbbreviation() + " or " + getFullName() + " = " + getDescription();
-        }
-
-        protected abstract void doProcess(String arg, LinkedList<String> remainingArgs);
-    }
-
-    public abstract class ParameterOption extends Option {
-        private String parameterName;
-
-        protected ParameterOption(String abbreviation, String fullName, String description, String parameterName) {
-            super(abbreviation, fullName, description);
-            this.parameterName = parameterName;
-        }
-
-        protected void doProcess(String arg, LinkedList<String> remainingArgs) {
-            if (remainingArgs.isEmpty()) {
-                System.err.println("Expected fileName for ");
-                showOptions();
-                completed();
-            } else {
-                String parameter = remainingArgs.removeFirst();
-                doProcess(arg, parameter, remainingArgs);
-            }
-        }
-
-        public String getInformation() {
-            return "  " + getAbbreviation() + " or " + getFullName() + " <" + parameterName + "> = " + getDescription();
-        }
-
-        protected abstract void doProcess(String arg, String parameter, LinkedList<String> remainingArgs);
-    }
+//    public abstract class ParameterOption extends Option {
+//        private String parameterName;
+//
+//        protected ParameterOption(String abbreviation, String fullName, String description, String parameterName) {
+//            super(abbreviation, fullName, description);
+//            this.parameterName = parameterName;
+//        }
+//
+//        protected void doProcess(String arg, LinkedList<String> remainingArgs) {
+//            if (remainingArgs.isEmpty()) {
+//                System.err.println("Expected fileName for ");
+//                showOptions();
+//                completed();
+//            } else {
+//                String parameter = remainingArgs.removeFirst();
+//                doProcess(arg, parameter, remainingArgs);
+//            }
+//        }
+//
+//        public String getInformation() {
+//            return "  " + getAbbreviation() + " or " + getFullName() + " <" + parameterName + "> = " + getDescription();
+//        }
+//
+//        protected abstract void doProcess(String arg, String parameter, LinkedList<String> remainingArgs);
+//    }
 
 
 }

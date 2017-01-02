@@ -2,21 +2,25 @@ package drinkwater.core;
 
 import com.codahale.metrics.MetricRegistry;
 import drinkwater.IServiceConfiguration;
+import drinkwater.ServiceConfiguration;
 import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.ServiceScheme;
 import drinkwater.core.helper.DefaultPropertyResolver;
-import drinkwater.core.helper.InternalServiceConfiguration;
+import drinkwater.core.helper.Service;
+import drinkwater.core.internal.CoreCamelContext;
+import drinkwater.core.internal.IServiceManagement;
+import drinkwater.core.internal.ServiceManagementBean;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.reflect.BeanInvocationHandler;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.RestInvocationHandler;
 import drinkwater.rest.RestService;
 import javaslang.collection.List;
-import org.apache.camel.impl.DefaultCamelContext;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //import javax.enterprise.inject.Vetoed;
 
@@ -24,7 +28,7 @@ import java.util.logging.Level;
  * Created by A406775 on 27/12/2016.
  */
 //@Vetoed
-public class DrinkWaterApplication {
+public class DrinkWaterApplication implements ServiceRepository {
 
     static {
         //FIXME manage the logging system
@@ -33,82 +37,122 @@ public class DrinkWaterApplication {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
     }
 
-    RestService restConfiguration = new RestService();
+    private Logger logger = Logger.getLogger(DrinkWaterApplication.class.getName());
 
-    List<InternalServiceConfiguration> serviceConfigurations = List.empty();
+    private RestService restConfiguration = new RestService();
 
-    Map<Class, Object> serviceProxies = new HashMap<>();
+    private List<Service> services = List.empty();
+
+    private Map<Class, Object> serviceProxies = new HashMap<>();
+
+    private CoreCamelContext masterCamelContext = new CoreCamelContext();
 
     public MetricRegistry metrics = new MetricRegistry();
 
-    public void start() {
+    private String name;
 
-        //start services
-        restConfiguration.start();
-
-        for (InternalServiceConfiguration config : serviceConfigurations) {
-            try {
-                config.getCamelContext().start();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+    private DrinkWaterApplication() {
+        this(null);
     }
 
-    public void stop() {
-
-        //stop services
-        for (InternalServiceConfiguration config : serviceConfigurations) {
-            try {
-                config.getCamelContext().stop();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+    private DrinkWaterApplication(String name) {
+        if(name == null){
+            name = "DrinkWaterApplication";
         }
+        this.name = name;
+    }
 
-        restConfiguration.stop();
+
+    public static DrinkWaterApplication create() {
+        return new DrinkWaterApplication();
+    }
+
+    public static DrinkWaterApplication create(String name) {
+        return new DrinkWaterApplication(name);
     }
 
     public void addServiceBuilder(ServiceConfigurationBuilder builder) {
         builder.build().forEach(this::addServiceConfig);
     }
 
+    public void start() {
+
+        restConfiguration.start();
+
+        for (Service config : services) {
+            config.start();
+        }
+
+        ServiceManagementBean serviceManagement = new ServiceManagementBean(services.toJavaList());
+
+        IServiceConfiguration config = ServiceConfiguration
+                .forService(IServiceManagement.class)
+                .useBean(serviceManagement)
+                .name(this.name)
+                .asRest();
+
+        try {
+            masterCamelContext.getCamelContext().addRoutes(
+                    RouteBuilders.mapRestRoutes(this,new Service( masterCamelContext.getCamelContext(), config) ));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        masterCamelContext.start();
+
+        logUsageInfo();
+    }
+
+    public void stop() {
+
+        for (Service config : services) {
+            config.stop();
+        }
+
+        restConfiguration.stop();
+    }
+
     private void addServiceConfig(IServiceConfiguration serviceConfig) {
         try {
 
-            DefaultCamelContext ctx = new DefaultCamelContext();
-            ctx.disableJMX();
-            ctx.setName("CAMEL-CONTEXT-" + serviceConfig.getServiceClass().getName());
+            Service service = new Service(serviceConfig);
 
-            InternalServiceConfiguration config =
-                    new InternalServiceConfiguration(serviceConfig, ctx);
-            if (config.getScheme() == ServiceScheme.BeanObject) {
-                // ctx.addRoutes(RouteBuilders.mapBeanRoutes(this, config));
-                serviceProxies.put(config.getServiceClass(),
-                        ReflectHelper.simpleProxy(config.getServiceClass(),
-                                new BeanInvocationHandler(ctx, this, config)));
-            } else if (config.getScheme() == ServiceScheme.BeanClass) {
-                ctx.addRoutes(RouteBuilders.mapBeanClassRoutes(this, config));
-                serviceProxies.put(config.getServiceClass(),
-                        ReflectHelper.simpleProxy(config.getServiceClass(),
-                                new BeanClassInvocationHandler(ctx)));
-            } else if (config.getScheme() == ServiceScheme.Rest) {
-                ctx.addRoutes(RouteBuilders.mapRestRoutes(this, config));
-                serviceProxies.put(config.getServiceClass(),
-                        ReflectHelper.simpleProxy(config.getServiceClass(),
-                                new RestInvocationHandler(new DefaultPropertyResolver(config), config)));
-            }
+            service.configure(this);
 
+            addProxy(service);
 
-            serviceConfigurations = serviceConfigurations.append(config);
+            services = services.append(service);
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
 
+    public void addProxy(Service serviceToProxy) {
+        if (serviceToProxy.getScheme() == ServiceScheme.BeanObject) {
+            serviceProxies.put(serviceToProxy.getServiceClass(),
+                    ReflectHelper.simpleProxy(serviceToProxy.getServiceClass(),
+                            new BeanInvocationHandler(serviceToProxy.getCamelContext(), this, serviceToProxy)));
+        } else if (serviceToProxy.getScheme() == ServiceScheme.BeanClass) {
+            serviceProxies.put(serviceToProxy.getServiceClass(),
+                    ReflectHelper.simpleProxy(serviceToProxy.getServiceClass(),
+                            new BeanClassInvocationHandler(serviceToProxy.getCamelContext())));
+        } else if (serviceToProxy.getScheme() == ServiceScheme.Rest) {
+            serviceProxies.put(serviceToProxy.getServiceClass(),
+                    ReflectHelper.simpleProxy(serviceToProxy.getServiceClass(),
+                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy)));
+        }
+    }
+
+    @Override
     public <T> T getService(Class<? extends T> iface) {
         return (T) serviceProxies.get(iface);
+    }
+
+    public void logUsageInfo() {
+        logger.info("-----------------------DRINK WATER------------------------------------");
+        logger.info("Management console is available here : http://localhost:9000");
+        logger.info("-----------------------DRINK WATER------------------------------------");
     }
 
 }

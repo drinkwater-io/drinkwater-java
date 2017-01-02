@@ -24,7 +24,7 @@ public class ServiceConfigurationAsRestTest extends HttpUnitTest {
 
     @BeforeClass
     public static void setup() throws Exception {
-        app = new DrinkWaterApplication();
+        app = DrinkWaterApplication.create();
         app.addServiceBuilder(new ServiceConfigurationAsRest());
         app.start();
     }

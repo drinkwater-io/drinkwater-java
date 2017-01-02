@@ -20,4 +20,6 @@ public interface IServiceConfiguration {
     List<IServiceConfiguration> getServiceDependencies();
 
     Object getTargetBean();
+
+    String getServiceName();
 }

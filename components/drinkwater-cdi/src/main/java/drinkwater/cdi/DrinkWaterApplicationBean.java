@@ -1,6 +1,7 @@
 package drinkwater.cdi;
 
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.core.ServiceRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
@@ -16,19 +17,19 @@ import java.util.Set;
 /**
  * Created by A406775 on 29/12/2016.
  */
-public class DrinkWaterApplicationBean implements Bean<DrinkWaterApplication> {
+public class DrinkWaterApplicationBean implements Bean<ServiceRepository> {
     @Override
     public Class<?> getBeanClass() {
         return DrinkWaterApplication.class;
     }
 
     @Override
-    public DrinkWaterApplication create(CreationalContext<DrinkWaterApplication> creationalContext) {
-        return new DrinkWaterApplication();
+    public ServiceRepository create(CreationalContext<ServiceRepository> creationalContext) {
+        return DrinkWaterApplication.create();
     }
 
     @Override
-    public void destroy(DrinkWaterApplication instance, CreationalContext<DrinkWaterApplication> creationalContext) {
+    public void destroy(ServiceRepository instance, CreationalContext<ServiceRepository> creationalContext) {
 
     }
 

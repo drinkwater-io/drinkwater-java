@@ -2,7 +2,7 @@ package drinkwater.core.reflect;
 
         import com.codahale.metrics.Timer;
         import drinkwater.core.DrinkWaterApplication;
-        import drinkwater.core.helper.InternalServiceConfiguration;
+        import drinkwater.core.helper.Service;
         import org.apache.camel.CamelContext;
 
         import java.lang.reflect.InvocationHandler;
@@ -20,7 +20,7 @@ public class BeanInvocationHandler implements InvocationHandler {
     DrinkWaterApplication app;
 
     //FIXME : review how the invocation is done for direct object access.
-    public BeanInvocationHandler(CamelContext context, DrinkWaterApplication app, InternalServiceConfiguration config) {
+    public BeanInvocationHandler(CamelContext context, DrinkWaterApplication app, Service config) {
         this.context = context;
         this.app = app;
         try {

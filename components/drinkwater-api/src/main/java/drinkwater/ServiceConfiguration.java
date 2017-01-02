@@ -9,6 +9,8 @@ import java.util.List;
  */
 public class ServiceConfiguration implements IServiceConfiguration {
 
+    private String serviceName;
+
     private String properties;
 
     private Class serviceClass;
@@ -30,6 +32,11 @@ public class ServiceConfiguration implements IServiceConfiguration {
         ServiceConfiguration sc = new ServiceConfiguration();
         sc.serviceClass = serviceClass;
         return sc;
+    }
+
+    public ServiceConfiguration name(String name) {
+        this.serviceName = name;
+        return this;
     }
 
     public ServiceConfiguration withProperties(String propertyFile) {
@@ -109,5 +116,13 @@ public class ServiceConfiguration implements IServiceConfiguration {
     @Override
     public Object getTargetBean() {
         return targetBean;
+    }
+
+    @Override
+    public String getServiceName() {
+        if(serviceName == null){
+            return this.getServiceClass().getName().toLowerCase();
+        }
+        return serviceName;
     }
 }

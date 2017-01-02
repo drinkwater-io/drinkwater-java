@@ -20,7 +20,7 @@ public class ServiceConfigurationAsBeanClassTest {
 
     @BeforeClass
     public static void setup() throws Exception {
-        app = new DrinkWaterApplication();
+        app = DrinkWaterApplication.create();
         app.addServiceBuilder(new ServiceConfigurationAsBeanClass());
         app.start();
     }

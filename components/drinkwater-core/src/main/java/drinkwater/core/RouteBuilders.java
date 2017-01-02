@@ -2,7 +2,7 @@ package drinkwater.core;
 
 import drinkwater.core.helper.BeanFactory;
 import drinkwater.core.helper.DefaultPropertyResolver;
-import drinkwater.core.helper.InternalServiceConfiguration;
+import drinkwater.core.helper.Service;
 import drinkwater.rest.RestHelper;
 import javaslang.collection.List;
 import org.apache.camel.RoutesBuilder;
@@ -18,15 +18,15 @@ import java.util.ArrayList;
  */
 public class RouteBuilders {
 
-    public static RoutesBuilder mapBeanRoutes(DrinkWaterApplication drinkWaterApplication,
-                                              InternalServiceConfiguration config) {
+    public static RoutesBuilder mapBeanRoutes(ServiceRepository serviceRepository,
+                                              Service service) {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                List<Method> methods = javaslang.collection.List.of(config.getServiceClass().getDeclaredMethods());
+                List<Method> methods = javaslang.collection.List.of(service.getServiceClass().getDeclaredMethods());
 
                 // create an instance of the bean
-                Object beanToUse = config.getTargetBean();
+                Object beanToUse = service.getTargetBean();
 
                 for (Method m : methods) {
                     if (Modifier.isPublic(m.getModifiers())) {
@@ -38,30 +38,30 @@ public class RouteBuilders {
         };
     }
 
-    public static RouteBuilder mapRestRoutes(DrinkWaterApplication app, InternalServiceConfiguration config) {
+    public static RouteBuilder mapRestRoutes(ServiceRepository app, Service service) {
 
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
 
-                Object bean = BeanFactory.createBeanClass(app, config);
+                Object bean = BeanFactory.createBean(app, service);
 
-                RestHelper.buildRestRoutes(this, bean, new DefaultPropertyResolver(config), config);
+                RestHelper.buildRestRoutes(this, bean, new DefaultPropertyResolver(service), service);
 
             }
         };
     }
 
     //FIXME to many params
-    public static RouteBuilder mapBeanClassRoutes(DrinkWaterApplication app, InternalServiceConfiguration config) {
+    public static RouteBuilder mapBeanClassRoutes(ServiceRepository app, Service service) {
 
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                List<Method> methods = javaslang.collection.List.of(config.getServiceClass().getDeclaredMethods());
+                List<Method> methods = javaslang.collection.List.of(service.getServiceClass().getDeclaredMethods());
 
                 // create an instance of the bean
-                Object beanToUse = BeanFactory.createBeanClass(app, config);
+                Object beanToUse = BeanFactory.createBeanClass(app, service);
 
                 for (Method m : methods) {
                     if (Modifier.isPublic(m.getModifiers())) {

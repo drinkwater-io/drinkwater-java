@@ -8,14 +8,22 @@ import com.mashape.unirest.http.HttpMethod;
 public class HttpUnitTest {
 
     public static HttpTestRequest httpGet(String request) {
-        return new HttpTestRequest(HttpMethod.GET, request, null);
+        return new HttpTestRequest(HttpMethod.GET, request, null, HttpTestRequest.ResponseType.Json);
+    }
+
+    public static HttpTestRequest httpGetString(String request) {
+        return new HttpTestRequest(HttpMethod.GET, request, null, HttpTestRequest.ResponseType.String);
     }
 
     public static HttpTestRequest httpPost(String request, String body) {
-        return new HttpTestRequest(HttpMethod.POST, request, body);
+        return new HttpTestRequest(HttpMethod.POST, request, body, HttpTestRequest.ResponseType.Json);
+    }
+
+    public static HttpTestRequest httpPostRequestString(String request, String body) {
+        return new HttpTestRequest(HttpMethod.POST, request, body, HttpTestRequest.ResponseType.String);
     }
 
     public static HttpTestRequest httpPut(String request, String body) {
-        return new HttpTestRequest(HttpMethod.PUT, request, body);
+        return new HttpTestRequest(HttpMethod.PUT, request, body, HttpTestRequest.ResponseType.Json);
     }
 }
