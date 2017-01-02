@@ -39,9 +39,9 @@ public class ServiceConfigurationAsRestTest extends HttpUnitTest {
         IAccountService accountService = app.getService(IAccountService.class);
         Account account = accountService.createAccount("cedric", "secret");
 
-        httpPost(apiEnpoint + "/volume?volume=10",
+        httpPostRequestString(apiEnpoint + "/volume?volume=10",
                 "{'accountName':'cedric','authenticated':true, 'accountPassword':'secret'}")
-                .expectsBody("\"00010\"");
+                .expectsBody("00010");
 
         accountService.clearAccounts();
     }
