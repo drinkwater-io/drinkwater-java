@@ -3,6 +3,8 @@ package test.drinkwater.examples.drinktracker.benchmark;
 import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.core.DrinkWaterApplication;
 import examples.drinkwater.drinktracker.asbean.ServiceConfigurationAsBeanObject;
+import examples.drinkwater.drinktracker.asbeanclass.ServiceConfigurationAsBeanClass;
+import examples.drinkwater.drinktracker.asrest.ServiceConfigurationAsRest;
 import examples.drinkwater.drinktracker.model.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -17,7 +19,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class SimpleBenchMark {
 
-    private int LOOP_COUNT = 10;
+    private int LOOP_COUNT = 1;
 
     @Test
     public void performBenchMark() throws Exception {
@@ -28,13 +30,13 @@ public class SimpleBenchMark {
         long timeWithoutDW = 0;
 
 //        //without DrinkWater
-//        timeWithoutDW = benchMarkWithoutDW();
+        timeWithoutDW = benchMarkWithoutDW();
 //        //rest
-//        timeAsRest = benchMarkThisConfig(new ServiceConfigurationAsRest());
+        timeAsRest = benchMarkThisConfig(new ServiceConfigurationAsRest());
 //        //beanobject
         timeAsBeanObject = benchMarkThisConfig(new ServiceConfigurationAsBeanObject());
 //        //as beanClass
-//        timeAsBeanClass = benchMarkThisConfig(new ServiceConfigurationAsBeanClass());
+        timeAsBeanClass = benchMarkThisConfig(new ServiceConfigurationAsBeanClass());
 
         printReport(timeWithoutDW, timeAsBeanObject, timeAsBeanClass, timeAsRest);
 

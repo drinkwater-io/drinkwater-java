@@ -19,6 +19,6 @@ public class ServiceBImpl implements IServiceB {
 
         String fromD = serviceD.uppercaseData(fromC);
 
-        return String.format("Using ServiceC with data : (%s) and received (%s) then calling Service D and received (%s)", dataInfo, fromC, fromD);
+        return String.format("B [%s]", fromD);
     }
 }

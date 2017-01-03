@@ -12,6 +12,6 @@ public class ServiceDImpl implements IServiceD {
     @Override
     public String uppercaseData(String data) {
 
-        return String.format("Uppercasing in Service D : %s and append text : %s", data.toUpperCase(), textToAppend);
+        return String.format("C : [uppercase : %s - append : %s]", data.toUpperCase(), textToAppend);
     }
 }

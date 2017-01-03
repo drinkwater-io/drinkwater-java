@@ -17,6 +17,6 @@ public class ServiceAImpl implements IServiceA {
 
         String fromServiceB = serviceB.getTransformedData(data);
 
-        return String.format("In A, data was : %s  - calling B returned : [%s]", initialData, fromServiceB);
+        return String.format("A [initial : %s - result : %s]", initialData, fromServiceB);
     }
 }

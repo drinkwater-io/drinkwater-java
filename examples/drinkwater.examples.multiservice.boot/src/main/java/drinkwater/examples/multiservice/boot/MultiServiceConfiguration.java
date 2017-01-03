@@ -28,7 +28,8 @@ public class MultiServiceConfiguration extends ServiceConfigurationBuilder {
                 .withProperties("classpath:multiservice.properties")
                 .withInjectionStrategy(InjectionStrategy.Default)
                 .name("serviceD")
-                .asRest();
+                // .asRest()
+                ;
 
         ServiceConfiguration configC = ServiceConfiguration
                 .forService(IServiceC.class)
@@ -36,13 +37,14 @@ public class MultiServiceConfiguration extends ServiceConfigurationBuilder {
                 .withProperties("classpath:multiservice.properties")
                 .withInjectionStrategy(InjectionStrategy.Default)
                 .name("serviceC")
-                .asRest();
+                //  .asRest()
+                ;
 
         ServiceConfiguration configB = ServiceConfiguration
                 .forService(IServiceB.class)
                 .useBeanClass(ServiceBImpl.class)
                 .name("serviceB")
-                .asRest()
+                // .asRest()
                 .dependsOn(configC, configD);
 
         ServiceConfiguration configA = ServiceConfiguration
