@@ -13,6 +13,7 @@ public class RestService {
     public static final String REST_PORT_KEY = "drinkwater.rest.port";
     public static final String REST_CONTEXT_KEY = "drinkwater.rest.contextpath";
 
+
     public void start() {
         Unirest.setObjectMapper(new JacksonObjectMapper());
     }

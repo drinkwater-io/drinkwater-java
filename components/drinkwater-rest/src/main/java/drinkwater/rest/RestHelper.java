@@ -43,7 +43,7 @@ public class RestHelper {
 
         drinkwater.rest.HttpMethod methodAsAnnotation = method.getDeclaredAnnotation(drinkwater.rest.HttpMethod.class);
 
-        if(methodAsAnnotation != null){
+        if (methodAsAnnotation != null) {
             return mapToUnirestHttpMethod(methodAsAnnotation);
         }
 
@@ -53,14 +53,20 @@ public class RestHelper {
                 .getOrElse(defaultHttpMethod);
     }
 
-    public static HttpMethod mapToUnirestHttpMethod(drinkwater.rest.HttpMethod methodAsAnnotation){
-        switch (methodAsAnnotation.value().toUpperCase()){
-            case "GET" : return HttpMethod.GET;
-            case "POST" : return HttpMethod.POST;
-            case "DELETE" : return HttpMethod.DELETE;
-            case "PUT" : return HttpMethod.PUT;
-            case "PATCH" : return HttpMethod.PATCH;
-            default: throw new RuntimeException(String.format("could not map correct http method : %s", methodAsAnnotation.value()));
+    public static HttpMethod mapToUnirestHttpMethod(drinkwater.rest.HttpMethod methodAsAnnotation) {
+        switch (methodAsAnnotation.value().toUpperCase()) {
+            case "GET":
+                return HttpMethod.GET;
+            case "POST":
+                return HttpMethod.POST;
+            case "DELETE":
+                return HttpMethod.DELETE;
+            case "PUT":
+                return HttpMethod.PUT;
+            case "PATCH":
+                return HttpMethod.PATCH;
+            default:
+                throw new RuntimeException(String.format("could not map correct http method : %s", methodAsAnnotation.value()));
         }
     }
 
@@ -109,11 +115,14 @@ public class RestHelper {
                                        IDrinkWaterService config) {
 
         try {
+            // builder.getContext().getDataFormats();
             builder.restConfiguration().component("jetty")
                     .host(host(propertiesResolver))
                     .port(port(propertiesResolver))
                     .contextPath(context(propertiesResolver, config.configuration()))
-                    .bindingMode(RestBindingMode.json);
+                    .bindingMode(RestBindingMode.json)
+                    .jsonDataFormat("json-drinkwater")
+            ;
         } catch (Exception ex) {
             throw new RuntimeException("could not configure the rest service correctly", ex);
         }

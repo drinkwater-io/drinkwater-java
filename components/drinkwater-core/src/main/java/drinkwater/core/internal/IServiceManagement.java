@@ -23,4 +23,6 @@ public interface IServiceManagement {
     ServiceState getServiceState(String serviceName);
 
     MetricRegistry getMetrics();
+
+    MetricRegistry getJvm();
 }

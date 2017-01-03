@@ -2,6 +2,7 @@ package drinkwater.rest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mashape.unirest.http.ObjectMapper;
+import drinkwater.helper.json.CustomJacksonObjectMapper;
 
 import java.io.IOException;
 
@@ -10,7 +11,7 @@ import java.io.IOException;
  */
 public class JacksonObjectMapper implements ObjectMapper {
     private com.fasterxml.jackson.databind.ObjectMapper jacksonObjectMapper
-            = new com.fasterxml.jackson.databind.ObjectMapper();
+            = new CustomJacksonObjectMapper();
 
     public <T> T readValue(String value, Class<T> valueType) {
         try {

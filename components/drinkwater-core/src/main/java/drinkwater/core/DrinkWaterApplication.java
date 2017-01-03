@@ -3,10 +3,7 @@ package drinkwater.core;
 import drinkwater.*;
 import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.Service;
-import drinkwater.core.internal.CoreCamelContext;
-import drinkwater.core.internal.IServiceManagement;
-import drinkwater.core.internal.ServiceManagementBean;
-import drinkwater.core.internal.TracerBean;
+import drinkwater.core.internal.*;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.reflect.BeanInvocationHandler;
 import drinkwater.helper.reflect.ReflectHelper;
@@ -35,6 +32,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     public TracerBean tracer = new TracerBean();
+    public JVMMetricsBean jvmMetricsBean = new JVMMetricsBean();
     private Logger logger = Logger.getLogger(DrinkWaterApplication.class.getName());
     private RestService restConfiguration = new RestService();
     private List<IDrinkWaterService> services = List.empty();
@@ -79,7 +77,10 @@ public class DrinkWaterApplication implements ServiceRepository {
             config.start();
         }
 
-        ServiceManagementBean serviceManagement = new ServiceManagementBean(services.toJavaList(), tracer.getMetrics());
+        ServiceManagementBean serviceManagement = new ServiceManagementBean(
+                services.toJavaList(),
+                tracer.getMetrics(),
+                jvmMetricsBean.getMetrics());
 
         IServiceConfiguration config = ServiceConfiguration
                 .forService(IServiceManagement.class)

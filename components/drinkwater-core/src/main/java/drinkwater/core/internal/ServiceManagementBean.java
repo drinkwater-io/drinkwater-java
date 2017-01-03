@@ -18,11 +18,16 @@ public class ServiceManagementBean implements IServiceManagement {
 
     private MetricRegistry metricsregistry;
 
+    private MetricRegistry jvmMetricsRegistry;
+
     public ServiceManagementBean() {
     }
 
-    public ServiceManagementBean(List<IDrinkWaterService> IDrinkWaterServices, MetricRegistry metricsRegistry) {
+    public ServiceManagementBean(List<IDrinkWaterService> IDrinkWaterServices,
+                                 MetricRegistry metricsRegistry,
+                                 MetricRegistry jvmMetricsRegistry) {
         this.metricsregistry = metricsRegistry;
+        this.jvmMetricsRegistry = jvmMetricsRegistry;
 
         this.IDrinkWaterServices = IDrinkWaterServices;
     }
@@ -84,5 +89,11 @@ public class ServiceManagementBean implements IServiceManagement {
     public MetricRegistry getMetrics() {
 
         return metricsregistry;
+    }
+
+    @Override
+    public MetricRegistry getJvm() {
+
+        return jvmMetricsRegistry;
     }
 }

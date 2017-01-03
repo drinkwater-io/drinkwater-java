@@ -1,5 +1,6 @@
 package drinkwater.core.internal;
 
+import drinkwater.core.CamelContextFactory;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.JndiRegistry;
@@ -20,10 +21,26 @@ public class CoreCamelContext {
     private DefaultCamelContext camelContext;
 
     public CoreCamelContext() {
-        this.camelContext = new DefaultCamelContext(new SimpleRegistry());
-        this.camelContext.setName("MASTER-DRINK_WATER_CONTEXT");
+        this.camelContext = CamelContextFactory.createCamelContext("core");
         registerCoreBeans();
 
+    }
+
+    public static ResourceHandler getResourceHandler() {
+        ResourceHandler staticHandler = new ResourceHandler();
+        staticHandler.setBaseResource(Resource.newClassPathResource("/www"));
+        return staticHandler;
+    }
+
+    public static RouteBuilder createCoreRoutes() {
+        return new RouteBuilder() {
+
+            @Override
+            public void configure() throws Exception {
+                from("jetty:http://localhost:9000?handlers=" + DW_STATICHANDLER)
+                        .to("mock:empty?retainFirst=1");
+            }
+        };
     }
 
     public void registerCoreBeans(){
@@ -72,23 +89,6 @@ public class CoreCamelContext {
             throw new RuntimeException("could not identify the registry type while registering core beans");
         }
 
-    }
-
-    public static ResourceHandler getResourceHandler(){
-        ResourceHandler staticHandler = new ResourceHandler();
-        staticHandler.setBaseResource(Resource.newClassPathResource("/www"));
-        return staticHandler;
-    }
-
-    public static RouteBuilder createCoreRoutes(){
-        return new RouteBuilder(){
-
-            @Override
-            public void configure() throws Exception {
-                from("jetty:http://localhost:9000?handlers=" + DW_STATICHANDLER)
-                        .to("mock:empty?retainFirst=1");
-            }
-        };
     }
 
 }
