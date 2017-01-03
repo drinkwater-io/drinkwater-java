@@ -21,7 +21,6 @@ public class Service implements drinkwater.IDrinkWaterService {
 
     @JsonIgnore
     DefaultCamelContext camelContext;
-    //lazy initialized
     @JsonIgnore
     PropertiesComponent propertiesComponent;
     @JsonIgnore
@@ -51,22 +50,15 @@ public class Service implements drinkwater.IDrinkWaterService {
         return camelContext;
     }
 
-
     @Override
     public ITracer getTracer() {
         return tracer;
-    }
-
-    @Override
-    public IServiceConfiguration configuration() {
-        return serviceConfiguration;
     }
 
     public PropertiesComponent getPropertiesComponent() {
         if (propertiesComponent == null) {
             propertiesComponent = camelContext.getComponent(
                     "properties", PropertiesComponent.class);
-            propertiesComponent.setLocation(this.configuration().getProperties());
         }
         return propertiesComponent;
     }
@@ -108,5 +100,10 @@ public class Service implements drinkwater.IDrinkWaterService {
     @Override
     public ServiceState getState() {
         return state;
+    }
+
+    @Override
+    public IServiceConfiguration getConfiguration() {
+        return serviceConfiguration;
     }
 }

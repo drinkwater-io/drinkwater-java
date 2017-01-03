@@ -2,6 +2,7 @@ package drinkwater.core;
 
 import drinkwater.IServiceConfiguration;
 import org.apache.camel.CamelContext;
+import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.impl.JndiRegistry;
 import org.apache.camel.impl.PropertyPlaceholderDelegateRegistry;
@@ -15,11 +16,13 @@ public class CamelContextFactory {
 
     public static DefaultCamelContext createCamelContext(IServiceConfiguration serviceConfiguration) {
         DefaultCamelContext ctx = createCamelContext(serviceConfiguration.getServiceName(), new SimpleRegistry());
+        initProperties(ctx, serviceConfiguration);
         return ctx;
     }
 
     public static DefaultCamelContext createCamelContext(IServiceConfiguration serviceConfiguration, Registry registry) {
         DefaultCamelContext ctx = createCamelContext(serviceConfiguration.getServiceName(), registry);
+        initProperties(ctx, serviceConfiguration);
         return ctx;
     }
 
@@ -44,6 +47,20 @@ public class CamelContextFactory {
 //        registerBean(ctx.getRegistry(), "drinkwater-jsonformat", new DWJsonDataFormat());
 
         return ctx;
+    }
+
+    public static void initProperties(CamelContext context, IServiceConfiguration configuration) {
+        PropertiesComponent propertiesComponent = context.getComponent(
+                "properties", PropertiesComponent.class);
+        propertiesComponent.setIgnoreMissingLocation(true);
+        propertiesComponent.setLocations(configuration
+                .getPropertiesLocations());
+    }
+
+    public static String parseURI(CamelContext context, String uri) throws Exception {
+        PropertiesComponent propertiesComponent = context.getComponent(
+                "properties", PropertiesComponent.class);
+        return propertiesComponent.parseUri(uri);
     }
 
     private static DefaultCamelContext createWithRegistry(Registry registry) {

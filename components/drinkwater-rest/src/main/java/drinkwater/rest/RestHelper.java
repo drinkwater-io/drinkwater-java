@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import static drinkwater.DrinkWaterConstants.BeanOperationName;
 import static drinkwater.helper.StringHelper.startsWithOneOf;
 
 /**
@@ -82,8 +83,9 @@ public class RestHelper {
 
     public static Tuple2<RestDefinition, String> buildRestRoute(RouteBuilder builder, Method method, ITracer tracer) {
 
-        //start the tracing
-        builder.interceptFrom().bean(tracer, "start(${exchange})");
+        builder.interceptFrom().setHeader(BeanOperationName)
+                .constant(formatMethod(method))
+                .bean(tracer, "start(${exchange})");
 
         HttpMethod httpMethod = httpMethodFor(method);
 
@@ -92,10 +94,15 @@ public class RestHelper {
         RestDefinition restDefinition =
                 toRestdefinition(builder, method, httpMethod, restPath);
 
+
         String camelMethod = camelMethodBuilder(method);
 
         return Tuple.of(restDefinition, camelMethod);
 
+    }
+
+    public static String formatMethod(Method m) {
+        return m.getDeclaringClass().getSimpleName() + "." + m.getName();
     }
 
     public static String host(IPropertyResolver propertiesResolver) throws Exception {
@@ -119,7 +126,7 @@ public class RestHelper {
             builder.restConfiguration().component("jetty")
                     .host(host(propertiesResolver))
                     .port(port(propertiesResolver))
-                    .contextPath(context(propertiesResolver, config.configuration()))
+                    .contextPath(context(propertiesResolver, config.getConfiguration()))
                     .bindingMode(RestBindingMode.json)
                     .jsonDataFormat("json-drinkwater")
             ;
@@ -205,10 +212,18 @@ public class RestHelper {
 
     }
 
-    private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, String methodName, ITracer tracer) {
+    private static String methodSignature(Method m) {
+
+        MethodToRestParameters methodtoRoute = new MethodToRestParameters(m);
+
+        return methodtoRoute.exchangeToBean();
+
+    }
+
+    private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, String camelFormattedMethodName, ITracer tracer) {
         RouteDefinition def = restDefinition.route();
 
-        return def.bean(bean, methodName).bean(tracer, "stop(${exchange})");
+        return def.bean(bean, camelFormattedMethodName).bean(tracer, "stop(${exchange})");
     }
 
 

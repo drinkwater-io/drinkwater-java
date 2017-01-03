@@ -149,11 +149,13 @@ public final class Rest {
         if (headers.size() > 0) {
             int i = startAt;
             for (String header : headers) {
-                String headerValue;
-                if (!isPrimitiveOrString(args[i].getClass())) {
-                    headerValue = new JacksonObjectMapper().writeValue(args[i]);
-                } else {
-                    headerValue = args[i].toString();
+                String headerValue = "";
+                if (args[i] != null) {
+                    if (!isPrimitiveOrString(args[i].getClass())) {
+                        headerValue = new JacksonObjectMapper().writeValue(args[i]);
+                    } else {
+                        headerValue = args[i].toString();
+                    }
                 }
                 request = request.queryString(header, headerValue);
                 i++;

@@ -19,8 +19,8 @@ import static org.junit.Assert.assertTrue;
  * Unit test for simple App.
  */
 public class ServiceConfigurationAsRestTest extends HttpUnitTest {
-    static DrinkWaterApplication app;
-    static String apiEnpoint = "http://localhost:8889/examples.drinkwater.drinktracker.model.idrinktrackerservice";
+    private static DrinkWaterApplication app;
+    private static String apiEnpoint = "http://localhost:8889/idrinktrackerservice";
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -37,7 +37,7 @@ public class ServiceConfigurationAsRestTest extends HttpUnitTest {
     @Test
     public void shouldSaveNumberThroughRest() throws Exception {
         IAccountService accountService = app.getService(IAccountService.class);
-        Account account = accountService.createAccount("cedric", "secret");
+        accountService.createAccount("cedric", "secret");
 
         httpPostRequestString(apiEnpoint + "/volume?volume=10",
                 "{'accountName':'cedric','authenticated':true, 'accountPassword':'secret'}")

@@ -7,11 +7,12 @@ public interface IDrinkWaterService {
 
     ITracer getTracer();
 
-    IServiceConfiguration configuration();
+    IServiceConfiguration getConfiguration();
 
     void start();
 
     void stop();
 
     ServiceState getState();
+
 }

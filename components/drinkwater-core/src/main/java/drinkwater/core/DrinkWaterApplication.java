@@ -3,13 +3,19 @@ package drinkwater.core;
 import drinkwater.*;
 import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.Service;
-import drinkwater.core.internal.*;
+import drinkwater.core.internal.IServiceManagement;
+import drinkwater.core.internal.JVMMetricsBean;
+import drinkwater.core.internal.ServiceManagementBean;
+import drinkwater.core.internal.TracerBean;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.reflect.BeanInvocationHandler;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.RestInvocationHandler;
 import drinkwater.rest.RestService;
 import javaslang.collection.List;
+import org.apache.camel.builder.RouteBuilder;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.util.resource.Resource;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +30,8 @@ import java.util.logging.Logger;
 //@Vetoed
 public class DrinkWaterApplication implements ServiceRepository {
 
+    public static final String DW_STATICHANDLER = "dw-statichandler";
+
     static {
         //FIXME manage the logging system
         java.util.logging.Logger topLogger = java.util.logging.Logger.getLogger("");
@@ -31,24 +39,22 @@ public class DrinkWaterApplication implements ServiceRepository {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
     }
 
-    public TracerBean tracer = new TracerBean();
-    public JVMMetricsBean jvmMetricsBean = new JVMMetricsBean();
+    private String name;
+    private TracerBean tracer = new TracerBean();
+    private JVMMetricsBean jvmMetricsBean = new JVMMetricsBean();
     private Logger logger = Logger.getLogger(DrinkWaterApplication.class.getName());
     private RestService restConfiguration = new RestService();
     private List<IDrinkWaterService> services = List.empty();
     private Map<Class, Object> serviceProxies = new HashMap<>();
-
-    //public MetricRegistry metrics = new MetricRegistry();
-    private CoreCamelContext masterCamelContext = new CoreCamelContext();
-    private String name;
+    private Service managementService;
 
     private DrinkWaterApplication() {
         this(null);
     }
 
     private DrinkWaterApplication(String name) {
-        if(name == null){
-            name = "DrinkWaterApplication";
+        if (name == null) {
+            name = "drinkwater";
         }
         this.name = name;
     }
@@ -61,43 +67,47 @@ public class DrinkWaterApplication implements ServiceRepository {
         return new DrinkWaterApplication(name);
     }
 
+    public static RouteBuilder createCoreRoutes(String managementHost) {
+        return new RouteBuilder() {
+
+            @Override
+            public void configure() throws Exception {
+
+                from(String.format(
+                        "jetty:http://%s?handlers=%s", managementHost, DW_STATICHANDLER))
+                        .to("mock:empty?retainFirst=1");
+
+
+            }
+        };
+    }
+
+    public static ResourceHandler getResourceHandler() {
+        ResourceHandler staticHandler = new ResourceHandler();
+        staticHandler.setBaseResource(Resource.newClassPathResource("/www"));
+        return staticHandler;
+    }
+
     public TracerBean getTracer() {
         return tracer;
     }
 
     public void addServiceBuilder(ServiceConfigurationBuilder builder) {
-        builder.build().forEach(this::addServiceConfig);
+        List.ofAll(builder.build()).forEach(this::addService);
     }
 
     public void start() {
+        logStartInfo();
 
-        restConfiguration.start();
+        startServices();
 
         for (IDrinkWaterService config : services) {
             config.start();
         }
 
-        ServiceManagementBean serviceManagement = new ServiceManagementBean(
-                services.toJavaList(),
-                tracer.getMetrics(),
-                jvmMetricsBean.getMetrics());
+        createAndStartManagementService();
 
-        IServiceConfiguration config = ServiceConfiguration
-                .forService(IServiceManagement.class)
-                .useBean(serviceManagement)
-                .name(this.name)
-                .asRest();
-
-        try {
-            masterCamelContext.getCamelContext().addRoutes(
-                    RouteBuilders.mapRestRoutes(this, new Service(masterCamelContext.getCamelContext(), config, tracer)));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        masterCamelContext.start();
-
-        logUsageInfo();
+        logEndInfo();
     }
 
     public void stop() {
@@ -106,19 +116,25 @@ public class DrinkWaterApplication implements ServiceRepository {
             config.stop();
         }
 
-        restConfiguration.stop();
+        stopServices();
+
+        stopManagementService();
     }
 
-    private void addServiceConfig(IServiceConfiguration serviceConfig) {
+    private void addService(IServiceConfiguration serviceConfig) {
+        Service s = createServiceFromConfig(serviceConfig, tracer);
+        services = services.append(s);
+        addProxy(s);
+    }
+
+    private Service createServiceFromConfig(IServiceConfiguration serviceConfig, ITracer metricTracer) {
         try {
 
-            Service service = new Service(serviceConfig, tracer);
+            Service service = new Service(serviceConfig, metricTracer);
 
             service.configure(this);
 
-            addProxy(service);
-
-            services = services.append(service);
+            return service;
 
         } catch (Exception ex) {
             throw new RuntimeException(ex);
@@ -126,18 +142,18 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     public void addProxy(Service serviceToProxy) {
-        if (serviceToProxy.configuration().getScheme() == ServiceScheme.BeanObject) {
-            serviceProxies.put(serviceToProxy.configuration().getServiceClass(),
-                    ReflectHelper.simpleProxy(serviceToProxy.configuration().getServiceClass(),
+        if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.BeanObject) {
+            serviceProxies.put(serviceToProxy.getConfiguration().getServiceClass(),
+                    ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
                             new BeanInvocationHandler(serviceToProxy.getCamelContext(), this, serviceToProxy)));
-        } else if (serviceToProxy.configuration().getScheme() == ServiceScheme.BeanClass) {
-            serviceProxies.put(serviceToProxy.configuration().getServiceClass(),
-                    ReflectHelper.simpleProxy(serviceToProxy.configuration().getServiceClass(),
+        } else if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.BeanClass) {
+            serviceProxies.put(serviceToProxy.getConfiguration().getServiceClass(),
+                    ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
                             new BeanClassInvocationHandler(serviceToProxy.getCamelContext())));
-        } else if (serviceToProxy.configuration().getScheme() == ServiceScheme.Rest) {
-            serviceProxies.put(serviceToProxy.configuration().getServiceClass(),
-                    ReflectHelper.simpleProxy(serviceToProxy.configuration().getServiceClass(),
-                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy.configuration())));
+        } else if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Rest) {
+            serviceProxies.put(serviceToProxy.getConfiguration().getServiceClass(),
+                    ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
+                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy.getConfiguration())));
         }
     }
 
@@ -146,10 +162,66 @@ public class DrinkWaterApplication implements ServiceRepository {
         return (T) serviceProxies.get(iface);
     }
 
-    public void logUsageInfo() {
-        logger.info("-----------------------DRINK WATER------------------------------------");
-        logger.info("Management console is available here : http://localhost:9000");
-        logger.info("-----------------------DRINK WATER------------------------------------");
+    private void startServices() {
+        restConfiguration.start();
+    }
+
+    private void stopServices() {
+        restConfiguration.start();
+    }
+
+    private void createAndStartManagementService() {
+
+        try {
+
+            logger.info("starting management service");
+
+            ServiceManagementBean serviceManagement = new ServiceManagementBean(
+                    services.toJavaList(),
+                    tracer.getMetrics(),
+                    jvmMetricsBean.getMetrics());
+
+            String defaultPropertiesName = "classpath:" + this.name + ".properties";
+
+            logger.info(String.format("getting management service properties from file : %s", defaultPropertiesName));
+
+            IServiceConfiguration config = ServiceConfiguration
+                    .forService(IServiceManagement.class)
+                    .useBean(serviceManagement)
+                    .withProperties(defaultPropertiesName)
+                    .name(this.name)
+                    .asRest();
+
+            managementService = createServiceFromConfig(config, tracer);
+
+            CamelContextFactory.registerBean(managementService.getCamelContext(), DW_STATICHANDLER, getResourceHandler());
+
+            String managementHost = managementService.lookupProperty(name + ".management.host:localhost");
+            String managementPort = managementService.lookupProperty(name + ".management.port:9000");
+            String managementHostAndPort = managementHost + ":" + managementPort;
+
+            managementService.getCamelContext().addRoutes(createCoreRoutes(managementHostAndPort));
+
+            logger.info("management web page can be found here : http://" + managementHostAndPort);
+
+            managementService.start();
+
+            logger.info("management service started");
+        } catch (Exception ex) {
+            throw new RuntimeException("Could not start Core Context ", ex);
+        }
+    }
+
+    private void stopManagementService() {
+        managementService.stop();
+    }
+
+    private void logStartInfo() {
+        logger.info("-----------------------STARTING " + name + "------------------------------------");
+    }
+
+    private void logEndInfo() {
+        logger.info("----------------------- " + name + " STARTED------------------------------------");
     }
 
 }

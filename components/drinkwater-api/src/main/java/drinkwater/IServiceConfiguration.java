@@ -9,7 +9,7 @@ public interface IServiceConfiguration {
 
     Class getServiceClass();
 
-    String getProperties();
+    String[] getPropertiesLocations();
 
     Class getTargetBeanClass();
 

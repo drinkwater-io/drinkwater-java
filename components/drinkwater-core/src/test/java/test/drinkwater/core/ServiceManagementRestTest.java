@@ -63,8 +63,8 @@ public class ServiceManagementRestTest extends HttpUnitTest {
 
         Map<String, Metric> metrics = registry.getMetrics();
 
-        assertNotNull(metrics.get("/test/testinfo"));
-        assertTrue(metrics.get("/test/testinfo") instanceof Timer);
+        assertNotNull(metrics.get("TestServiceImpl.getTestInfo"));
+        assertTrue(metrics.get("TestServiceImpl.getTestInfo") instanceof Timer);
     }
 
 

@@ -7,8 +7,10 @@ import drinkwater.examples.multiservice.IServiceC;
  */
 public class ServiceCImpl implements IServiceC {
 
+    private String connection;
+
     @Override
     public String findData(String searchInfo) {
-        return String.format("from C : %s", searchInfo);
+        return String.format("In C trying to lookupdata using connection (%s) and search info: %s", connection, searchInfo);
     }
 }

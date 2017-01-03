@@ -12,8 +12,11 @@ public class ServiceAImpl implements IServiceA {
 
     @Override
     public String getData(String data) {
+
+        String initialData = data;
+
         String fromServiceB = serviceB.getTransformedData(data);
 
-        return String.format("service A returns : %s", fromServiceB);
+        return String.format("In A, data was : %s  - calling B returned : [%s]", initialData, fromServiceB);
     }
 }

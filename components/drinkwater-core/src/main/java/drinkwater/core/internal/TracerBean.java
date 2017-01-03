@@ -5,6 +5,9 @@ import com.codahale.metrics.Timer;
 import drinkwater.ITracer;
 import org.apache.camel.Exchange;
 
+import static drinkwater.DrinkWaterConstants.BeanOperationName;
+import static drinkwater.DrinkWaterConstants.MetricsOperationTimer;
+
 /**
  * Created by A406775 on 2/01/2017.
  */
@@ -13,15 +16,24 @@ public class TracerBean implements ITracer {
     public MetricRegistry metrics = new MetricRegistry();
 
     public void start(Object exchange) {
-        Exchange exchange1 = (Exchange) exchange;
-        String uriName = (String) exchange1.getIn().getHeader("CamelHttpUri");
-        exchange1.getIn().setHeader("DW-REST-TRACER", createTimerContext(uriName));
+        if (exchange != null && exchange instanceof Exchange) {
+            Exchange exchange1 = (Exchange) exchange;
+            Object uriName = exchange1.getIn().getHeader(BeanOperationName);
+            if (uriName != null) {
+                exchange1.getIn().setHeader(MetricsOperationTimer, createTimerContext((String) uriName));
+            }
+        }
+
     }
 
     public void stop(Object exchange) {
-        Exchange exchange1 = (Exchange) exchange;
-        Timer.Context ctx = (Timer.Context) exchange1.getIn().getHeader("DW-REST-TRACER");
-        ctx.stop();
+        if (exchange != null && exchange instanceof Exchange) {
+            Exchange exchange1 = (Exchange) exchange;
+            Object timerContext = exchange1.getIn().getHeader(MetricsOperationTimer);
+            if (timerContext != null) {
+                ((Timer.Context) timerContext).stop();
+            }
+        }
     }
 
     public MetricRegistry getMetrics() {

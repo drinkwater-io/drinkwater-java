@@ -33,6 +33,11 @@ public class Main extends ServiceSupport {
         dwApplication.addServiceBuilder(builder);
     }
 
+    public Main(String appName, ServiceConfigurationBuilder builder) {
+        dwApplication = DrinkWaterApplication.create(appName);
+        dwApplication.addServiceBuilder(builder);
+    }
+
     public ServiceRepository getDrinkWaterApplication() {
         return dwApplication;
 

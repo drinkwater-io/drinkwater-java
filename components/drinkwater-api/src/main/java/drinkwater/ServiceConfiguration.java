@@ -11,7 +11,7 @@ public class ServiceConfiguration implements IServiceConfiguration {
 
     private String serviceName;
 
-    private String properties;
+    private List<String> properties = new ArrayList<String>();
 
     private Class serviceClass;
 
@@ -40,7 +40,7 @@ public class ServiceConfiguration implements IServiceConfiguration {
     }
 
     public ServiceConfiguration withProperties(String propertyFile) {
-        this.properties = propertyFile;
+        this.properties.add(propertyFile);
         return this;
     }
 
@@ -89,8 +89,8 @@ public class ServiceConfiguration implements IServiceConfiguration {
     }
 
     @Override
-    public String getProperties() {
-        return properties;
+    public String[] getPropertiesLocations() {
+        return properties.toArray(new String[0]);
     }
 
     @Override
@@ -121,7 +121,7 @@ public class ServiceConfiguration implements IServiceConfiguration {
     @Override
     public String getServiceName() {
         if(serviceName == null){
-            return this.getServiceClass().getName().toLowerCase();
+            return this.getServiceClass().getSimpleName();
         }
         return serviceName;
     }
