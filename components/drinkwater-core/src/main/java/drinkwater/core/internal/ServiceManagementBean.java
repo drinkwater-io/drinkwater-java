@@ -1,7 +1,8 @@
 package drinkwater.core.internal;
 
-import drinkwater.core.ServiceState;
-import drinkwater.core.helper.Service;
+import com.codahale.metrics.MetricRegistry;
+import drinkwater.IDrinkWaterService;
+import drinkwater.ServiceState;
 import drinkwater.rest.HttpMethod;
 import drinkwater.rest.NoBody;
 
@@ -13,34 +14,38 @@ import java.util.List;
  */
 public class ServiceManagementBean implements IServiceManagement {
 
-    public List<Service> services = new ArrayList<>();
+    private List<IDrinkWaterService> IDrinkWaterServices = new ArrayList<>();
+
+    private MetricRegistry metricsregistry;
 
     public ServiceManagementBean() {
     }
 
-    public ServiceManagementBean(List<Service> services) {
-        this.services = services;
+    public ServiceManagementBean(List<IDrinkWaterService> IDrinkWaterServices, MetricRegistry metricsRegistry) {
+        this.metricsregistry = metricsRegistry;
+
+        this.IDrinkWaterServices = IDrinkWaterServices;
     }
 
     @Override
-    public List<Service> getServices() {
+    public List<IDrinkWaterService> getServices() {
 
-        return services;
+        return IDrinkWaterServices;
     }
 
     @Override
     public List<String> getServiceNames() {
-        List<String> result = javaslang.collection.List.ofAll(services)
-                .map(s -> s.getServiceName())
+        List<String> result = javaslang.collection.List.ofAll(IDrinkWaterServices)
+                .map(s -> s.configuration().getServiceName())
                 .toJavaList();
 
         return result;
     }
 
     @Override
-    public Service getService(String serviceName) {
-        Service svc = javaslang.collection.List.ofAll(services)
-                .filter(s -> s.getServiceName().equals(serviceName))
+    public IDrinkWaterService getService(String serviceName) {
+        IDrinkWaterService svc = javaslang.collection.List.ofAll(IDrinkWaterServices)
+                .filter(s -> s.configuration().getServiceName().equals(serviceName))
                 .get();
 
         return svc;
@@ -52,7 +57,7 @@ public class ServiceManagementBean implements IServiceManagement {
     public String stopService(String serviceName) {
 
         //find service
-        Service svc = getService(serviceName);
+        IDrinkWaterService svc = getService(serviceName);
 
         svc.stop();
 
@@ -63,7 +68,7 @@ public class ServiceManagementBean implements IServiceManagement {
     @NoBody
     @Override
     public String startService(String serviceName) {
-        Service svc = getService(serviceName);
+        IDrinkWaterService svc = getService(serviceName);
 
         svc.start();
 
@@ -73,5 +78,11 @@ public class ServiceManagementBean implements IServiceManagement {
     @Override
     public ServiceState getServiceState(String serviceName) {
         return getService(serviceName).getState();
+    }
+
+    @Override
+    public MetricRegistry getMetrics() {
+
+        return metricsregistry;
     }
 }

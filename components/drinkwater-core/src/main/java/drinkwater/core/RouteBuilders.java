@@ -23,10 +23,10 @@ public class RouteBuilders {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                List<Method> methods = javaslang.collection.List.of(service.getServiceClass().getDeclaredMethods());
+                List<Method> methods = javaslang.collection.List.of(service.configuration().getServiceClass().getDeclaredMethods());
 
                 // create an instance of the bean
-                Object beanToUse = service.getTargetBean();
+                Object beanToUse = service.configuration().getTargetBean();
 
                 for (Method m : methods) {
                     if (Modifier.isPublic(m.getModifiers())) {
@@ -58,7 +58,7 @@ public class RouteBuilders {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
-                List<Method> methods = javaslang.collection.List.of(service.getServiceClass().getDeclaredMethods());
+                List<Method> methods = javaslang.collection.List.of(service.configuration().getServiceClass().getDeclaredMethods());
 
                 // create an instance of the bean
                 Object beanToUse = BeanFactory.createBeanClass(app, service);

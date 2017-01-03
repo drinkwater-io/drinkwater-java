@@ -1,7 +1,8 @@
 package drinkwater.core.internal;
 
-import drinkwater.core.ServiceState;
-import drinkwater.core.helper.Service;
+import com.codahale.metrics.MetricRegistry;
+import drinkwater.IDrinkWaterService;
+import drinkwater.ServiceState;
 
 import java.util.List;
 
@@ -9,16 +10,17 @@ import java.util.List;
  * Created by A406775 on 2/01/2017.
  */
 public interface IServiceManagement {
-    List<Service> getServices();
+    List<IDrinkWaterService> getServices();
 
     List<String> getServiceNames();
 
-    Service getService(String serviceName);
+    IDrinkWaterService getService(String serviceName);
 
     String stopService(String serviceName);
-
 
     String startService(String serviceName);
 
     ServiceState getServiceState(String serviceName);
+
+    MetricRegistry getMetrics();
 }

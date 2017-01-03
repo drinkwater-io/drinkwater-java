@@ -1,8 +1,10 @@
 package drinkwater.rest;
 
 import com.mashape.unirest.http.HttpMethod;
+import drinkwater.IDrinkWaterService;
 import drinkwater.IPropertyResolver;
 import drinkwater.IServiceConfiguration;
+import drinkwater.ITracer;
 import drinkwater.helper.reflect.ReflectHelper;
 import javaslang.Tuple;
 import javaslang.Tuple2;
@@ -72,7 +74,10 @@ public class RestHelper {
     }
 
 
-    public static Tuple2<RestDefinition, String> buildRestRoute(RouteBuilder builder, Method method) {
+    public static Tuple2<RestDefinition, String> buildRestRoute(RouteBuilder builder, Method method, ITracer tracer) {
+
+        //start the tracing
+        builder.interceptFrom().bean(tracer, "start(${exchange})");
 
         HttpMethod httpMethod = httpMethodFor(method);
 
@@ -101,21 +106,21 @@ public class RestHelper {
 
     public static void buildRestRoutes(RouteBuilder builder, Object bean,
                                        IPropertyResolver propertiesResolver,
-                                       IServiceConfiguration config) {
+                                       IDrinkWaterService config) {
 
         try {
             builder.restConfiguration().component("jetty")
                     .host(host(propertiesResolver))
                     .port(port(propertiesResolver))
-                    .contextPath(context(propertiesResolver, config))
+                    .contextPath(context(propertiesResolver, config.configuration()))
                     .bindingMode(RestBindingMode.json);
         } catch (Exception ex) {
             throw new RuntimeException("could not configure the rest service correctly", ex);
         }
 
         javaslang.collection.List.of(ReflectHelper.getPublicDeclaredMethods(bean.getClass()))
-                .map(method -> buildRestRoute(builder, method))
-                .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2));
+                .map(method -> buildRestRoute(builder, method, config.getTracer()))
+                .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2, config.getTracer()));
     }
 
     private static String restPath(Method method, HttpMethod httpMethod) {
@@ -189,35 +194,12 @@ public class RestHelper {
 
         return methodtoRoute.exchangeToBean();
 
-//        String params = "";
-//        if (httpMethod == HttpMethod.GET) {
-//            params = javaslang.collection.List.of(m.getParameters())
-//                    .map(p -> "${header." + p.getName() + "}")
-//                    .mkString(",");
-//            params = "(" + params + ")";
-//        }
-//
-//        if (httpMethod == HttpMethod.POST) {
-//            List<Parameter> parameterList = javaslang.collection.List.of(m.getParameters());
-//            java.util.List<String> methodParams = new ArrayList<>();
-//            if (parameterList.size() > 0) {
-//                methodParams.add("${body}");
-//                parameterList.tail().forEach(p -> {
-//                    methodParams.add("${header." + p.getName() + "}");
-//                });
-//
-//            }
-//
-//            params = "(" + String.join(",", methodParams) + ")";
-//        }
-//
-//        return m.getName() + params;
     }
 
-    private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, String methodName) {
+    private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, String methodName, ITracer tracer) {
         RouteDefinition def = restDefinition.route();
 
-        return def.bean(bean, methodName);
+        return def.bean(bean, methodName).bean(tracer, "stop(${exchange})");
     }
 
 

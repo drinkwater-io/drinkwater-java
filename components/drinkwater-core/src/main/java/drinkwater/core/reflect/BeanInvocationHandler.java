@@ -1,6 +1,5 @@
 package drinkwater.core.reflect;
 
-        import com.codahale.metrics.Timer;
         import drinkwater.core.DrinkWaterApplication;
         import drinkwater.core.helper.Service;
         import org.apache.camel.CamelContext;
@@ -33,13 +32,7 @@ public class BeanInvocationHandler implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        app.metrics.counter(method.getName() + "-called").inc();
-        Timer timer = app.metrics.timer(method.getName() + "-timer");
-        final Timer.Context context = timer.time();
-        try {
-            return method.invoke(target, args);
-        } finally {
-            context.stop();
-        }
+
+        return method.invoke(target, args);
     }
 }

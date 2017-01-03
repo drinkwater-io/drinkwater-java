@@ -1,15 +1,12 @@
 package drinkwater.core;
 
-import com.codahale.metrics.MetricRegistry;
-import drinkwater.IServiceConfiguration;
-import drinkwater.ServiceConfiguration;
-import drinkwater.ServiceConfigurationBuilder;
-import drinkwater.ServiceScheme;
+import drinkwater.*;
 import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.Service;
 import drinkwater.core.internal.CoreCamelContext;
 import drinkwater.core.internal.IServiceManagement;
 import drinkwater.core.internal.ServiceManagementBean;
+import drinkwater.core.internal.TracerBean;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.reflect.BeanInvocationHandler;
 import drinkwater.helper.reflect.ReflectHelper;
@@ -37,18 +34,14 @@ public class DrinkWaterApplication implements ServiceRepository {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
     }
 
+    public TracerBean tracer = new TracerBean();
     private Logger logger = Logger.getLogger(DrinkWaterApplication.class.getName());
-
     private RestService restConfiguration = new RestService();
-
-    private List<Service> services = List.empty();
-
+    private List<IDrinkWaterService> services = List.empty();
     private Map<Class, Object> serviceProxies = new HashMap<>();
 
+    //public MetricRegistry metrics = new MetricRegistry();
     private CoreCamelContext masterCamelContext = new CoreCamelContext();
-
-    public MetricRegistry metrics = new MetricRegistry();
-
     private String name;
 
     private DrinkWaterApplication() {
@@ -62,13 +55,16 @@ public class DrinkWaterApplication implements ServiceRepository {
         this.name = name;
     }
 
-
     public static DrinkWaterApplication create() {
         return new DrinkWaterApplication();
     }
 
     public static DrinkWaterApplication create(String name) {
         return new DrinkWaterApplication(name);
+    }
+
+    public TracerBean getTracer() {
+        return tracer;
     }
 
     public void addServiceBuilder(ServiceConfigurationBuilder builder) {
@@ -79,11 +75,11 @@ public class DrinkWaterApplication implements ServiceRepository {
 
         restConfiguration.start();
 
-        for (Service config : services) {
+        for (IDrinkWaterService config : services) {
             config.start();
         }
 
-        ServiceManagementBean serviceManagement = new ServiceManagementBean(services.toJavaList());
+        ServiceManagementBean serviceManagement = new ServiceManagementBean(services.toJavaList(), tracer.getMetrics());
 
         IServiceConfiguration config = ServiceConfiguration
                 .forService(IServiceManagement.class)
@@ -93,7 +89,7 @@ public class DrinkWaterApplication implements ServiceRepository {
 
         try {
             masterCamelContext.getCamelContext().addRoutes(
-                    RouteBuilders.mapRestRoutes(this,new Service( masterCamelContext.getCamelContext(), config) ));
+                    RouteBuilders.mapRestRoutes(this, new Service(masterCamelContext.getCamelContext(), config, tracer)));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -105,7 +101,7 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     public void stop() {
 
-        for (Service config : services) {
+        for (IDrinkWaterService config : services) {
             config.stop();
         }
 
@@ -115,7 +111,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     private void addServiceConfig(IServiceConfiguration serviceConfig) {
         try {
 
-            Service service = new Service(serviceConfig);
+            Service service = new Service(serviceConfig, tracer);
 
             service.configure(this);
 
@@ -129,18 +125,18 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     public void addProxy(Service serviceToProxy) {
-        if (serviceToProxy.getScheme() == ServiceScheme.BeanObject) {
-            serviceProxies.put(serviceToProxy.getServiceClass(),
-                    ReflectHelper.simpleProxy(serviceToProxy.getServiceClass(),
+        if (serviceToProxy.configuration().getScheme() == ServiceScheme.BeanObject) {
+            serviceProxies.put(serviceToProxy.configuration().getServiceClass(),
+                    ReflectHelper.simpleProxy(serviceToProxy.configuration().getServiceClass(),
                             new BeanInvocationHandler(serviceToProxy.getCamelContext(), this, serviceToProxy)));
-        } else if (serviceToProxy.getScheme() == ServiceScheme.BeanClass) {
-            serviceProxies.put(serviceToProxy.getServiceClass(),
-                    ReflectHelper.simpleProxy(serviceToProxy.getServiceClass(),
+        } else if (serviceToProxy.configuration().getScheme() == ServiceScheme.BeanClass) {
+            serviceProxies.put(serviceToProxy.configuration().getServiceClass(),
+                    ReflectHelper.simpleProxy(serviceToProxy.configuration().getServiceClass(),
                             new BeanClassInvocationHandler(serviceToProxy.getCamelContext())));
-        } else if (serviceToProxy.getScheme() == ServiceScheme.Rest) {
-            serviceProxies.put(serviceToProxy.getServiceClass(),
-                    ReflectHelper.simpleProxy(serviceToProxy.getServiceClass(),
-                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy)));
+        } else if (serviceToProxy.configuration().getScheme() == ServiceScheme.Rest) {
+            serviceProxies.put(serviceToProxy.configuration().getServiceClass(),
+                    ReflectHelper.simpleProxy(serviceToProxy.configuration().getServiceClass(),
+                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy.configuration())));
         }
     }
 

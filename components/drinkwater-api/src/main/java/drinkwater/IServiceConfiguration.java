@@ -22,4 +22,5 @@ public interface IServiceConfiguration {
     Object getTargetBean();
 
     String getServiceName();
+
 }

@@ -2,24 +2,21 @@ package drinkwater.core.helper;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import drinkwater.IServiceConfiguration;
-import drinkwater.InjectionStrategy;
+import drinkwater.ITracer;
 import drinkwater.ServiceScheme;
+import drinkwater.ServiceState;
 import drinkwater.core.RouteBuilders;
 import drinkwater.core.ServiceRepository;
-import drinkwater.core.ServiceState;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 
-import java.util.List;
 import java.util.logging.Logger;
 
 /**
  * Created by A406775 on 29/12/2016.
  */
-public class Service implements IServiceConfiguration {
-
-
+public class Service implements drinkwater.IDrinkWaterService {
 
     IServiceConfiguration serviceConfiguration;
 
@@ -34,67 +31,44 @@ public class Service implements IServiceConfiguration {
 
     private ServiceState state = ServiceState.NotStarted;
 
-    public Service(DefaultCamelContext fromContext, IServiceConfiguration serviceConfiguration) {
-        this.camelContext =fromContext;
+    private ITracer tracer;
+
+    public Service(DefaultCamelContext fromContext,
+                   IServiceConfiguration serviceConfiguration,
+                   ITracer tracer) {
+        this.camelContext = fromContext;
         this.serviceConfiguration = serviceConfiguration;
+        this.tracer = tracer;
     }
 
-    public Service(IServiceConfiguration serviceConfiguration) {
+    public Service(IServiceConfiguration serviceConfiguration, ITracer tracer) {
         this.camelContext = new DefaultCamelContext();
         this.camelContext.disableJMX();
         this.camelContext.setName("CAMEL-CONTEXT-" + serviceConfiguration.getServiceClass().getName());
         this.serviceConfiguration = serviceConfiguration;
+        this.tracer = tracer;
     }
 
     public CamelContext getCamelContext() {
         return camelContext;
     }
 
+
     @Override
-    public Class getServiceClass() {
-        return serviceConfiguration.getServiceClass();
+    public ITracer getTracer() {
+        return tracer;
     }
 
     @Override
-    public Object getTargetBean() {
-        return serviceConfiguration.getTargetBean();
-    }
-
-    @Override
-    public String getProperties() {
-        return serviceConfiguration.getProperties();
-    }
-
-    @Override
-    public Class getTargetBeanClass() {
-        return serviceConfiguration.getTargetBeanClass();
-    }
-
-    @Override
-    public ServiceScheme getScheme() {
-        return serviceConfiguration.getScheme();
-    }
-
-    @Override
-    public InjectionStrategy getInjectionStrategy() {
-        return serviceConfiguration.getInjectionStrategy();
-    }
-
-    @Override
-    public String getServiceName(){
-        return serviceConfiguration.getServiceName();
-    }
-
-    @Override
-    public List<IServiceConfiguration> getServiceDependencies() {
-        return serviceConfiguration.getServiceDependencies();
+    public IServiceConfiguration configuration() {
+        return serviceConfiguration;
     }
 
     public PropertiesComponent getPropertiesComponent() {
         if (propertiesComponent == null) {
             propertiesComponent = camelContext.getComponent(
                     "properties", PropertiesComponent.class);
-            propertiesComponent.setLocation(this.getProperties());
+            propertiesComponent.setLocation(this.configuration().getProperties());
         }
         return propertiesComponent;
     }
@@ -103,6 +77,7 @@ public class Service implements IServiceConfiguration {
         return getPropertiesComponent().parseUri(s);
     }
 
+    @Override
     public void start() {
         try {
             this.getCamelContext().start();
@@ -112,7 +87,8 @@ public class Service implements IServiceConfiguration {
         }
     }
 
-    public void stop()  {
+    @Override
+    public void stop() {
         try {
             this.getCamelContext().stop();
             this.state = ServiceState.Stopped;
@@ -123,7 +99,7 @@ public class Service implements IServiceConfiguration {
 
     public void configure(ServiceRepository app) throws Exception {
         if (this.serviceConfiguration.getScheme() == ServiceScheme.BeanObject) {
-           //nothing to configure here
+            //nothing to configure here
         } else if (this.serviceConfiguration.getScheme() == ServiceScheme.BeanClass) {
             this.camelContext.addRoutes(RouteBuilders.mapBeanClassRoutes(app, this));
         } else if (this.serviceConfiguration.getScheme() == ServiceScheme.Rest) {
@@ -131,6 +107,7 @@ public class Service implements IServiceConfiguration {
         }
     }
 
+    @Override
     public ServiceState getState() {
         return state;
     }

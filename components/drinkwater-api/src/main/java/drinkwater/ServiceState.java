@@ -1,4 +1,4 @@
-package drinkwater.core;
+package drinkwater;
 
 /**
  * Created by A406775 on 2/01/2017.

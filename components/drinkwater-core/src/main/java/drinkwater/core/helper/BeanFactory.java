@@ -13,7 +13,7 @@ public class BeanFactory {
 
 
     public static Object createBean(ServiceRepository app, Service config) throws Exception {
-        if(config.getTargetBean() != null){
+        if (config.configuration().getTargetBean() != null) {
             return createBeanObject(app, config);
         }
         return createBeanClass(app, config);
@@ -23,14 +23,14 @@ public class BeanFactory {
 
     public static Object createBeanClass(ServiceRepository app, Service config) throws Exception {
         // create an instance of the bean
-        Object beanToUse = config.getTargetBeanClass().newInstance();
+        Object beanToUse = config.configuration().getTargetBeanClass().newInstance();
 
         //inject fields eventually
-        if (config.getInjectionStrategy() == InjectionStrategy.Default) {
+        if (config.configuration().getInjectionStrategy() == InjectionStrategy.Default) {
             injectFields(beanToUse, config);
         }
 
-        for (IServiceConfiguration dependency : config.getServiceDependencies()) {
+        for (IServiceConfiguration dependency : config.configuration().getServiceDependencies()) {
             Object dependencyBean = app.getService(dependency.getServiceClass());
 
             //get a field corresponding to ype in the target bean
@@ -51,14 +51,14 @@ public class BeanFactory {
 
     public static Object createBeanObject(ServiceRepository app, Service config) throws Exception {
         // create an instance of the bean
-        Object beanToUse = config.getTargetBean();
+        Object beanToUse = config.configuration().getTargetBean();
 
         //inject fields eventually
-        if (config.getInjectionStrategy() == InjectionStrategy.Default) {
+        if (config.configuration().getInjectionStrategy() == InjectionStrategy.Default) {
             injectFields(beanToUse, config);
         }
 
-        for (IServiceConfiguration dependency : config.getServiceDependencies()) {
+        for (IServiceConfiguration dependency : config.configuration().getServiceDependencies()) {
             Object dependencyBean = app.getService(dependency.getServiceClass());
 
             //get a field corresponding to ype in the target bean
@@ -77,7 +77,7 @@ public class BeanFactory {
     public static Object injectFields(Object bean, Service config) throws Exception {
 
         for (Field f : bean.getClass().getFields()) {
-            String value = config.lookupProperty(config.getServiceClass().getSimpleName() + "." + f.getName());
+            String value = config.lookupProperty(config.configuration().getServiceClass().getSimpleName() + "." + f.getName());
             if (value != null) {
                 f.set(bean, value);
             }
