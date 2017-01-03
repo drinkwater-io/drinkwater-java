@@ -106,7 +106,7 @@ public class RestHelper {
     }
 
     public static String host(IPropertyResolver propertiesResolver) throws Exception {
-        return propertiesResolver.lookupProperty(RestService.REST_HOST_KEY + ":localhost");
+        return propertiesResolver.lookupProperty(RestService.REST_HOST_KEY + ":0.0.0.0");
     }
 
     public static String port(IPropertyResolver propertiesResolver) throws Exception {

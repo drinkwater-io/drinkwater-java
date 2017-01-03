@@ -196,7 +196,7 @@ public class DrinkWaterApplication implements ServiceRepository {
 
             CamelContextFactory.registerBean(managementService.getCamelContext(), DW_STATICHANDLER, getResourceHandler());
 
-            String managementHost = managementService.lookupProperty(name + ".management.host:localhost");
+            String managementHost = managementService.lookupProperty(name + ".management.host:0.0.0.0");
             String managementPort = managementService.lookupProperty(name + ".management.port:9000");
             String managementHostAndPort = managementHost + ":" + managementPort;
 

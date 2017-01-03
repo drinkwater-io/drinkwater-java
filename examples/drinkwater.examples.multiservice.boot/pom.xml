@@ -11,39 +11,6 @@
     <version>1.0-SNAPSHOT</version>
     <name>drinkwater.examples.multiservice.boot</name>
     <url>http://maven.apache.org</url>
-    <!--<build>-->
-    <!--<plugins>-->
-    <!--<plugin>-->
-    <!--<groupId>org.apache.maven.plugins</groupId>-->
-    <!--<artifactId>maven-shade-plugin</artifactId>-->
-    <!--<version>2.4.3</version>-->
-    <!--<executions>-->
-    <!--<execution>-->
-    <!--<phase>package</phase>-->
-    <!--<goals>-->
-    <!--<goal>shade</goal>-->
-    <!--</goals>-->
-    <!--<configuration>-->
-    <!--<finalName>${project.build.finalName}-fatjar</finalName>-->
-    <!--</configuration>-->
-    <!--</execution>-->
-    <!--</executions>-->
-    <!--</plugin>-->
-    <!--<plugin>-->
-    <!--<groupId>org.apache.maven.plugins</groupId>-->
-    <!--<artifactId>maven-war-plugin</artifactId>-->
-    <!--<version>2.6</version>-->
-    <!--<executions>-->
-    <!--<execution>-->
-    <!--<phase>package</phase>-->
-    <!--<goals>-->
-    <!--<goal>war</goal>-->
-    <!--</goals>-->
-    <!--</execution>-->
-    <!--</executions>-->
-    <!--</plugin>-->
-    <!--</plugins>-->
-    <!--</build>-->
     <dependencies>
         <dependency>
             <groupId>drinkwater</groupId>
@@ -62,4 +29,44 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>2.4.3</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <!--<finalName>${project.build.finalName}-fatjar</finalName>-->
+                            <finalName>multiservice-fatjar</finalName>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>drinkwater.examples.multiservice.boot.App</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>war</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 </project>
