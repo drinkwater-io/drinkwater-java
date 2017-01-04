@@ -9,6 +9,7 @@ import drinkwater.core.internal.ServiceManagementBean;
 import drinkwater.core.internal.TracerBean;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.reflect.BeanInvocationHandler;
+import drinkwater.core.reflect.MockInvocationHandler;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.RestInvocationHandler;
 import drinkwater.rest.RestService;
@@ -93,7 +94,10 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     public void addServiceBuilder(ServiceConfigurationBuilder builder) {
-        List.ofAll(builder.build()).forEach(this::addService);
+
+        builder.configure();
+
+        List.ofAll(builder.getConfigurations()).forEach(this::addService);
     }
 
     public void start() {
@@ -142,6 +146,11 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     public void addProxy(Service serviceToProxy) {
+        if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Mock) {
+            serviceProxies.put(serviceToProxy.getConfiguration().getServiceClass(),
+                    ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
+                            new MockInvocationHandler(serviceToProxy.getConfiguration().getTargetBean())));
+        }
         if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.BeanObject) {
             serviceProxies.put(serviceToProxy.getConfiguration().getServiceClass(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),

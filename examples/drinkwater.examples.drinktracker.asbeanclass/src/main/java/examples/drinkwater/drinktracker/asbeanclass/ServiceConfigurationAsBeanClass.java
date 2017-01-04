@@ -11,7 +11,7 @@ import java.util.List;
 
 public class ServiceConfigurationAsBeanClass extends ServiceConfigurationBuilder {
     @Override
-    public List<IServiceConfiguration> build() {
+    public List<IServiceConfiguration> getConfigurations() {
 
         List<ServiceConfiguration> baseLine = BaseLinefactory.createServices();
 

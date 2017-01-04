@@ -77,13 +77,6 @@ public class ServiceConfiguration implements IServiceConfiguration {
 
 
     @Override
-    public String toString() {
-        return "ServiceConfiguration{" +
-                "properties='" + properties + '\'' +
-                '}';
-    }
-
-    @Override
     public Class getServiceClass() {
         return serviceClass;
     }
@@ -118,11 +111,27 @@ public class ServiceConfiguration implements IServiceConfiguration {
         return targetBean;
     }
 
+    public void setTargetBean(Object beanToUse) {
+        targetBean = beanToUse;
+    }
+
     @Override
     public String getServiceName() {
         if(serviceName == null){
             return this.getServiceClass().getSimpleName();
         }
         return serviceName;
+    }
+
+    @Override
+    public String toString() {
+        return "ServiceConfiguration{" +
+                "serviceName='" + serviceName + '\'' +
+                ", serviceClass=" + serviceClass +
+                '}';
+    }
+
+    public void setSheme(ServiceScheme scheme) {
+        this.scheme = scheme;
     }
 }

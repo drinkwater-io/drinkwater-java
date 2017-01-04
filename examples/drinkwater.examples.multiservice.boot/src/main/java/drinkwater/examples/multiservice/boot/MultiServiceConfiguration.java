@@ -1,6 +1,5 @@
 package drinkwater.examples.multiservice.boot;
 
-import drinkwater.IServiceConfiguration;
 import drinkwater.InjectionStrategy;
 import drinkwater.ServiceConfiguration;
 import drinkwater.ServiceConfigurationBuilder;
@@ -13,15 +12,12 @@ import drinkwater.examples.multiservice.impl.ServiceBImpl;
 import drinkwater.examples.multiservice.impl.ServiceCImpl;
 import drinkwater.examples.multiservice.impl.ServiceDImpl;
 
-import java.util.List;
-
 /**
  * Created by A406775 on 2/01/2017.
  */
 public class MultiServiceConfiguration extends ServiceConfigurationBuilder {
-    @Override
-    public List<IServiceConfiguration> build() {
 
+    public MultiServiceConfiguration() {
         ServiceConfiguration configD = ServiceConfiguration
                 .forService(IServiceD.class)
                 .useBeanClass(ServiceDImpl.class)
@@ -54,9 +50,16 @@ public class MultiServiceConfiguration extends ServiceConfigurationBuilder {
                 .asRest()
                 .dependsOn(configB);
 
-        return javaslang.collection.List.of(configD, configC, configB, configA)
-                .map(s -> (IServiceConfiguration) s) // cast
-                .toJavaList();
+        AddConfiguration(configD);
+        AddConfiguration(configC);
+        AddConfiguration(configB);
+        AddConfiguration(configA);
+    }
+
+
+    @Override
+    public void configure() {
+
 
     }
 }

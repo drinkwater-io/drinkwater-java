@@ -34,7 +34,7 @@ public class ServiceManagementRestTest extends HttpUnitTest {
         app = DrinkWaterApplication.create("core-test");
         app.addServiceBuilder(new ServiceConfigurationBuilder() {
                                   @Override
-                                  public List<IServiceConfiguration> build() {
+                                  public List<IServiceConfiguration> getConfigurations() {
                                       List<IServiceConfiguration> configs = new ArrayList<IServiceConfiguration>();
                                       configs.add(ServiceConfiguration
                                               .forService(ITestService.class)

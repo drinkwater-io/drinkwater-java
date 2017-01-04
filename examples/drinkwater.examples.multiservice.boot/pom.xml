@@ -47,7 +47,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <!--<finalName>${project.build.finalName}-fatjar</finalName>-->
+                            <!--<finalName>${project.getConfigurations.finalName}-fatjar</finalName>-->
                             <finalName>multiservice-fatjar</finalName>
                             <transformers>
                                 <transformer

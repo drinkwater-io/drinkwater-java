@@ -23,7 +23,9 @@ public class MultiServiceTest {
     @BeforeClass
     public static void setup() throws Exception {
         app = DrinkWaterApplication.create();
-        app.addServiceBuilder(new MultiServiceConfiguration());
+        MultiServiceConfiguration config = new MultiServiceConfiguration();
+        config.useMock("serviceC", isolateC());
+        app.addServiceBuilder(config);
         app.start();
     }
 
@@ -39,12 +41,22 @@ public class MultiServiceTest {
     }
 
     @Test
-    public void shouldGetHello() {
+    public void ShouldGetMockedValue() {
+        IServiceC servicec = app.getService(IServiceC.class);
+
+        String result = servicec.findData("whatever is passed here ");
+
+        assertEquals("FOUND FROM MOCK", result);
+
+    }
+
+    @Test
+    public void shouldGetValueFromMockInDependencies() {
         IServiceA serviceA = app.getService(IServiceA.class);
 
         String result = serviceA.getData("hello");
 
-        assertEquals("A [initial : hello - result : B [C : [uppercase : C : [CONNECTION : CONNECTION PROPERTY SET IN PROPERTY FILE - HELLO] - append : this is text from properties]]]", result);
+        assertEquals("A [initial : hello - result : B [C : [uppercase : FOUND FROM MOCK - append : this is text from properties]]]", result);
 
     }
 
