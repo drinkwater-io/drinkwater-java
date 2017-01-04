@@ -90,13 +90,11 @@ public abstract class ServiceConfigurationBuilder {
     }
 
 
-    public void useMock(String serviceName, Object beanToUse) {
-
+    public IMockBuilder mock(String serviceName) {
         ServiceConfiguration config = (ServiceConfiguration) getConfiguration(serviceName);
-        config.setTargetBean(beanToUse);
         config.setScheme(ServiceScheme.BeanObject);
         config.setInjectionStrategy(InjectionStrategy.None);
-
+        return config;
     }
 
     public void changeScheme(ServiceScheme newScheme) {

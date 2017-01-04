@@ -24,7 +24,7 @@ public class MultiServiceTest {
     public static void setup() throws Exception {
         app = DrinkWaterApplication.create();
         MultiServiceConfiguration config = new MultiServiceConfiguration();
-        config.useMock("serviceC", isolateC());
+        config.mock("serviceC").with(getMockForIServiceC());
         app.addServiceBuilder(config);
         app.start();
     }
@@ -34,7 +34,7 @@ public class MultiServiceTest {
         app.stop();
     }
 
-    private static IServiceC isolateC() {
+    private static IServiceC getMockForIServiceC() {
         IServiceC mockedC = mock(IServiceC.class);
         when(mockedC.findData(ArgumentMatchers.any())).thenReturn("FOUND FROM MOCK");
         return mockedC;

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by A406775 on 23/12/2016.
  */
-public class ServiceConfiguration implements IServiceConfiguration, IServiceBuilder {
+public class ServiceConfiguration implements IServiceConfiguration, IServiceBuilder, IMockBuilder {
 
     private String serviceName;
 
@@ -182,5 +182,9 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
     public void setProperties(List<String> properties) {
         this.properties = properties;
+    }
+
+    public void with(Object mockObject) {
+        this.setTargetBean(mockObject);
     }
 }
