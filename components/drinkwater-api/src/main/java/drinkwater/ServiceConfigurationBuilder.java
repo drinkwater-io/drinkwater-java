@@ -8,7 +8,7 @@ import java.util.ArrayList;
 /**
  * Created by A406775 on 29/12/2016.
  */
-public abstract class ServiceConfigurationBuilder {
+public class ServiceConfigurationBuilder {
 
     private java.util.List<ServiceConfiguration> configurations = new ArrayList<>();
 
@@ -79,9 +79,16 @@ public abstract class ServiceConfigurationBuilder {
         return configuration.useBean(beanToUse);
     }
 
-    public IServiceBuilder addService(String serviceName, Class interfaceClass, Object beanToUse, String propertiesLocation) {
-        IServiceBuilder configuration = addService(serviceName, interfaceClass, beanToUse);
-        return configuration.withProperties(propertiesLocation);
+    public IServiceBuilder addService(String serviceName, Class interfaceClass, Object beanToUse, String... dependencies) {
+        IServiceBuilder configuration = addService(serviceName, interfaceClass);
+        configuration.dependsOn(dependencies);
+        return configuration.useBean(beanToUse);
+    }
+
+    public IServiceBuilder addService(String serviceName, Class interfaceClass, Class beanClass, String... dependencies) {
+        IServiceBuilder configuration = addService(serviceName, interfaceClass);
+        configuration.dependsOn(dependencies);
+        return configuration.useBeanClass(beanClass);
     }
 
     public IServiceBuilder addService(String serviceName, Class interfaceClass, Object beanToUse, String propertiesLocation, InjectionStrategy injectionStrategy) {
@@ -89,13 +96,14 @@ public abstract class ServiceConfigurationBuilder {
         return configuration.withInjectionStrategy(injectionStrategy);
     }
 
-
-    public IMockBuilder mock(String serviceName) {
-        ServiceConfiguration config = (ServiceConfiguration) getConfiguration(serviceName);
-        config.setScheme(ServiceScheme.BeanObject);
-        config.setInjectionStrategy(InjectionStrategy.None);
-        return config;
+    public IServiceBuilder addService(String serviceName, Class interfaceClass, Class beanClass, String propertiesLocation, InjectionStrategy injectionStrategy) {
+        IServiceBuilder configuration = addService(serviceName, interfaceClass);
+        configuration.withProperties(propertiesLocation);
+        configuration.withInjectionStrategy(injectionStrategy);
+        configuration.useBeanClass(beanClass);
+        return configuration.withInjectionStrategy(injectionStrategy);
     }
+
 
     public void changeScheme(ServiceScheme newScheme) {
         javaslang.collection.List.ofAll(configurations)

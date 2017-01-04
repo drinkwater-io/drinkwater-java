@@ -106,4 +106,10 @@ public class Service implements drinkwater.IDrinkWaterService {
     public IServiceConfiguration getConfiguration() {
         return serviceConfiguration;
     }
+
+    @Override
+    public String toString() {
+        return serviceConfiguration.getServiceName() + " as " + serviceConfiguration.getScheme() +
+                " [" + serviceConfiguration.getServiceClass() + "]";
+    }
 }

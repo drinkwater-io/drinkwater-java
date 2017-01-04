@@ -5,6 +5,7 @@ import drinkwater.InjectionStrategy;
 import drinkwater.core.ServiceRepository;
 
 import java.lang.reflect.Field;
+import java.util.Map;
 
 /**
  * Created by A406775 on 28/12/2016.
@@ -36,10 +37,20 @@ public class BeanFactory {
         // create an instance of the bean
         Object beanToUse = config.getConfiguration().getTargetBean();
 
-        //inject fields eventually
-        injectFields(beanToUse, config);
+        if (config.getConfiguration().getInjectionStrategy() != InjectionStrategy.None) {
+            if (!beanToUse.getClass().isAssignableFrom(config.getConfiguration().getTargetBeanClass())) {
+                //we likely come from a serialization process so use the create from class
+                beanToUse = config.getConfiguration().getTargetBeanClass().newInstance();
+                //inject from hashmap
+                //fixme we could better use the camel typeconversion facilities
+                injectFields(beanToUse, (Map<String, Object>) config.getConfiguration().getTargetBean(), config);
+            } else {
+                //inject fields eventually
+                injectFields(beanToUse, config);
+            }
 
-        injectDependencies(app, config, beanToUse);
+            injectDependencies(app, config, beanToUse);
+        }
 
         return beanToUse;
 
@@ -61,6 +72,20 @@ public class BeanFactory {
                 }
             }
         }
+    }
+
+    private static Object injectFields(Object bean, Map<String, Object> propertMap, Service config) throws Exception {
+        if (config.getConfiguration().getInjectionStrategy() == InjectionStrategy.Default) {
+            for (Field f : bean.getClass().getDeclaredFields()) {
+                Object value = propertMap.getOrDefault(f.getName(), "undefined");
+                if (!"undefined".equals(value)) {
+                    f.setAccessible(true);
+                    f.set(bean, value);
+                }
+            }
+        }
+
+        return bean;
     }
 
 

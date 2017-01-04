@@ -24,7 +24,6 @@ public class MultiServiceTest {
     public static void setup() throws Exception {
         app = DrinkWaterApplication.create();
         MultiServiceConfiguration config = new MultiServiceConfiguration();
-        config.mock("serviceC").with(getMockForIServiceC());
         app.addServiceBuilder(config);
         app.start();
     }
@@ -42,6 +41,9 @@ public class MultiServiceTest {
 
     @Test
     public void ShouldGetMockedValue() {
+        //config.configure();
+        app.changeService("serviceC", getMockForIServiceC());
+
         IServiceC servicec = app.getService("serviceC");
 
         String result = servicec.findData("whatever is passed here ");
@@ -52,6 +54,8 @@ public class MultiServiceTest {
 
     @Test
     public void shouldGetValueFromMockInDependencies() {
+        app.changeService("serviceC", getMockForIServiceC());
+
         IServiceA serviceA = app.getService("serviceA");
 
         String result = serviceA.getData("hello");

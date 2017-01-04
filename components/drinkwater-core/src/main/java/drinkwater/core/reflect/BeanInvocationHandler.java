@@ -1,13 +1,13 @@
 package drinkwater.core.reflect;
 
-        import drinkwater.core.DrinkWaterApplication;
-        import drinkwater.core.helper.Service;
-        import org.apache.camel.CamelContext;
+import drinkwater.core.DrinkWaterApplication;
+import drinkwater.core.helper.Service;
+import org.apache.camel.CamelContext;
 
-        import java.lang.reflect.InvocationHandler;
-        import java.lang.reflect.Method;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
 
-        import static drinkwater.core.helper.BeanFactory.createBeanObject;
+import static drinkwater.core.helper.BeanFactory.createBeanObject;
 
 /**
  * Created by A406775 on 30/12/2016.
@@ -31,8 +31,6 @@ public class BeanInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-
-
         return method.invoke(target, args);
     }
 }

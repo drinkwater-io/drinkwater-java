@@ -32,13 +32,13 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     public static ServiceConfiguration fromConfig(IServiceConfiguration config) {
         ServiceConfiguration sc = new ServiceConfiguration();
         sc.serviceName = config.getServiceName();
-        sc.properties = Arrays.asList(config.getPropertiesLocations());
+        sc.properties = Arrays.asList(config.getProperties());
         sc.serviceClass = config.getServiceClass();
         sc.targetBeanClass = config.getTargetBeanClass();
         sc.targetBean = config.getTargetBean();
         sc.injectionStrategy = config.getInjectionStrategy();
         sc.scheme = config.getScheme();
-        sc.serviceDependencies = sc.getServiceDependencies();
+        sc.serviceDependencies = config.getServiceDependencies();
 
         return sc;
 
@@ -111,8 +111,12 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     }
 
     @Override
-    public String[] getPropertiesLocations() {
+    public String[] getProperties() {
         return properties.toArray(new String[0]);
+    }
+
+    public void setProperties(List<String> properties) {
+        this.properties = properties;
     }
 
     @Override
@@ -174,10 +178,6 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
                 "serviceName='" + serviceName + '\'' +
                 ", serviceClass=" + serviceClass +
                 '}';
-    }
-
-    public void setProperties(List<String> properties) {
-        this.properties = properties;
     }
 
     public void with(Object mockObject) {

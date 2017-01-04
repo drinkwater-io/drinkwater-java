@@ -9,18 +9,23 @@ public interface IServiceConfiguration {
 
     Class getServiceClass();
 
-    String[] getPropertiesLocations();
+    String[] getProperties();
 
     Class getTargetBeanClass();
 
     ServiceScheme getScheme();
 
+    void setScheme(ServiceScheme beanObject);
+
     InjectionStrategy getInjectionStrategy();
+
+    void setInjectionStrategy(InjectionStrategy none);
 
     List<String> getServiceDependencies();
 
     Object getTargetBean();
 
-    String getServiceName();
+    void setTargetBean(Object beanObject);
 
+    String getServiceName();
 }

@@ -35,7 +35,7 @@ public class BeanClassInvocationHandler implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        Object result = null;
+        Object result;
 
         String route = "direct:" + RouteBuilders.formatBeanMethodRoute(method);
 

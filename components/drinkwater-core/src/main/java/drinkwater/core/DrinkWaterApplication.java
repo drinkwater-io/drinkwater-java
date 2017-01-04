@@ -39,15 +39,18 @@ public class DrinkWaterApplication implements ServiceRepository {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
     }
 
-    private String name;
-    private TracerBean tracer = new TracerBean();
-    private JVMMetricsBean jvmMetricsBean = new JVMMetricsBean();
     private Logger logger = Logger.getLogger(DrinkWaterApplication.class.getName());
-    private RestService restConfiguration = new RestService();
-    private List<IDrinkWaterService> services = List.empty();
-    private Map<String, Object> serviceProxies = new HashMap<>();
+    private List<DrinkWaterApplicationHistory> applicationHistory = List.empty();
+    private ApplicationState state = ApplicationState.Stopped;
+    private String name;
+    private TracerBean tracer;
+    private JVMMetricsBean jvmMetricsBean;
+    private RestService restConfiguration;
+    private List<IDrinkWaterService> services;
+    private Map<String, Object> serviceProxies;
     private Service managementService;
-
+    //fixme : should support multiple service builder
+    private ServiceConfigurationBuilder serviceBuilders;
     private DrinkWaterApplication() {
         this(null);
     }
@@ -88,40 +91,91 @@ public class DrinkWaterApplication implements ServiceRepository {
         return staticHandler;
     }
 
+    private void cleanBeforeStart() {
+        if (serviceProxies != null) {
+            serviceProxies.clear();
+        }
+        serviceProxies = new HashMap<>();
+        services = List.empty();
+        tracer = new TracerBean();
+        jvmMetricsBean = new JVMMetricsBean();
+        restConfiguration = new RestService();
+    }
+
+    public ServiceConfigurationBuilder configuration() {
+        return serviceBuilders;
+    }
+
     public TracerBean getTracer() {
         return tracer;
     }
 
     public void addServiceBuilder(ServiceConfigurationBuilder builder) {
 
-        builder.configure();
+        this.serviceBuilders = builder;
 
-        List.ofAll(builder.getConfigurations()).forEach(this::addService);
+//        builder.configure();
+//
+//        List.ofAll(builder.getConfigurations()).forEach(this::addService);
     }
 
+    private void cofigureServices() {
+        serviceBuilders.configure();
+        List.ofAll(serviceBuilders.getConfigurations()).forEach(this::addService);
+    }
+
+    public boolean isStarted() {
+        return this.state == ApplicationState.Up;
+    }
+
+    public boolean isStopped() {
+        return this.state == ApplicationState.Stopped;
+    }
+
+    //fixme should throw error if called twice
     public void start() {
+        if (isStarted()) {
+            return;
+        }
+
         logStartInfo();
 
-        startServices();
+        cleanBeforeStart();
 
-        for (IDrinkWaterService config : services) {
-            config.start();
+        startExternalServices();
+
+        cofigureServices();
+
+        for (IDrinkWaterService service : services) {
+            service.start();
         }
 
         createAndStartManagementService();
 
-        logEndInfo();
+        logStartedInfo();
+
+        state = ApplicationState.Up;
     }
 
     public void stop() {
 
-        for (IDrinkWaterService config : services) {
-            config.stop();
+        if (isStopped()) {
+            return;
         }
 
-        stopServices();
+        logStopingInfo();
+
+        for (IDrinkWaterService service : services) {
+            service.stop();
+        }
+
+        stopExternalServices();
 
         stopManagementService();
+
+        logStoppedInfo();
+
+        state = ApplicationState.Stopped;
     }
 
     private void addService(IServiceConfiguration serviceConfig) {
@@ -178,11 +232,11 @@ public class DrinkWaterApplication implements ServiceRepository {
                         .get();
     }
 
-    private void startServices() {
+    private void startExternalServices() {
         restConfiguration.start();
     }
 
-    private void stopServices() {
+    private void stopExternalServices() {
         restConfiguration.start();
     }
 
@@ -242,8 +296,63 @@ public class DrinkWaterApplication implements ServiceRepository {
         logger.info("-----------------------STARTING " + name + "------------------------------------");
     }
 
-    private void logEndInfo() {
+    private void logStartedInfo() {
         logger.info("----------------------- " + name + " STARTED------------------------------------");
     }
+
+    private void logStopingInfo() {
+        logger.info("-----------------------STOPING " + name + "------------------------------------");
+    }
+
+    private void logStoppedInfo() {
+        logger.info("-----------------------STOPPED " + name + "------------------------------------");
+    }
+
+    //fixme : it should be possible to restart only some services...
+    public void changeService(String serviceName, Object beanObject) {
+
+        this.stop();
+
+        ServiceConfigurationBuilder newBuilder = new ServiceConfigurationBuilder(serviceBuilders.getConfigurations());
+        IServiceConfiguration config = newBuilder.getConfiguration(serviceName);
+        config.setScheme(ServiceScheme.BeanObject);
+        config.setInjectionStrategy(InjectionStrategy.None);
+        config.setTargetBean(beanObject);
+
+        this.serviceBuilders = newBuilder;
+
+        this.start();
+    }
+
+    public DrinkWaterApplicationHistory takeSnapShot() {
+        DrinkWaterApplicationHistory history = DrinkWaterApplicationHistory.createApplicationHistory(this);
+
+        applicationHistory = applicationHistory.append(history);
+
+        return history;
+    }
+
+    public void revertState() {
+        this.stop();
+
+        DrinkWaterApplicationHistory history = applicationHistory.last();
+
+        java.util.List<ServiceConfiguration> previousConfig = DrinkWaterApplicationHistory.getConfig(history);
+
+        ServiceConfigurationBuilder newBuilder = new ServiceConfigurationBuilder();
+        newBuilder.addConfigurations(previousConfig);
+
+        this.serviceBuilders = newBuilder;
+
+        start();
+    }
+
+    public java.util.List<DrinkWaterApplicationHistory> history() {
+        return applicationHistory.toJavaList();
+    }
+
+    public enum ApplicationState {Up, Stopped}
+
+
 
 }

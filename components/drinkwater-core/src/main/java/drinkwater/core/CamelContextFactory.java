@@ -54,7 +54,7 @@ public class CamelContextFactory {
                 "properties", PropertiesComponent.class);
         propertiesComponent.setIgnoreMissingLocation(true);
         propertiesComponent.setLocations(configuration
-                .getPropertiesLocations());
+                .getProperties());
     }
 
     public static String parseURI(CamelContext context, String uri) throws Exception {
