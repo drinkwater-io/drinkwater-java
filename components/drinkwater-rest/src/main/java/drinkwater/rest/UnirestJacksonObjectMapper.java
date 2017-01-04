@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * Created by A406775 on 30/12/2016.
  */
-public class JacksonObjectMapper implements ObjectMapper {
+public class UnirestJacksonObjectMapper implements ObjectMapper {
     private com.fasterxml.jackson.databind.ObjectMapper jacksonObjectMapper
             = new CustomJacksonObjectMapper();
 

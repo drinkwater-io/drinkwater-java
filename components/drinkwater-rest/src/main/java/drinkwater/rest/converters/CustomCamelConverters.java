@@ -1,6 +1,6 @@
 package drinkwater.rest.converters;
 
-import drinkwater.rest.JacksonObjectMapper;
+import drinkwater.rest.UnirestJacksonObjectMapper;
 import org.apache.camel.Converter;
 import org.apache.camel.Exchange;
 import org.apache.camel.FallbackConverter;
@@ -17,7 +17,7 @@ public class CustomCamelConverters {
 
         if (value != null && value.getClass().equals(String.class)) {
             if (value.toString().startsWith("{") || value.toString().startsWith("[")) {
-                T result = new JacksonObjectMapper().readValue(value.toString(), type);
+                T result = new UnirestJacksonObjectMapper().readValue(value.toString(), type);
 
                 return result;
             }

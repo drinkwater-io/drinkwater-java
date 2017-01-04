@@ -15,7 +15,7 @@ public class RestService {
 
 
     public void start() {
-        Unirest.setObjectMapper(new JacksonObjectMapper());
+        Unirest.setObjectMapper(new UnirestJacksonObjectMapper());
     }
 
     public void stop() {

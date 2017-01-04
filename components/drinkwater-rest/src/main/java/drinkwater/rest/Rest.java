@@ -152,7 +152,7 @@ public final class Rest {
                 String headerValue = "";
                 if (args[i] != null) {
                     if (!isPrimitiveOrString(args[i].getClass())) {
-                        headerValue = new JacksonObjectMapper().writeValue(args[i]);
+                        headerValue = new UnirestJacksonObjectMapper().writeValue(args[i]);
                     } else {
                         headerValue = args[i].toString();
                     }
