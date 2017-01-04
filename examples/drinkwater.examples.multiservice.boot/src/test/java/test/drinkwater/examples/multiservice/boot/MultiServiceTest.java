@@ -41,7 +41,7 @@ public class MultiServiceTest {
 
     @Test
     public void ShouldGetMockedValue() {
-        //config.configure();
+
         app.changeService("serviceC", getMockForIServiceC());
 
         IServiceC servicec = app.getService("serviceC");

@@ -1,4 +1,4 @@
-package drinkwater.examples.multiservice.boot;
+package drinkwater.examples.remote;
 
 import drinkwater.InjectionStrategy;
 import drinkwater.ServiceConfigurationBuilder;
@@ -14,7 +14,7 @@ import drinkwater.examples.multiservice.impl.ServiceDImpl;
 /**
  * Created by A406775 on 2/01/2017.
  */
-public class MultiServiceConfiguration extends ServiceConfigurationBuilder {
+public class MultiServiceRemoteConfiguration extends ServiceConfigurationBuilder {
 
     @Override
     public void configure() {

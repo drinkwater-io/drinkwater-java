@@ -33,5 +33,6 @@
         <module>drinkwater.examples.drinktracker.benchmark</module>
         <module>drinkwater.examples.multiservice</module>
         <module>drinkwater.examples.multiservice.boot</module>
+        <module>drinkwater.examples.remote</module>
     </modules>
 </project>
