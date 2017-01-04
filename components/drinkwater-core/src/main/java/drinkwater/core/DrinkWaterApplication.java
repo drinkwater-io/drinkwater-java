@@ -45,7 +45,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     private Logger logger = Logger.getLogger(DrinkWaterApplication.class.getName());
     private RestService restConfiguration = new RestService();
     private List<IDrinkWaterService> services = List.empty();
-    private Map<Class, Object> serviceProxies = new HashMap<>();
+    private Map<String, Object> serviceProxies = new HashMap<>();
     private Service managementService;
 
     private DrinkWaterApplication() {
@@ -146,15 +146,15 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     public void addProxy(Service serviceToProxy) {
         if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.BeanObject) {
-            serviceProxies.put(serviceToProxy.getConfiguration().getServiceClass(),
+            serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
                             new BeanInvocationHandler(serviceToProxy.getCamelContext(), this, serviceToProxy)));
         } else if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.BeanClass) {
-            serviceProxies.put(serviceToProxy.getConfiguration().getServiceClass(),
+            serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
                             new BeanClassInvocationHandler(serviceToProxy.getCamelContext())));
         } else if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Rest) {
-            serviceProxies.put(serviceToProxy.getConfiguration().getServiceClass(),
+            serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
                             new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy.getConfiguration())));
         }
@@ -162,7 +162,20 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     @Override
     public <T> T getService(Class<? extends T> iface) {
-        return (T) serviceProxies.get(iface);
+        return (T) serviceProxies.get(iface.getName());
+    }
+
+    @Override
+    public <T> T getService(String serviceName) {
+        return (T) serviceProxies.get(serviceName);
+    }
+
+    @Override
+    public IServiceConfiguration getServiceDefinition(String serviceName) {
+        return
+                services.filter(s -> s.getConfiguration().getServiceName().equals(serviceName))
+                        .map(s -> s.getConfiguration())
+                        .get();
     }
 
     private void startServices() {

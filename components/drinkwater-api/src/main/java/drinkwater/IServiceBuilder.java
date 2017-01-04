@@ -19,5 +19,5 @@ public interface IServiceBuilder {
 
     IServiceBuilder withInjectionStrategy(InjectionStrategy strategy);
 
-    ServiceConfiguration dependsOn(IServiceConfiguration... configs);
+    ServiceConfiguration dependsOn(String... services);
 }

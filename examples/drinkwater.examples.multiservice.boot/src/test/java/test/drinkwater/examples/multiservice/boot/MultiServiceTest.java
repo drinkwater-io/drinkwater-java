@@ -42,7 +42,7 @@ public class MultiServiceTest {
 
     @Test
     public void ShouldGetMockedValue() {
-        IServiceC servicec = app.getService(IServiceC.class);
+        IServiceC servicec = app.getService("serviceC");
 
         String result = servicec.findData("whatever is passed here ");
 
@@ -52,7 +52,7 @@ public class MultiServiceTest {
 
     @Test
     public void shouldGetValueFromMockInDependencies() {
-        IServiceA serviceA = app.getService(IServiceA.class);
+        IServiceA serviceA = app.getService("serviceA");
 
         String result = serviceA.getData("hello");
 

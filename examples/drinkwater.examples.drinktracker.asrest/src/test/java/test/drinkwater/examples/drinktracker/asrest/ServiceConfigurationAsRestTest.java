@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ServiceConfigurationAsRestTest extends HttpUnitTest {
     private static DrinkWaterApplication app;
-    private static String apiEnpoint = "http://localhost:8889/idrinktrackerservice";
+    private static String apiEnpoint = "http://localhost:8889/examples.drinkwater.drinktracker.model.IDrinkTrackerService";
 
     @BeforeClass
     public static void setup() throws Exception {

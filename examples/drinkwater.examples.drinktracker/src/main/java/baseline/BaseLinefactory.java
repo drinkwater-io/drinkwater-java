@@ -37,7 +37,7 @@ public class BaseLinefactory {
                 .forService(IDrinkTrackerService.class)
                 .withInjectionStrategy(InjectionStrategy.Default)
                 .useBean(drinkTrackerService)
-                .dependsOn(iaccountService, ivolumeFormatter, ivolumeRepositoryService);
+                .dependsOn(iaccountService.getServiceName(), ivolumeFormatter.getServiceName(), ivolumeRepositoryService.getServiceName());
 
         //FIXME order is important here, we should sort by deps...
         return javaslang.collection.List.of(

@@ -47,12 +47,14 @@ public class BeanFactory {
 
     private static void injectDependencies(ServiceRepository app, Service config, Object beanToUse) throws IllegalAccessException {
         if (config.getConfiguration().getInjectionStrategy() == InjectionStrategy.Default) {
-            for (IServiceConfiguration dependency : config.getConfiguration().getServiceDependencies()) {
-                Object dependencyBean = app.getService(dependency.getServiceClass());
+            for (String dependency : config.getConfiguration().getServiceDependencies()) {
+                Object dependencyBean = app.getService(dependency);
+
+                IServiceConfiguration dependencyDefinition = app.getServiceDefinition(dependency);
 
                 //get a field corresponding to ype in the target bean
                 for (Field f : beanToUse.getClass().getDeclaredFields()) {
-                    if (f.getType().equals(dependency.getServiceClass())) {
+                    if (f.getType().equals(dependencyDefinition.getServiceClass())) {
                         f.setAccessible(true);
                         f.set(beanToUse, dependencyBean);
                     }

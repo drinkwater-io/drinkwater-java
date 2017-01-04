@@ -17,7 +17,7 @@ public interface IServiceConfiguration {
 
     InjectionStrategy getInjectionStrategy();
 
-    List<IServiceConfiguration> getServiceDependencies();
+    List<String> getServiceDependencies();
 
     Object getTargetBean();
 

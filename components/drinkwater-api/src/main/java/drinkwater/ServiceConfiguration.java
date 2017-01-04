@@ -24,7 +24,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
     private ServiceScheme scheme = ServiceScheme.BeanClass; //default to bean
 
-    private List<IServiceConfiguration> serviceDependencies = new ArrayList<>();
+    private List<String> serviceDependencies = new ArrayList<>();
 
     public ServiceConfiguration() {
     }
@@ -91,10 +91,10 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     }
 
     @Override
-    public ServiceConfiguration dependsOn(IServiceConfiguration... configs) {
+    public ServiceConfiguration dependsOn(String... services) {
 
-        for (IServiceConfiguration conf : configs) {
-            this.serviceDependencies.add(conf);
+        for (String service : services) {
+            this.serviceDependencies.add(service);
         }
 
         return this;
@@ -143,12 +143,8 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     }
 
     @Override
-    public List<IServiceConfiguration> getServiceDependencies() {
+    public List<String> getServiceDependencies() {
         return serviceDependencies;
-    }
-
-    public void setServiceDependencies(List<IServiceConfiguration> serviceDependencies) {
-        this.serviceDependencies = serviceDependencies;
     }
 
     @Override
@@ -163,7 +159,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     @Override
     public String getServiceName() {
         if(serviceName == null){
-            return this.getServiceClass().getSimpleName();
+            return this.getServiceClass().getName();
         }
         return serviceName;
     }

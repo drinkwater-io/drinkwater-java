@@ -17,7 +17,9 @@ import drinkwater.examples.multiservice.impl.ServiceDImpl;
  */
 public class MultiServiceConfiguration extends ServiceConfigurationBuilder {
 
+    //TODO change this to use the configure method instead and use names in the dependson method
     public MultiServiceConfiguration() {
+
         ServiceConfiguration configD = new ServiceConfiguration()
                 .forService(IServiceD.class)
                 .useBeanClass(ServiceDImpl.class)
@@ -41,14 +43,14 @@ public class MultiServiceConfiguration extends ServiceConfigurationBuilder {
                 .useBeanClass(ServiceBImpl.class)
                 .name("serviceB")
                 // .asRest()
-                .dependsOn(configC, configD);
+                .dependsOn(configC.getServiceName(), configD.getServiceName());
 
         ServiceConfiguration configA = new ServiceConfiguration()
                 .forService(IServiceA.class)
                 .useBeanClass(ServiceAImpl.class)
                 .name("serviceA")
                 .asRest()
-                .dependsOn(configB);
+                .dependsOn(configB.getServiceName());
 
         addConfiguration(configD);
         addConfiguration(configC);
