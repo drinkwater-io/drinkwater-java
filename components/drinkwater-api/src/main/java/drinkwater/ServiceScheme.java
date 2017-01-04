@@ -6,5 +6,5 @@ package drinkwater;
 public enum ServiceScheme {
     BeanObject,
     BeanClass,
-    Mock, Rest
+    Rest
 }

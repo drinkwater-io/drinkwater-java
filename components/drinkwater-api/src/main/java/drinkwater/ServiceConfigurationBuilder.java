@@ -8,16 +8,28 @@ import java.util.ArrayList;
 /**
  * Created by A406775 on 29/12/2016.
  */
-public class ServiceConfigurationBuilder {
+public abstract class ServiceConfigurationBuilder {
 
-    private java.util.List<IServiceConfiguration> configurations = new ArrayList<>();
+    private java.util.List<ServiceConfiguration> configurations = new ArrayList<>();
 
-    public void AddConfiguration(IServiceConfiguration configuration) {
-        configurations.add(configuration);
+    public ServiceConfigurationBuilder() {
     }
 
-    public java.util.List<IServiceConfiguration> getConfigurations() {
-        return configurations;
+    public ServiceConfigurationBuilder(java.util.List<IServiceConfiguration> configurations) {
+        this.configurations = toServiceConfiguration(configurations);
+    }
+
+    public void addConfiguration(ServiceConfiguration configuration) {
+
+        this.configurations.add(configuration);
+    }
+
+    public void addConfigurations(java.util.List<ServiceConfiguration> configurations) {
+        this.configurations.addAll(configurations);
+    }
+
+    public final java.util.List<IServiceConfiguration> getConfigurations() {
+        return List.ofAll(this.configurations).map(s -> (IServiceConfiguration) s).toJavaList();
     }
 
     public IServiceConfiguration getConfiguration(String serviceName) {
@@ -26,17 +38,79 @@ public class ServiceConfigurationBuilder {
                 .get();
     }
 
+    public IServiceBuilder getBuilder(Class serviceClass) {
+        return List.ofAll(configurations)
+                .filter(conf -> conf.getServiceClass().equals(serviceClass))
+                .get();
+    }
+
+    public IServiceBuilder getBuilder(String serviceName) {
+        return List.ofAll(configurations)
+                .filter(conf -> conf.getServiceName().equals(serviceName))
+                .get();
+    }
+
+    private java.util.List<ServiceConfiguration> toServiceConfiguration(java.util.List<IServiceConfiguration> configurations) {
+        return List.ofAll(configurations).map(s -> ServiceConfiguration.fromConfig(s)).toJavaList();
+    }
+
+
+    public IServiceBuilder addService(Class interfaceClass) {
+        ServiceConfiguration configuration = new ServiceConfiguration();
+        configuration.setServiceClass(interfaceClass);
+        addConfiguration(configuration);
+        return configuration;
+    }
+
+    public IServiceBuilder addService(String serviceName) {
+        ServiceConfiguration configuration = new ServiceConfiguration();
+        configuration.setServiceName(serviceName);
+        addConfiguration(configuration);
+        return configuration;
+    }
+
+    public IServiceBuilder addService(String serviceName, Class interfaceClass) {
+        IServiceBuilder configuration = addService(serviceName);
+        return configuration.forService(interfaceClass);
+    }
+
+    public IServiceBuilder addService(String serviceName, Class interfaceClass, Object beanToUse) {
+        IServiceBuilder configuration = addService(serviceName, interfaceClass);
+        return configuration.useBean(beanToUse);
+    }
+
+    public IServiceBuilder addService(String serviceName, Class interfaceClass, Object beanToUse, String propertiesLocation) {
+        IServiceBuilder configuration = addService(serviceName, interfaceClass, beanToUse);
+        return configuration.withProperties(propertiesLocation);
+    }
+
+    public IServiceBuilder addService(String serviceName, Class interfaceClass, Object beanToUse, String propertiesLocation, InjectionStrategy injectionStrategy) {
+        IServiceBuilder configuration = addService(serviceName, interfaceClass, beanToUse, propertiesLocation);
+        return configuration.withInjectionStrategy(injectionStrategy);
+    }
+
+
     public void useMock(String serviceName, Object beanToUse) {
 
         ServiceConfiguration config = (ServiceConfiguration) getConfiguration(serviceName);
-
         config.setTargetBean(beanToUse);
-        config.setSheme(ServiceScheme.Mock);
+        config.setScheme(ServiceScheme.BeanObject);
+        config.setInjectionStrategy(InjectionStrategy.None);
 
+    }
 
+    public void changeScheme(ServiceScheme newScheme) {
+        javaslang.collection.List.ofAll(configurations)
+                .forEach(c -> c.setScheme(newScheme));
+    }
+
+    public void changeInjectionStrategy(InjectionStrategy injectionStrategy) {
+        javaslang.collection.List.ofAll(configurations)
+                .forEach(c -> c.setInjectionStrategy(injectionStrategy));
     }
 
     public void configure() {
 
     }
+
 }

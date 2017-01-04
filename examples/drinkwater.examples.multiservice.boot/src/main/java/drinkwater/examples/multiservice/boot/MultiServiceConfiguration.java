@@ -18,7 +18,7 @@ import drinkwater.examples.multiservice.impl.ServiceDImpl;
 public class MultiServiceConfiguration extends ServiceConfigurationBuilder {
 
     public MultiServiceConfiguration() {
-        ServiceConfiguration configD = ServiceConfiguration
+        ServiceConfiguration configD = new ServiceConfiguration()
                 .forService(IServiceD.class)
                 .useBeanClass(ServiceDImpl.class)
                 .withProperties("classpath:multiservice.properties")
@@ -27,7 +27,7 @@ public class MultiServiceConfiguration extends ServiceConfigurationBuilder {
                 // .asRest()
                 ;
 
-        ServiceConfiguration configC = ServiceConfiguration
+        ServiceConfiguration configC = new ServiceConfiguration()
                 .forService(IServiceC.class)
                 .useBeanClass(ServiceCImpl.class)
                 .withProperties("classpath:multiservice.properties")
@@ -36,30 +36,28 @@ public class MultiServiceConfiguration extends ServiceConfigurationBuilder {
                 //  .asRest()
                 ;
 
-        ServiceConfiguration configB = ServiceConfiguration
+        ServiceConfiguration configB = new ServiceConfiguration()
                 .forService(IServiceB.class)
                 .useBeanClass(ServiceBImpl.class)
                 .name("serviceB")
                 // .asRest()
                 .dependsOn(configC, configD);
 
-        ServiceConfiguration configA = ServiceConfiguration
+        ServiceConfiguration configA = new ServiceConfiguration()
                 .forService(IServiceA.class)
                 .useBeanClass(ServiceAImpl.class)
                 .name("serviceA")
                 .asRest()
                 .dependsOn(configB);
 
-        AddConfiguration(configD);
-        AddConfiguration(configC);
-        AddConfiguration(configB);
-        AddConfiguration(configA);
+        addConfiguration(configD);
+        addConfiguration(configC);
+        addConfiguration(configB);
+        addConfiguration(configA);
     }
-
 
     @Override
     public void configure() {
-
-
+        super.configure();
     }
 }

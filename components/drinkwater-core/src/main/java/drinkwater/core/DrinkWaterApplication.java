@@ -9,7 +9,6 @@ import drinkwater.core.internal.ServiceManagementBean;
 import drinkwater.core.internal.TracerBean;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.reflect.BeanInvocationHandler;
-import drinkwater.core.reflect.MockInvocationHandler;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.RestInvocationHandler;
 import drinkwater.rest.RestService;
@@ -146,11 +145,6 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     public void addProxy(Service serviceToProxy) {
-        if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Mock) {
-            serviceProxies.put(serviceToProxy.getConfiguration().getServiceClass(),
-                    ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
-                            new MockInvocationHandler(serviceToProxy.getConfiguration().getTargetBean())));
-        }
         if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.BeanObject) {
             serviceProxies.put(serviceToProxy.getConfiguration().getServiceClass(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
@@ -194,12 +188,15 @@ public class DrinkWaterApplication implements ServiceRepository {
 
             logger.info(String.format("getting management service properties from file : %s", defaultPropertiesName));
 
-            IServiceConfiguration config = ServiceConfiguration
-                    .forService(IServiceManagement.class)
-                    .useBean(serviceManagement)
-                    .withProperties(defaultPropertiesName)
-                    .name(this.name)
-                    .asRest();
+            //FIXME : use another way to initialize the servicemanagement bean
+            ServiceConfiguration config =
+                    (ServiceConfiguration) new ServiceConfiguration()
+                            .forService(IServiceManagement.class)
+                            .useBean(serviceManagement)
+                            .withProperties(defaultPropertiesName)
+                            .withInjectionStrategy(InjectionStrategy.None)
+                            .name(this.name)
+                            .asRest();
 
             managementService = createServiceFromConfig(config, tracer);
 
@@ -222,7 +219,10 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     private void stopManagementService() {
-        managementService.stop();
+        if (managementService != null) {
+
+            managementService.stop();
+        }
     }
 
     private void logStartInfo() {

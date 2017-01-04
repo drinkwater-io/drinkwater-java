@@ -24,6 +24,7 @@ public class DrinkWaterExtension implements Extension {
                         manager.createCreationalContext(null)
                 );
 
+
         for (Bean<?> serviceConfigBean : manager.getBeans(ServiceConfigurationBuilder.class)) {
 
             ServiceConfigurationBuilder builder = (ServiceConfigurationBuilder) manager.getReference(serviceConfigBean,

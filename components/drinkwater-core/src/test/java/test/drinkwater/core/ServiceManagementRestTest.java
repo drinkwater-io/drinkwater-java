@@ -4,8 +4,6 @@ import com.codahale.metrics.Metric;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import drinkwater.IServiceConfiguration;
-import drinkwater.ServiceConfiguration;
 import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.test.HttpUnitTest;
@@ -13,8 +11,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertNotNull;
@@ -34,18 +30,10 @@ public class ServiceManagementRestTest extends HttpUnitTest {
         app = DrinkWaterApplication.create("core-test");
         app.addServiceBuilder(new ServiceConfigurationBuilder() {
                                   @Override
-                                  public List<IServiceConfiguration> getConfigurations() {
-                                      List<IServiceConfiguration> configs = new ArrayList<IServiceConfiguration>();
-                                      configs.add(ServiceConfiguration
-                                              .forService(ITestService.class)
-                                              .name("test")
-                                              .useBean(new TestServiceImpl())
-                                              .asRest());
-
-                                      return configs;
+                                  public void configure() {
+                                      addService("test", ITestService.class, new TestServiceImpl()).asRest();
                                   }
-                              }
-        );
+        });
 
         app.start();
     }

@@ -1,5 +1,6 @@
 package baseline;
 
+import drinkwater.InjectionStrategy;
 import drinkwater.ServiceConfiguration;
 import examples.drinkwater.drinktracker.model.*;
 
@@ -17,20 +18,24 @@ public class BaseLinefactory {
         WaterVolumeFileRepository waterVolumeFileRepository = new WaterVolumeFileRepository("c:/temp");
         DrinkTrackerService drinkTrackerService = new DrinkTrackerService();
 
-        ServiceConfiguration iaccountService = ServiceConfiguration
+        ServiceConfiguration iaccountService = new ServiceConfiguration()
                 .forService(IAccountService.class)
+                .withInjectionStrategy(InjectionStrategy.Default)
                 .useBean(accountService);
 
-        ServiceConfiguration ivolumeRepositoryService = ServiceConfiguration
+        ServiceConfiguration ivolumeRepositoryService = new ServiceConfiguration()
                 .forService(IWaterVolumeRepository.class)
+                .withInjectionStrategy(InjectionStrategy.Default)
                 .useBean(waterVolumeFileRepository);
 
-        ServiceConfiguration ivolumeFormatter = ServiceConfiguration
+        ServiceConfiguration ivolumeFormatter = new ServiceConfiguration()
                 .forService(IWaterVolumeFormatter.class)
+                .withInjectionStrategy(InjectionStrategy.Default)
                 .useBean(waterVolumeFormatter);
 
-        ServiceConfiguration ivolumeService = ServiceConfiguration
+        ServiceConfiguration ivolumeService = new ServiceConfiguration()
                 .forService(IDrinkTrackerService.class)
+                .withInjectionStrategy(InjectionStrategy.Default)
                 .useBean(drinkTrackerService)
                 .dependsOn(iaccountService, ivolumeFormatter, ivolumeRepositoryService);
 

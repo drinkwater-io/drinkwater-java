@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * Created by A406775 on 27/12/2016.
@@ -14,6 +15,7 @@ import java.util.List;
 public class WaterVolumeFileRepository implements IWaterVolumeRepository {
 
     public String directory;
+    Logger logger = Logger.getLogger(WaterVolumeFileRepository.class.getName());
 
     public WaterVolumeFileRepository() {
     }
@@ -55,7 +57,7 @@ public class WaterVolumeFileRepository implements IWaterVolumeRepository {
                     Files.readAllLines(Paths.get(directory, createPath(account.getAcountId())), Charset.defaultCharset());
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.warning("error while getting volume from repository : " + e.getMessage());
         }
         return lines;
 
