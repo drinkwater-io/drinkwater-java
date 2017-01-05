@@ -35,7 +35,7 @@ public class MultiServiceRemoteTest extends HttpUnitTest {
 
     @BeforeClass
     public static void setup() throws Exception {
-        app = DrinkWaterApplication.create();
+        app = DrinkWaterApplication.create("remote-dwapp", false);
         MultiServiceRemoteConfiguration config = new MultiServiceRemoteConfiguration();
         app.addServiceBuilder(config);
         app.start();
@@ -96,6 +96,21 @@ public class MultiServiceRemoteTest extends HttpUnitTest {
         serviceA = app.getService("serviceA");
 
         transformed = serviceA.getData("someData");
+
+        assertEquals("A -> [B -> [C -> [servicCConn : someData] - mocked Data from D]]", transformed);
+    }
+
+    @Test
+    public void TestTracing() throws UnirestException {
+
+        app.patchService("serviceD", ServiceConfiguration.empty()
+                .withProperty("drinkwater.rest.port",
+                        mockServerRule.getPort())
+                .asRemote());
+
+        IServiceA serviceA = app.getService("serviceA");
+
+        String transformed = serviceA.getData("someData");
 
         assertEquals("A -> [B -> [C -> [servicCConn : someData] - mocked Data from D]]", transformed);
     }

@@ -6,6 +6,7 @@ import drinkwater.ITracer;
 import drinkwater.ServiceScheme;
 import drinkwater.ServiceState;
 import drinkwater.core.CamelContextFactory;
+import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.RouteBuilders;
 import drinkwater.core.ServiceRepository;
 import org.apache.camel.CamelContext;
@@ -20,6 +21,8 @@ import java.util.logging.Logger;
 public class Service implements drinkwater.IDrinkWaterService {
 
     @JsonIgnore
+    DrinkWaterApplication _dwa;
+    @JsonIgnore
     DefaultCamelContext camelContext;
     @JsonIgnore
     PropertiesComponent propertiesComponent;
@@ -32,18 +35,19 @@ public class Service implements drinkwater.IDrinkWaterService {
 
     private ServiceState state = ServiceState.NotStarted;
 
-    public Service(DefaultCamelContext fromContext,
-                   IServiceConfiguration serviceConfiguration,
-                   ITracer tracer) {
-        this.camelContext = fromContext;
-        this.serviceConfiguration = serviceConfiguration;
-        this.tracer = tracer;
-    }
+//    public Service(IServiceConfiguration serviceConfiguration,
+//                   ITracer tracer, DrinkWaterApplication dwa) {
+//
+//        //this.camelContext = fromContext;
+//        this(serviceConfiguration, tracer);
+//        this._dwa = dwa;
+//    }
 
-    public Service(IServiceConfiguration serviceConfiguration, ITracer tracer) {
+    public Service(IServiceConfiguration serviceConfiguration, ITracer tracer, DrinkWaterApplication dwa) {
         this.serviceConfiguration = serviceConfiguration;
         this.camelContext = CamelContextFactory.createCamelContext(serviceConfiguration);
         this.tracer = tracer;
+        this._dwa = dwa;
     }
 
     public CamelContext getCamelContext() {

@@ -1,7 +1,7 @@
 package drinkwater.rest;
 
+import drinkwater.IDrinkWaterService;
 import drinkwater.IPropertyResolver;
-import drinkwater.IServiceConfiguration;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -13,17 +13,17 @@ import java.lang.reflect.Method;
 public class RestInvocationHandler implements InvocationHandler {
 
     IPropertyResolver resolver;
-    IServiceConfiguration config;
+    IDrinkWaterService service;
 
-    public RestInvocationHandler(IPropertyResolver resolver, IServiceConfiguration config) {
+    public RestInvocationHandler(IPropertyResolver resolver, IDrinkWaterService service) {
 
-        this.config = config;
+        this.service = service;
         this.resolver = resolver;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        return Rest.invoke(proxy, method, args, resolver, config);
+        return Rest.invoke(proxy, method, args, resolver, service.getConfiguration());
     }
 }

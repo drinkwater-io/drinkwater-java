@@ -49,6 +49,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     private List<IDrinkWaterService> services;
     private Map<String, Object> serviceProxies;
     private Service managementService;
+    private boolean useServiceManagement;
     //fixme : should support multiple service builder
     private ServiceConfigurationBuilder serviceBuilders;
     private DrinkWaterApplication() {
@@ -62,12 +63,21 @@ public class DrinkWaterApplication implements ServiceRepository {
         this.name = name;
     }
 
+    private DrinkWaterApplication(String name, boolean useServiceManagement) {
+        this(name);
+        this.useServiceManagement = useServiceManagement;
+    }
+
     public static DrinkWaterApplication create() {
         return new DrinkWaterApplication();
     }
 
     public static DrinkWaterApplication create(String name) {
         return new DrinkWaterApplication(name);
+    }
+
+    public static DrinkWaterApplication create(String name, boolean useServiceManagement) {
+        return new DrinkWaterApplication(name, useServiceManagement);
     }
 
     public static RouteBuilder createCoreRoutes(String managementHost) {
@@ -150,7 +160,9 @@ public class DrinkWaterApplication implements ServiceRepository {
             service.start();
         }
 
-        createAndStartManagementService();
+        if (useServiceManagement) {
+            createAndStartManagementService();
+        }
 
         logStartedInfo();
 
@@ -171,7 +183,9 @@ public class DrinkWaterApplication implements ServiceRepository {
 
         stopExternalServices();
 
-        stopManagementService();
+        if (useServiceManagement) {
+            stopManagementService();
+        }
 
         logStoppedInfo();
 
@@ -187,7 +201,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     private Service createServiceFromConfig(IServiceConfiguration serviceConfig, ITracer metricTracer) {
         try {
 
-            Service service = new Service(serviceConfig, metricTracer);
+            Service service = new Service(serviceConfig, metricTracer, this);
 
             service.configure(this);
 
@@ -211,7 +225,7 @@ public class DrinkWaterApplication implements ServiceRepository {
                 serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Remote) {
             serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
-                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy.getConfiguration())));
+                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy)));
         }
     }
 
@@ -239,6 +253,10 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     private void stopExternalServices() {
         restConfiguration.start();
+    }
+
+    private void createAndStartTracing() {
+
     }
 
     private void createAndStartManagementService() {
