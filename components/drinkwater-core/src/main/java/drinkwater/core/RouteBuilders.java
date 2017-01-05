@@ -38,6 +38,38 @@ public class RouteBuilders {
         };
     }
 
+    public static RoutesBuilder mapCronRoutes(String groupName, ServiceRepository app, Service service) {
+        return new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+
+                String enpoint = "quartz2://" + groupName + "/" +
+                        service.getConfiguration().getServiceName() + "?fireNow=true";
+
+                Object bean = BeanFactory.createBean(app, service);
+
+                String cronExpression = service.getConfiguration().getCronExpression();
+
+                cronExpression =
+                        service.lookupProperty(service.getConfiguration().getCronExpression() + ":" + cronExpression);
+
+                if (cronExpression == null) {
+                    cronExpression = cronExpression.replaceAll(" ", "+");
+                    enpoint += "&cron=" + cronExpression;
+
+                } else {
+                    enpoint += "&trigger.repeatInterval=" + service.getConfiguration().getRepeatInterval();
+                }
+
+                //camel needs + instead of white space
+
+                //TODO : check correctness of expression see camel doc here the job must have only one method !!!!
+                from(enpoint).bean(bean);
+
+            }
+        };
+    }
+
     public static RouteBuilder mapRestRoutes(ServiceRepository app, Service service) {
 
         return new RouteBuilder() {
@@ -51,6 +83,7 @@ public class RouteBuilders {
             }
         };
     }
+
 
     //FIXME to many params
     public static RouteBuilder mapBeanClassRoutes(ServiceRepository app, Service service) {

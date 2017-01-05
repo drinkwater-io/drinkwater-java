@@ -85,6 +85,11 @@ public class ServiceConfigurationBuilder {
         return configuration.useBean(beanToUse);
     }
 
+    public IServiceBuilder addService(String serviceName, Class interfaceClass, Class beanClass) {
+        IServiceBuilder configuration = addService(serviceName, interfaceClass);
+        return configuration.useBeanClass(beanClass);
+    }
+
     public IServiceBuilder addService(String serviceName, Class interfaceClass, Class beanClass, String... dependencies) {
         IServiceBuilder configuration = addService(serviceName, interfaceClass);
         configuration.dependsOn(dependencies);

@@ -7,5 +7,5 @@ public enum ServiceScheme {
     BeanObject,
     BeanClass,
     Rest,
-    Remote
+    Task, Remote
 }

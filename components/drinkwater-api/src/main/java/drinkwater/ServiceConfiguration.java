@@ -31,6 +31,9 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
     private Properties initialProperties;
 
+    private String cronExpression;
+
+    private int repeatInterval = 1000;
 
 
     public ServiceConfiguration() {
@@ -81,6 +84,16 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 //        this.initialProperties = (patchConfig.getInitialProperties() == null) ? this.initialProperties : patchConfig.getInitialProperties();
         this.initialProperties = MapHelper.mergeProperties(this.initialProperties, patchConfig.getInitialProperties());
         return this;
+    }
+
+    @Override
+    public String getCronExpression() {
+        return cronExpression;
+    }
+
+    @Override
+    public int getRepeatInterval() {
+        return repeatInterval;
     }
 
     public IServiceBuilder forService(Class serviceClass) {
@@ -148,6 +161,21 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
             this.serviceDependencies.add(service);
         }
 
+        return this;
+    }
+
+    @Override
+    public IServiceBuilder cron(String cronExpression) {
+
+        this.scheme = ServiceScheme.Task;
+        this.cronExpression = cronExpression;
+        return this;
+    }
+
+    @Override
+    public IServiceBuilder repeat(int repeatInterval) {
+        this.scheme = ServiceScheme.Task;
+        this.repeatInterval = repeatInterval;
         return this;
     }
 

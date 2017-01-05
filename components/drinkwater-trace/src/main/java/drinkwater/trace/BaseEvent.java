@@ -7,9 +7,9 @@ import java.time.LocalDateTime;
  */
 public class BaseEvent {
 
-    LocalDateTime time;
+    private LocalDateTime time;
 
-    Object[] payloads;
+    private Payload payload;
 
     private String name;
 
@@ -17,12 +17,12 @@ public class BaseEvent {
 
     private String correlationId;
 
-    public BaseEvent(String correlationId, String name, String description, Object... payloads) {
+    public BaseEvent(String correlationId, String name, String description, Payload payload) {
         //check new time java api with clock ?
         this.time = LocalDateTime.now();
         this.description = description;
         this.name = name;
-        this.payloads = payloads;
+        this.payload = payload;
         this.correlationId = correlationId;
     }
 
@@ -34,8 +34,8 @@ public class BaseEvent {
         return time;
     }
 
-    public Object[] getPayloads() {
-        return payloads;
+    public Payload getPayload() {
+        return payload;
     }
 
     public String getName() {

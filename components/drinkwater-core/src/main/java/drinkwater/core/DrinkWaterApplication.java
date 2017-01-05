@@ -12,8 +12,11 @@ import drinkwater.core.reflect.BeanInvocationHandler;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.RestInvocationHandler;
 import drinkwater.rest.RestService;
+import drinkwater.trace.BaseEvent;
 import drinkwater.trace.EventAggregator;
 import javaslang.collection.List;
+import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
@@ -32,6 +35,7 @@ import java.util.logging.Logger;
 public class DrinkWaterApplication implements ServiceRepository {
 
     public static final String DW_STATICHANDLER = "dw-statichandler";
+    private static Logger logger = Logger.getLogger(DrinkWaterApplication.class.getName());
 
     static {
         //FIXME manage the logging system
@@ -40,7 +44,6 @@ public class DrinkWaterApplication implements ServiceRepository {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
     }
 
-    private Logger logger = Logger.getLogger(DrinkWaterApplication.class.getName());
     private List<DrinkWaterApplicationHistory> applicationHistory = List.empty();
     private ApplicationState state = ApplicationState.Stopped;
     private String name;
@@ -50,10 +53,14 @@ public class DrinkWaterApplication implements ServiceRepository {
     private List<IDrinkWaterService> services;
     private Map<String, Object> serviceProxies;
     private Service managementService;
-    private boolean useServiceManagement;
+    private boolean useServiceManagement = true;
     private EventAggregator eventAggregator = new EventAggregator();
+    private boolean isTraceMaster = false;
     //fixme : should support multiple service builder
     private ServiceConfigurationBuilder serviceBuilders;
+
+    private CamelContext applicationLevelContext;
+
     private DrinkWaterApplication() {
         this(null);
     }
@@ -66,8 +73,13 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     private DrinkWaterApplication(String name, boolean useServiceManagement) {
+        this(name, useServiceManagement, true);
+    }
+
+    private DrinkWaterApplication(String name, boolean useServiceManagement, boolean isTraceMaster) {
         this(name);
         this.useServiceManagement = useServiceManagement;
+        this.isTraceMaster = isTraceMaster;
     }
 
     public static DrinkWaterApplication create() {
@@ -80,6 +92,10 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     public static DrinkWaterApplication create(String name, boolean useServiceManagement) {
         return new DrinkWaterApplication(name, useServiceManagement);
+    }
+
+    public static DrinkWaterApplication create(String name, boolean useServiceManagement, boolean traceMaster) {
+        return new DrinkWaterApplication(name, useServiceManagement, traceMaster);
     }
 
     public static RouteBuilder createCoreRoutes(String managementHost) {
@@ -97,10 +113,66 @@ public class DrinkWaterApplication implements ServiceRepository {
         };
     }
 
+    public static RouteBuilder createTracingRoute(String managementHost) {
+        return new RouteBuilder() {
+
+            ITraceLogger traceLgger = new ITraceLogger() {
+                @Override
+                public void logTrace(Object obj) {
+                    if (!(obj instanceof Exchange)) {
+                        logger.severe("tracing log must be an exchange");
+                        return;
+                    }
+                    Exchange exchange = (Exchange) obj;
+
+                    if (!(exchange.getIn().getBody() instanceof BaseEvent)) {
+                        logger.severe("tracing log must be an exchange");
+                        return;
+                    }
+
+                    BaseEvent event = (BaseEvent) exchange.getIn().getBody();
+
+                    System.out.println(event.getClass().getSimpleName() + " : " + event.getCorrelationId() + "  -  " + event.getTime());
+
+                }
+            };
+
+            @Override
+            public void configure() throws Exception {
+
+                from("vm:trace").bean(traceLgger, "logTrace(${exchange})");
+
+            }
+        };
+    }
+
     public static ResourceHandler getResourceHandler() {
         ResourceHandler staticHandler = new ResourceHandler();
         staticHandler.setBaseResource(Resource.newClassPathResource("/www"));
         return staticHandler;
+    }
+
+    public void startApplicationContext() {
+
+        try {
+            applicationLevelContext = CamelContextFactory.createCamelContext("applicationlevelContext");
+            if (isTraceMaster) {
+                applicationLevelContext.addRoutes(createTracingRoute(null));
+            }
+
+            applicationLevelContext.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void stopApplicationContext() {
+        try {
+            applicationLevelContext.stop();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void cleanBeforeStart() {
@@ -148,9 +220,13 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     //fixme should throw error if called twice
     public void start() {
+
+
         if (isStarted()) {
             return;
         }
+
+        startApplicationContext();
 
         logStartInfo();
 
@@ -191,6 +267,8 @@ public class DrinkWaterApplication implements ServiceRepository {
             stopManagementService();
         }
 
+        stopApplicationContext();
+
         logStoppedInfo();
 
         state = ApplicationState.Stopped;
@@ -229,7 +307,7 @@ public class DrinkWaterApplication implements ServiceRepository {
                 serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Remote) {
             serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
-                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy)));
+                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy, applicationLevelContext.createProducerTemplate())));
         }
     }
 
@@ -389,6 +467,10 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     public EventAggregator getEventAggregator() {
         return eventAggregator;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public enum ApplicationState {Up, Stopped}

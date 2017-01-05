@@ -5,7 +5,7 @@ package drinkwater.trace;
  */
 public class ClientReceivedEvent extends BaseEvent {
 
-    public ClientReceivedEvent(String correlationId, String description, Object... payloads) {
+    public ClientReceivedEvent(String correlationId, String description, Payload payloads) {
         super(correlationId, "ClientReceivedEvent", description, payloads);
     }
 }

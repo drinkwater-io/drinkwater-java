@@ -36,4 +36,9 @@ public interface IServiceConfiguration {
     String getServiceName();
 
     IServiceConfiguration patchWith(IServiceConfiguration patchConfig);
+
+    String getCronExpression();
+
+    int getRepeatInterval();
+
 }

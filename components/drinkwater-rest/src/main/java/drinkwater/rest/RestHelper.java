@@ -19,7 +19,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static drinkwater.DrinkWaterConstants.BeanOperationName;
+import static drinkwater.DrinkWaterConstants.ROUTE_serverReceivedEvent;
+import static drinkwater.DrinkWaterConstants.ROUTE_serverSentEvent;
 import static drinkwater.helper.StringHelper.startsWithOneOf;
 
 /**
@@ -83,9 +84,7 @@ public class RestHelper {
 
     public static Tuple2<RestDefinition, String> buildRestRoute(RouteBuilder builder, Method method, ITracer tracer) {
 
-        builder.interceptFrom().setHeader(BeanOperationName)
-                .constant(formatMethod(method))
-                .bean(tracer, "start(${exchange})");
+        builder.interceptFrom().to(ROUTE_serverReceivedEvent);
 
         HttpMethod httpMethod = httpMethodFor(method);
 
@@ -224,7 +223,7 @@ public class RestHelper {
     private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, String camelFormattedMethodName, ITracer tracer) {
         RouteDefinition def = restDefinition.route();
 
-        return def.bean(bean, camelFormattedMethodName).bean(tracer, "stop(${exchange})");
+        return def.bean(bean, camelFormattedMethodName).wireTap(ROUTE_serverSentEvent).end();
     }
 
 

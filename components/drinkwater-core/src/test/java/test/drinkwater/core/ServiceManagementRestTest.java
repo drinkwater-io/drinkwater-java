@@ -1,8 +1,5 @@
 package test.drinkwater.core;
 
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.test.HttpUnitTest;
@@ -10,11 +7,6 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import test.drinkwater.core.model.TestConfiguration;
-
-import java.util.Map;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Created by A406775 on 2/01/2017.
@@ -41,12 +33,12 @@ public class ServiceManagementRestTest extends HttpUnitTest {
     public void checkTestServiceEndpoint() throws UnirestException {
         httpGetString(DEFAULT_REST_HOST_AND_PORT + "/test/info").expectsBody("test info");
 
-        MetricRegistry registry = app.getTracer().getMetrics();
-
-        Map<String, Metric> metrics = registry.getMetrics();
-
-        assertNotNull(metrics.get("TestServiceImpl.getInfo"));
-        assertTrue(metrics.get("TestServiceImpl.getInfo") instanceof Timer);
+//        MetricRegistry registry = app.getTracer().getMetrics();
+//
+//        Map<String, Metric> metrics = registry.getMetrics();
+//
+//        assertNotNull(metrics.get("TestServiceImpl.getInfo"));
+//        assertTrue(metrics.get("TestServiceImpl.getInfo") instanceof Timer);
     }
 
 

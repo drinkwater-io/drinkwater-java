@@ -9,13 +9,18 @@ import drinkwater.core.CamelContextFactory;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.RouteBuilders;
 import drinkwater.core.ServiceRepository;
-import drinkwater.trace.BaseEvent;
+import drinkwater.trace.Payload;
+import drinkwater.trace.ServerReceivedEvent;
+import drinkwater.trace.ServerSentEvent;
 import org.apache.camel.CamelContext;
+import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 
-import java.lang.reflect.Method;
+import java.util.UUID;
 import java.util.logging.Logger;
+
+import static drinkwater.DrinkWaterConstants.*;
 
 /**
  * Created by A406775 on 29/12/2016.
@@ -93,15 +98,55 @@ public class Service implements drinkwater.IDrinkWaterService {
         }
     }
 
-    public void configure(ServiceRepository app) throws Exception {
+    public void configure(ServiceRepository serviceRepository) throws Exception {
+
+        //create tracing routes
+        this.getCamelContext().addRoutes(createDirectServiceRoutes());
+
         if (this.serviceConfiguration.getScheme() == ServiceScheme.BeanObject) {
             //nothing to configure here
         } else if (this.serviceConfiguration.getScheme() == ServiceScheme.BeanClass) {
-            this.camelContext.addRoutes(RouteBuilders.mapBeanClassRoutes(app, this));
+            this.camelContext.addRoutes(RouteBuilders.mapBeanClassRoutes(serviceRepository, this));
         } else if (this.serviceConfiguration.getScheme() == ServiceScheme.Rest) {
-            this.camelContext.addRoutes(RouteBuilders.mapRestRoutes(app, this));
+            this.camelContext.addRoutes(RouteBuilders.mapRestRoutes(serviceRepository, this));
+        } else if (this.serviceConfiguration.getScheme() == ServiceScheme.Task) {
+            this.camelContext.addRoutes(RouteBuilders.mapCronRoutes(this._dwa.getName(), serviceRepository, this));
         }
     }
+
+    public RouteBuilder createDirectServiceRoutes() {
+        return new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+                from(ROUTE_CheckFlowIDHeader).process(exchange -> {
+                    if (exchange.getIn().getHeader(FlowCorrelationIDKey) == null) {
+                        exchange.getIn().setHeader(FlowCorrelationIDKey, UUID.randomUUID().toString());
+                    }
+                });
+
+                from(ROUTE_serverReceivedEvent)
+                        .to(ROUTE_CheckFlowIDHeader)
+                        .wireTap("direct:createServerReceivedEventAndTrace");
+
+                from(ROUTE_serverSentEvent)
+                        .to(ROUTE_CheckFlowIDHeader)
+                        .wireTap("direct:createServerSentEventAndTrace");
+
+                from("direct:createServerReceivedEventAndTrace").process(exchange -> {
+                    String correlationIdFlow = (String) exchange.getIn().getHeader(FlowCorrelationIDKey);
+                    ServerReceivedEvent event = new ServerReceivedEvent(correlationIdFlow, "?", Payload.of(exchange.getIn().getBody()));
+                    exchange.getIn().setBody(event);
+                }).to(ROUTE_trace);
+
+                from("direct:createServerSentEventAndTrace").process(exchange -> {
+                    String correlationIdFlow = (String) exchange.getIn().getHeader(FlowCorrelationIDKey);
+                    ServerSentEvent event = new ServerSentEvent(correlationIdFlow, "?", Payload.of(exchange.getIn().getBody()));
+                    exchange.getIn().setBody(event);
+                }).to(ROUTE_trace);
+            }
+        };
+    }
+
 
     @Override
     public ServiceState getState() {
@@ -117,18 +162,5 @@ public class Service implements drinkwater.IDrinkWaterService {
     public String toString() {
         return serviceConfiguration.getServiceName() + " as " + serviceConfiguration.getScheme() +
                 " [" + serviceConfiguration.getServiceClass() + "]";
-    }
-
-    @Override
-    public void sendEvent(BaseEvent event) {
-        //fixme : this just to avoid logging while debugging ?
-        if (event.getPayloads() != null && event.getPayloads().length > 0) {
-            if (event.getPayloads()[0].getClass().equals(Method.class)) {
-                if (((Method) event.getPayloads()[0]).getName().equalsIgnoreCase("toString"))
-                    //do not log it....
-                    return;
-            }
-        }
-        this._dwa.getEventAggregator().addEvent(event);
     }
 }

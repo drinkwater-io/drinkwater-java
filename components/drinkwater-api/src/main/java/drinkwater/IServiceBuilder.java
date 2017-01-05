@@ -24,4 +24,8 @@ public interface IServiceBuilder {
     IServiceBuilder withProperty(String key, Object value);
 
     ServiceConfiguration dependsOn(String... services);
+
+    IServiceBuilder cron(String cronExpression);
+
+    IServiceBuilder repeat(int repeatInterval);
 }
