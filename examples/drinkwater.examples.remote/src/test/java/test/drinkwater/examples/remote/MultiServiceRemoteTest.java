@@ -4,6 +4,7 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import drinkwater.IServiceConfiguration;
 import drinkwater.ServiceConfiguration;
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.examples.multiservice.IServiceA;
 import drinkwater.examples.multiservice.IServiceD;
 import drinkwater.examples.remote.MultiServiceRemoteConfiguration;
 import drinkwater.test.HttpUnitTest;
@@ -29,7 +30,7 @@ public class MultiServiceRemoteTest extends HttpUnitTest {
     }
 
     @Rule
-    public MockServerRule mockServerRule = new MockServerRule(this, true);
+    public MockServerRule mockServerRule = new MockServerRule(this);
     private MockServerClient mockServerClient;
 
     @BeforeClass
@@ -53,16 +54,13 @@ public class MultiServiceRemoteTest extends HttpUnitTest {
                         .withPath("/serviceD/uppercaseData")
                         .withQueryStringParameter("data", "someData")
         ).respond(
-                HttpResponse.response().withBody("someMockedData")
+                HttpResponse.response().withBody("mocked Data from D")
         );
     }
 
 
     @Test
     public void ShouldCallRemoteService() throws UnirestException {
-
-        String newServiceHost = "http://127.0.0.1:" + mockServerRule.getPort();
-
 
         //TODO change the property setting using a constant
         IServiceConfiguration config = (IServiceConfiguration)
@@ -74,6 +72,31 @@ public class MultiServiceRemoteTest extends HttpUnitTest {
 
         String transformed = serviceD.uppercaseData("someData");
 
-        assertEquals("someMockedData", transformed);
+        assertEquals("mocked Data from D", transformed);
+    }
+
+    @Test
+    public void ShouldCallRemoteServiceFromDependencies() throws UnirestException {
+
+        //TODO change the property setting using a constant
+        IServiceConfiguration config = (IServiceConfiguration)
+                ServiceConfiguration.empty().withProperty("drinkwater.rest.port", mockServerRule.getPort()).asRemote();
+
+        //not remote
+        IServiceA serviceA = app.getService("serviceA");
+
+        String transformed = serviceA.getData("someData");
+
+        assertEquals("A -> [B -> [C -> [servicCConn : someData] - D -> [SOMEDATAtoappend]]]", transformed);
+
+        //patch the service to be a remote one (calling the mockserver)
+
+        app.patchService("serviceD", config);
+
+        serviceA = app.getService("serviceA");
+
+        transformed = serviceA.getData("someData");
+
+        assertEquals("A -> [B -> [C -> [servicCConn : someData] - mocked Data from D]]", transformed);
     }
 }

@@ -11,6 +11,6 @@ public class ServiceCImpl implements IServiceC {
 
     @Override
     public String findData(String searchInfo) {
-        return String.format("C : [connection : %s - %s]", connection, searchInfo);
+        return String.format("C -> [%s : %s]", connection, searchInfo);
     }
 }

@@ -17,8 +17,8 @@ public class ServiceBImpl implements IServiceB {
     public String getTransformedData(String dataInfo) {
         String fromC = serviceC.findData(dataInfo);
 
-        String fromD = serviceD.uppercaseData(fromC);
+        String fromD = serviceD.uppercaseData(dataInfo);
 
-        return String.format("B [%s]", fromD);
+        return String.format("B -> [%s - %s]", fromC, fromD);
     }
 }

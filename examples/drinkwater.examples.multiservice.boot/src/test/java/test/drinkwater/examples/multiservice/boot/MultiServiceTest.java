@@ -60,7 +60,7 @@ public class MultiServiceTest {
 
         String result = serviceA.getData("hello");
 
-        assertEquals("A [initial : hello - result : B [C : [uppercase : FOUND FROM MOCK - append : this is text from properties]]]", result);
+        assertEquals("A -> [B -> [FOUND FROM MOCK - D -> [HELLOthis is text from properties]]]", result);
 
     }
 
