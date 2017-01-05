@@ -53,6 +53,8 @@ public class CamelContextFactory {
         PropertiesComponent propertiesComponent = context.getComponent(
                 "properties", PropertiesComponent.class);
         propertiesComponent.setIgnoreMissingLocation(true);
+        propertiesComponent.setCache(false);
+        propertiesComponent.setInitialProperties(configuration.getInitialProperties());
         propertiesComponent.setLocations(configuration
                 .getProperties());
     }

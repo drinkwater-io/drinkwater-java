@@ -110,7 +110,8 @@ public class RestHelper {
     }
 
     public static String port(IPropertyResolver propertiesResolver) throws Exception {
-        return propertiesResolver.lookupProperty(RestService.REST_PORT_KEY + ":8889");
+        String portKey = RestService.REST_PORT_KEY + ":8889";
+        return propertiesResolver.lookupProperty(portKey);
     }
 
     public static String context(IPropertyResolver propertiesResolver, IServiceConfiguration config) throws Exception {

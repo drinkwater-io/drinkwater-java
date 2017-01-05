@@ -41,7 +41,7 @@ public class DrinkWaterApplicationHistoryTest {
         app.takeSnapShot();
 
         //change the service
-        app.changeService("test", new TestServiceImpl("new Info"));
+        app.patchService("test", new TestServiceImpl("new Info"));
         testService = app.getService("test");
         assertEquals("new Info", testService.getInfo());
 

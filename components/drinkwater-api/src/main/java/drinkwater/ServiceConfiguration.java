@@ -1,9 +1,12 @@
 package drinkwater;
 
 
+import drinkwater.helper.MapHelper;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by A406775 on 23/12/2016.
@@ -12,7 +15,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
     private String serviceName;
 
-    private List<String> properties = new ArrayList<String>();
+    private List<String> properties;
 
     private Class serviceClass;
 
@@ -20,14 +23,34 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
     private Object targetBean;
 
-    private InjectionStrategy injectionStrategy = InjectionStrategy.Default;
+    private InjectionStrategy injectionStrategy;
 
-    private ServiceScheme scheme = ServiceScheme.BeanClass; //default to bean
+    private ServiceScheme scheme;
 
-    private List<String> serviceDependencies = new ArrayList<>();
+    private List<String> serviceDependencies;
+
+    private Properties initialProperties;
+
+
 
     public ServiceConfiguration() {
+        injectionStrategy = InjectionStrategy.Default;
+        properties = new ArrayList<String>();
+        scheme = ServiceScheme.BeanClass;
+        serviceDependencies = new ArrayList<>();
+        initialProperties = new Properties();
     }
+
+    public static ServiceConfiguration empty() {
+        ServiceConfiguration sc = new ServiceConfiguration();
+        sc.injectionStrategy = null;
+        sc.properties = null;
+        sc.scheme = null;
+        sc.serviceDependencies = null;
+        sc.properties = null;
+        return sc;
+    }
+
 
     public static ServiceConfiguration fromConfig(IServiceConfiguration config) {
         ServiceConfiguration sc = new ServiceConfiguration();
@@ -42,6 +65,22 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
         return sc;
 
+    }
+
+    @Override
+    public IServiceConfiguration patchWith(IServiceConfiguration patchConfig) {
+        //TODO fixme : changing the name of the service can be potentially dangerous as it might be a dependency...
+        this.serviceName = (patchConfig.getServiceName() == null) ? this.serviceName : patchConfig.getServiceName();
+        this.properties = (patchConfig.getProperties().length == 0) ? this.properties : Arrays.asList(patchConfig.getProperties());
+        this.serviceClass = (patchConfig.getServiceClass() == null) ? this.serviceClass : patchConfig.getServiceClass();
+        this.targetBeanClass = (patchConfig.getTargetBeanClass() == null) ? this.targetBeanClass : patchConfig.getTargetBeanClass();
+        this.targetBean = (patchConfig.getTargetBean() == null) ? this.targetBean : patchConfig.getTargetBean();
+        this.injectionStrategy = (patchConfig.getInjectionStrategy() == null) ? this.injectionStrategy : patchConfig.getInjectionStrategy();
+        this.scheme = (patchConfig.getScheme() == null) ? this.scheme : patchConfig.getScheme();
+        this.serviceDependencies = (patchConfig.getServiceDependencies() == null) ? this.serviceDependencies : patchConfig.getServiceDependencies();
+//        this.initialProperties = (patchConfig.getInitialProperties() == null) ? this.initialProperties : patchConfig.getInitialProperties();
+        this.initialProperties = MapHelper.mergeProperties(this.initialProperties, patchConfig.getInitialProperties());
+        return this;
     }
 
     public IServiceBuilder forService(Class serviceClass) {
@@ -85,8 +124,20 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     }
 
     @Override
+    public IServiceBuilder asRemote() {
+        this.scheme = ServiceScheme.Remote;
+        return this;
+    }
+
+    @Override
     public IServiceBuilder withInjectionStrategy(InjectionStrategy strategy) {
         this.injectionStrategy = strategy;
+        return this;
+    }
+
+    @Override
+    public IServiceBuilder withProperty(String key, Object value) {
+        this.addInitialProperty(key, value);
         return this;
     }
 
@@ -112,7 +163,10 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
     @Override
     public String[] getProperties() {
-        return properties.toArray(new String[0]);
+        if (properties != null) {
+            return properties.toArray(new String[0]);
+        }
+        return new String[0];
     }
 
     public void setProperties(List<String> properties) {
@@ -156,14 +210,30 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
         return targetBean;
     }
 
+    @Override
     public void setTargetBean(Object beanToUse) {
         targetBean = beanToUse;
     }
 
     @Override
+    public Properties getInitialProperties() {
+        return initialProperties;
+    }
+
+    @Override
+    public void addInitialProperty(String key, Object value) {
+        initialProperties.setProperty(key, value.toString());
+
+        String test = initialProperties.getProperty(key);
+    }
+
+    @Override
     public String getServiceName() {
-        if(serviceName == null){
-            return this.getServiceClass().getName();
+        if (serviceName == null) {
+            //fallback to service class if present
+            if (this.getServiceClass() != null) {
+                return this.getServiceClass().getName();
+            }
         }
         return serviceName;
     }

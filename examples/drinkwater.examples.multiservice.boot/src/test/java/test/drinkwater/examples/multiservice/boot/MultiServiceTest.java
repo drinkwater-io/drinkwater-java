@@ -42,7 +42,7 @@ public class MultiServiceTest {
     @Test
     public void ShouldGetMockedValue() {
 
-        app.changeService("serviceC", getMockForIServiceC());
+        app.patchService("serviceC", getMockForIServiceC());
 
         IServiceC servicec = app.getService("serviceC");
 
@@ -54,7 +54,7 @@ public class MultiServiceTest {
 
     @Test
     public void shouldGetValueFromMockInDependencies() {
-        app.changeService("serviceC", getMockForIServiceC());
+        app.patchService("serviceC", getMockForIServiceC());
 
         IServiceA serviceA = app.getService("serviceA");
 

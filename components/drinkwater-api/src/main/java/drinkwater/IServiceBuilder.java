@@ -17,7 +17,11 @@ public interface IServiceBuilder {
 
     IServiceBuilder asRest();
 
+    IServiceBuilder asRemote();
+
     IServiceBuilder withInjectionStrategy(InjectionStrategy strategy);
+
+    IServiceBuilder withProperty(String key, Object value);
 
     ServiceConfiguration dependsOn(String... services);
 }

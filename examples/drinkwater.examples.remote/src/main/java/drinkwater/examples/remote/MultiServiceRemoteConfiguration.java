@@ -19,7 +19,7 @@ public class MultiServiceRemoteConfiguration extends ServiceConfigurationBuilder
     @Override
     public void configure() {
         addService("serviceD", IServiceD.class, ServiceDImpl.class, "classpath:multiservice.properties", InjectionStrategy.Default);
-        addService("serviceC", IServiceC.class, ServiceCImpl.class, "classpath:multiservice.properties", InjectionStrategy.Default);
+        addService("serviceC", IServiceC.class, ServiceCImpl.class, "classpath:multiservice.properties", InjectionStrategy.Default).asRest();
         addService("serviceB", IServiceB.class, ServiceBImpl.class, "serviceC", "serviceD");
         addService("serviceA", IServiceA.class, ServiceAImpl.class, "serviceB").asRest();
     }

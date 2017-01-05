@@ -207,7 +207,8 @@ public class DrinkWaterApplication implements ServiceRepository {
             serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
                             new BeanClassInvocationHandler(serviceToProxy.getCamelContext())));
-        } else if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Rest) {
+        } else if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Rest ||
+                serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Remote) {
             serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
                             new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy.getConfiguration())));
@@ -309,7 +310,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     //fixme : it should be possible to restart only some services...
-    public void changeService(String serviceName, Object beanObject) {
+    public void patchService(String serviceName, Object beanObject) {
 
         this.stop();
 
@@ -318,6 +319,19 @@ public class DrinkWaterApplication implements ServiceRepository {
         config.setScheme(ServiceScheme.BeanObject);
         config.setInjectionStrategy(InjectionStrategy.None);
         config.setTargetBean(beanObject);
+
+        this.serviceBuilders = newBuilder;
+
+        this.start();
+    }
+
+    public void patchService(String serviceName, IServiceConfiguration patchConfig) {
+
+        this.stop();
+
+        ServiceConfigurationBuilder newBuilder = new ServiceConfigurationBuilder(serviceBuilders.getConfigurations());
+        IServiceConfiguration config = newBuilder.getConfiguration(serviceName);
+        config.patchWith(patchConfig);
 
         this.serviceBuilders = newBuilder;
 
