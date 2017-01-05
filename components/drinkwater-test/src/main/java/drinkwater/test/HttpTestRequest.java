@@ -18,14 +18,9 @@ import static org.junit.Assert.assertEquals;
  */
 public class HttpTestRequest {
 
-    public enum ResponseType {Json, String}
-
     private String request;
-
     private ResponseType responseType;
-
     private HttpResponse<JsonNode> jsonResponse;
-
     private HttpResponse<String> stringResponse;
 
     public HttpTestRequest(HttpMethod method, String request, String body, ResponseType responseType) {
@@ -62,6 +57,14 @@ public class HttpTestRequest {
         }
     }
 
+    public String result() {
+        if (responseType == ResponseType.String) {
+            return trimEnclosingQuotes(stringResponse.getBody());
+        } else {
+            return jsonResponse.getBody().toString();
+        }
+    }
+
     public HttpTestRequest expectsBody(String expected) throws UnirestException {
         if (responseType == ResponseType.String) {
             assertEquals(expected, trimEnclosingQuotes(stringResponse.getBody()));
@@ -85,6 +88,8 @@ public class HttpTestRequest {
         String answer = s.replaceAll("'", "\"");
         return answer;
     }
+
+    public enum ResponseType {Json, String}
 
 
 }

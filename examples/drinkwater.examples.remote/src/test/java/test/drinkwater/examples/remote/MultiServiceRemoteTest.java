@@ -103,15 +103,15 @@ public class MultiServiceRemoteTest extends HttpUnitTest {
     @Test
     public void TestTracing() throws UnirestException {
 
-        app.patchService("serviceD", ServiceConfiguration.empty()
-                .withProperty("drinkwater.rest.port",
-                        mockServerRule.getPort())
-                .asRemote());
+        IServiceConfiguration config = (IServiceConfiguration)
+                ServiceConfiguration.empty().withProperty("drinkwater.rest.port", mockServerRule.getPort()).asRemote();
 
-        IServiceA serviceA = app.getService("serviceA");
+        app.patchService("serviceD", config);
 
-        String transformed = serviceA.getData("someData");
+        String result = httpGetString("http://localhost:8889/serviceA/data?data=someData").result();
 
-        assertEquals("A -> [B -> [C -> [servicCConn : someData] - mocked Data from D]]", transformed);
+        assertEquals("A -> [B -> [C -> [servicCConn : someData] - mocked Data from D]]", result);
+
+        assertEquals(2, app.getEventAggregator().currentSize());
     }
 }

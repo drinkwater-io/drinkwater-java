@@ -9,10 +9,12 @@ import drinkwater.core.CamelContextFactory;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.RouteBuilders;
 import drinkwater.core.ServiceRepository;
+import drinkwater.trace.BaseEvent;
 import org.apache.camel.CamelContext;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 
+import java.lang.reflect.Method;
 import java.util.logging.Logger;
 
 /**
@@ -115,5 +117,18 @@ public class Service implements drinkwater.IDrinkWaterService {
     public String toString() {
         return serviceConfiguration.getServiceName() + " as " + serviceConfiguration.getScheme() +
                 " [" + serviceConfiguration.getServiceClass() + "]";
+    }
+
+    @Override
+    public void sendEvent(BaseEvent event) {
+        //fixme : this just to avoid logging while debugging ?
+        if (event.getPayloads() != null && event.getPayloads().length > 0) {
+            if (event.getPayloads()[0].getClass().equals(Method.class)) {
+                if (((Method) event.getPayloads()[0]).getName().equalsIgnoreCase("toString"))
+                    //do not log it....
+                    return;
+            }
+        }
+        this._dwa.getEventAggregator().addEvent(event);
     }
 }

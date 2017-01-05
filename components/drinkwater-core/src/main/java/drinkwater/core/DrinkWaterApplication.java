@@ -12,6 +12,7 @@ import drinkwater.core.reflect.BeanInvocationHandler;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.RestInvocationHandler;
 import drinkwater.rest.RestService;
+import drinkwater.trace.EventAggregator;
 import javaslang.collection.List;
 import org.apache.camel.builder.RouteBuilder;
 import org.eclipse.jetty.server.handler.ResourceHandler;
@@ -50,6 +51,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     private Map<String, Object> serviceProxies;
     private Service managementService;
     private boolean useServiceManagement;
+    private EventAggregator eventAggregator = new EventAggregator();
     //fixme : should support multiple service builder
     private ServiceConfigurationBuilder serviceBuilders;
     private DrinkWaterApplication() {
@@ -110,6 +112,8 @@ public class DrinkWaterApplication implements ServiceRepository {
         tracer = new TracerBean();
         jvmMetricsBean = new JVMMetricsBean();
         restConfiguration = new RestService();
+        eventAggregator.clear();
+        eventAggregator = new EventAggregator();
     }
 
     public ServiceConfigurationBuilder configuration() {
@@ -383,8 +387,9 @@ public class DrinkWaterApplication implements ServiceRepository {
         return applicationHistory.toJavaList();
     }
 
+    public EventAggregator getEventAggregator() {
+        return eventAggregator;
+    }
+
     public enum ApplicationState {Up, Stopped}
-
-
-
 }
