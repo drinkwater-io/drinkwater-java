@@ -23,6 +23,7 @@ import org.eclipse.jetty.util.resource.Resource;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,8 +57,10 @@ public class DrinkWaterApplication implements ServiceRepository {
     private boolean useServiceManagement = false;
     private EventAggregator eventAggregator = new EventAggregator();
     private boolean isTraceMaster = true;
+    private Class eventLoggerClass = null;
     //fixme : should support multiple service builder
     private ServiceConfigurationBuilder serviceBuilders;
+    private Properties initialApplicationProperties = new Properties();
 
     private CamelContext applicationLevelContext;
 
@@ -137,12 +140,17 @@ public class DrinkWaterApplication implements ServiceRepository {
         try {
             applicationLevelContext = CamelContextFactory.createCamelContext("applicationlevelContext");
             if (isTraceMaster) {
+
+                //get logger class
+                Class loggerImplementationClass = eventLoggerClass == null ? ConsoleEventLogger.class : eventLoggerClass;
                 ServiceConfiguration traceBeanConfig = new ServiceConfiguration();
+                traceBeanConfig.setServiceName(this.getName() + "." + loggerImplementationClass.getSimpleName());
                 traceBeanConfig.setServiceClass(IBaseEventLogger.class);
-                traceBeanConfig.setTargetBean(ConsoleEventLogger.class.newInstance());
-                traceBeanConfig.setTargetBeanClass(ConsoleEventLogger.class);
+                traceBeanConfig.setTargetBean(loggerImplementationClass.newInstance());
+                traceBeanConfig.setTargetBeanClass(loggerImplementationClass);
                 traceBeanConfig.setScheme(ServiceScheme.BeanObject);
                 traceBeanConfig.useTracing(false);
+                initialApplicationProperties.forEach((key, value) -> traceBeanConfig.withProperty(key.toString(), value.toString()));
 
                 Service tracingService = createServiceFromConfig(traceBeanConfig, tracer);
 
@@ -466,5 +474,14 @@ public class DrinkWaterApplication implements ServiceRepository {
         return eventAggregator;
     }
 
+    public void setEventLoggerClass(Class eventLoggerClass) {
+        this.eventLoggerClass = eventLoggerClass;
+    }
+
+    public void addProperty(String property, String value) {
+        initialApplicationProperties.setProperty(property, value);
+    }
+
     public enum ApplicationState {Up, Stopped}
+
 }

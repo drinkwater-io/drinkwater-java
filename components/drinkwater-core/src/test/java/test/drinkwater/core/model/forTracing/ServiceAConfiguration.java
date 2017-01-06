@@ -7,13 +7,30 @@ import drinkwater.ServiceConfigurationBuilder;
  */
 public class ServiceAConfiguration extends ServiceConfigurationBuilder {
 
+    private boolean useTracing;
+    private boolean useTracingOnlyOnEntry;
+
+    public ServiceAConfiguration(boolean useTracing, boolean useTracingOnlyOnEntry) {
+        this.useTracing = useTracing;
+        this.useTracingOnlyOnEntry = useTracingOnlyOnEntry;
+    }
+
     @Override
     public void configure() {
+        boolean traced = useTracing;
+        boolean traceb = useTracing;
+        boolean tracea = useTracing;
+
+        if (useTracingOnlyOnEntry) {
+            traced = false;
+            traceb = false;
+            tracea = true;
+        }
         addService("serviceD", IServiceD.class, ServiceDImpl.class)
-                .useTracing(true);
+                .useTracing(traced);
         addService("serviceB", IServiceB.class).withProperty("drinkwater.rest.port", 8888)
-                .useTracing(true).asRemote();
+                .useTracing(traceb).asRemote();
         addService("serviceA", IServiceA.class, new ServiceAImpl(), "serviceD", "serviceB")
-                .useTracing(true).withProperty("drinkwater.rest.port", 7777).asRest();
+                .useTracing(tracea).withProperty("drinkwater.rest.port", 7777).asRest();
     }
 }

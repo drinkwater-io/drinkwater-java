@@ -7,11 +7,17 @@ import drinkwater.ServiceConfigurationBuilder;
  */
 public class ServiceCConfiguration extends ServiceConfigurationBuilder {
 
+    private boolean useTracing;
+
+    public ServiceCConfiguration(boolean useTracing) {
+        this.useTracing = useTracing;
+    }
+
     @Override
     public void configure() {
         addService("serviceC", IServiceC.class, new ServiceCImpl())
                 .withProperty("drinkwater.rest.port", 9999)
-                .useTracing(true)
+                .useTracing(useTracing)
                 .asRest();
     }
 }

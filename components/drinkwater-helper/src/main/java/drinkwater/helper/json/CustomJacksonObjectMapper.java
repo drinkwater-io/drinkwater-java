@@ -15,6 +15,17 @@ public class CustomJacksonObjectMapper extends ObjectMapper {
         this.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         this.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         this.enable(SerializationFeature.INDENT_OUTPUT);
+        this.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+        this.disable(SerializationFeature.FAIL_ON_SELF_REFERENCES);
+    }
+
+    public CustomJacksonObjectMapper(boolean indentation) {
+        this();
+        if (indentation) {
+            this.enable(SerializationFeature.INDENT_OUTPUT);
+        } else {
+            this.disable(SerializationFeature.INDENT_OUTPUT);
+        }
     }
 
 }
