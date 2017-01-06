@@ -19,8 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static drinkwater.DrinkWaterConstants.ROUTE_serverReceivedEvent;
-import static drinkwater.DrinkWaterConstants.ROUTE_serverSentEvent;
+import static drinkwater.DrinkWaterConstants.*;
 import static drinkwater.helper.StringHelper.startsWithOneOf;
 
 /**
@@ -82,9 +81,9 @@ public class RestHelper {
     }
 
 
-    public static Tuple2<RestDefinition, String> buildRestRoute(RouteBuilder builder, Method method, ITracer tracer) {
+    public static Tuple2<RestDefinition, Method> buildRestRoute(RouteBuilder builder, Method method, ITracer tracer) {
 
-        builder.interceptFrom().to(ROUTE_serverReceivedEvent);
+        //builder.interceptFrom().setHeader(BeanOperationName).constant(method).to(ROUTE_serverReceivedEvent);
 
         HttpMethod httpMethod = httpMethodFor(method);
 
@@ -94,9 +93,7 @@ public class RestHelper {
                 toRestdefinition(builder, method, httpMethod, restPath);
 
 
-        String camelMethod = camelMethodBuilder(method);
-
-        return Tuple.of(restDefinition, camelMethod);
+        return Tuple.of(restDefinition, method);
 
     }
 
@@ -136,7 +133,7 @@ public class RestHelper {
 
         javaslang.collection.List.of(ReflectHelper.getPublicDeclaredMethods(bean.getClass()))
                 .map(method -> buildRestRoute(builder, method, config.getTracer()))
-                .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2, config.getTracer()));
+                .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2));
     }
 
     private static String restPath(Method method, HttpMethod httpMethod) {
@@ -220,10 +217,17 @@ public class RestHelper {
 
     }
 
-    private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, String camelFormattedMethodName, ITracer tracer) {
+    private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, Method method) {
+        String camelMethod = camelMethodBuilder(method);
+
         RouteDefinition def = restDefinition.route();
 
-        return def.bean(bean, camelFormattedMethodName).wireTap(ROUTE_serverSentEvent).end();
+        //builder.interceptFrom().setHeader(BeanOperationName).constant(method).to(ROUTE_serverReceivedEvent);
+
+        return def.setHeader(BeanOperationName).constant(method)
+                .wireTap(ROUTE_serverReceivedEvent).end()
+                .bean(bean, camelMethod)
+                .to(ROUTE_serverSentEvent);
     }
 
 

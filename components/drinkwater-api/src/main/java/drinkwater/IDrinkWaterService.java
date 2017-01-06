@@ -1,5 +1,9 @@
 package drinkwater;
 
+import drinkwater.trace.Payload;
+
+import java.lang.reflect.Method;
+
 /**
  * Created by A406775 on 2/01/2017.
  */
@@ -15,4 +19,5 @@ public interface IDrinkWaterService {
 
     ServiceState getState();
 
+    Boolean sendEvent(Class eventClass, Method method, Payload payload);
 }

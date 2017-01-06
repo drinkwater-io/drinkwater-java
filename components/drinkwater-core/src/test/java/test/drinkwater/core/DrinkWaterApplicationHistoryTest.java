@@ -17,7 +17,7 @@ public class DrinkWaterApplicationHistoryTest {
 
     @Test
     public void shouldTakeSnapShotsAndRetainHistory() {
-        DrinkWaterApplication app = DrinkWaterApplication.create("core-test");
+        DrinkWaterApplication app = DrinkWaterApplication.create("core-test", false);
         app.addServiceBuilder(new TestConfiguration());
         app.start();
 
@@ -31,7 +31,7 @@ public class DrinkWaterApplicationHistoryTest {
 
     @Test
     public void shouldRevertToPreviousState() {
-        DrinkWaterApplication app = DrinkWaterApplication.create("core-test");
+        DrinkWaterApplication app = DrinkWaterApplication.create("core-test", false);
         app.addServiceBuilder(new TestConfiguration());
         app.start();
 

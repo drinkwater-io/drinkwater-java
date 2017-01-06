@@ -19,7 +19,7 @@ public class ServiceManagementRestTest extends HttpUnitTest {
 
     @BeforeClass
     public static void start() {
-        app = DrinkWaterApplication.create("core-test");
+        app = DrinkWaterApplication.create("core-test", true);
         app.addServiceBuilder(new TestConfiguration());
         app.start();
     }

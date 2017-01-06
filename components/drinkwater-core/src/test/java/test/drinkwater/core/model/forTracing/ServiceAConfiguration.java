@@ -9,7 +9,8 @@ public class ServiceAConfiguration extends ServiceConfigurationBuilder {
 
     @Override
     public void configure() {
+        addService("serviceD", IServiceD.class, ServiceDImpl.class);
         addService("serviceB", IServiceB.class).withProperty("drinkwater.rest.port", 8888).asRemote();
-        addService("serviceA", IServiceA.class, new ServiceAImpl(), "serviceB").withProperty("drinkwater.rest.port", 7777).asRest();
+        addService("serviceA", IServiceA.class, new ServiceAImpl(), "serviceD", "serviceB").withProperty("drinkwater.rest.port", 7777).asRest();
     }
 }

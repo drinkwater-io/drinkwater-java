@@ -9,15 +9,15 @@ import drinkwater.core.CamelContextFactory;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.RouteBuilders;
 import drinkwater.core.ServiceRepository;
-import drinkwater.trace.Payload;
-import drinkwater.trace.ServerReceivedEvent;
-import drinkwater.trace.ServerSentEvent;
+import drinkwater.trace.*;
 import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 
-import java.util.UUID;
+import java.lang.reflect.Method;
+import java.time.Instant;
 import java.util.logging.Logger;
 
 import static drinkwater.DrinkWaterConstants.*;
@@ -55,6 +55,42 @@ public class Service implements drinkwater.IDrinkWaterService {
         this.camelContext = CamelContextFactory.createCamelContext(serviceConfiguration);
         this.tracer = tracer;
         this._dwa = dwa;
+    }
+
+    private static Payload payloadFrom(Exchange exchange) {
+        return Payload.of(methodFrom(exchange), exchange.getIn().getHeaders(), exchange.getIn().getBody());
+    }
+
+    private static Method methodFrom(Exchange exchange) {
+        return (Method) exchange.getIn().getHeader(BeanOperationName);
+    }
+
+    private static String safeMethodName(Method method) {
+        if (method != null) {
+            return method.getDeclaringClass().getName() + "." + method.getName();
+        }
+        return "UNSPECIFIED-METHOD";
+    }
+
+    private static String correlationFrom(Exchange exchange) {
+        return (String) exchange.getIn().getHeader(FlowCorrelationIDKey);
+    }
+
+    private static Instant instantFrom(Exchange exchange) {
+        return (Instant) exchange.getIn().getHeader(DWTimeStamp);
+    }
+
+    private static String directRouteFor(Class eventClass) {
+        if (eventClass.getName().equals(ClientReceivedEvent.class.getName())) {
+            return ROUTE_clientReceivedEvent;
+        } else if (eventClass.getName().equals(ClientSentEvent.class.getName())) {
+            return ROUTE_clientSentEvent;
+        } else if (eventClass.getName().equals(ServerSentEvent.class.getName())) {
+            return ROUTE_serverSentEvent;
+        } else if (eventClass.getName().equals(ServerReceivedEvent.class.getName())) {
+            return ROUTE_serverReceivedEvent;
+        }
+        throw new RuntimeException("Event currently not coded");
     }
 
     public CamelContext getCamelContext() {
@@ -120,10 +156,13 @@ public class Service implements drinkwater.IDrinkWaterService {
             public void configure() throws Exception {
                 from(ROUTE_CheckFlowIDHeader).process(exchange -> {
                     if (exchange.getIn().getHeader(FlowCorrelationIDKey) == null) {
-                        exchange.getIn().setHeader(FlowCorrelationIDKey, UUID.randomUUID().toString());
+                        exchange.getIn().setHeader(FlowCorrelationIDKey, exchange.getExchangeId());
                     }
+                    exchange.getIn().setHeader(DWTimeStamp, Instant.now());
+
                 });
 
+                //TODO : there can be some reuse here => refactor routes
                 from(ROUTE_serverReceivedEvent)
                         .to(ROUTE_CheckFlowIDHeader)
                         .wireTap("direct:createServerReceivedEventAndTrace");
@@ -132,25 +171,88 @@ public class Service implements drinkwater.IDrinkWaterService {
                         .to(ROUTE_CheckFlowIDHeader)
                         .wireTap("direct:createServerSentEventAndTrace");
 
+                from(ROUTE_clientReceivedEvent)
+                        .to(ROUTE_CheckFlowIDHeader)
+                        .wireTap("direct:createClientReceivedEventAndTrace");
+
+                from(ROUTE_clientSentEvent)
+                        .to(ROUTE_CheckFlowIDHeader)
+                        .wireTap("direct:createClientSentEventAndTrace");
+
+                from(ROUTE_MethodInvokedStartEvent)
+                        .to(ROUTE_CheckFlowIDHeader)
+                        .wireTap("direct:createMISEventAndTrace");
+
+                from(ROUTE_MethodInvokedEndEvent)
+                        .to(ROUTE_CheckFlowIDHeader)
+                        .wireTap("direct:createMIEEventAndTrace");
+
+                //server events
                 from("direct:createServerReceivedEventAndTrace").process(exchange -> {
-                    String correlationIdFlow = (String) exchange.getIn().getHeader(FlowCorrelationIDKey);
-                    ServerReceivedEvent event = new ServerReceivedEvent(correlationIdFlow, "?", Payload.of(exchange.getIn().getBody()));
-                    exchange.getIn().setBody(event);
+                    exchange.getIn().setBody(new ServerReceivedEvent(
+                            instantFrom(exchange),
+                            correlationFrom(exchange),
+                            safeMethodName(methodFrom(exchange)),
+                            payloadFrom(exchange)));
                 }).to(ROUTE_trace);
 
                 from("direct:createServerSentEventAndTrace").process(exchange -> {
-                    String correlationIdFlow = (String) exchange.getIn().getHeader(FlowCorrelationIDKey);
-                    ServerSentEvent event = new ServerSentEvent(correlationIdFlow, "?", Payload.of(exchange.getIn().getBody()));
-                    exchange.getIn().setBody(event);
+                    exchange.getIn().setBody(new ServerSentEvent(
+                            instantFrom(exchange),
+                            correlationFrom(exchange),
+                            safeMethodName(methodFrom(exchange)),
+                            payloadFrom(exchange)));
+                }).to(ROUTE_trace);
+
+                //client events
+                from("direct:createClientReceivedEventAndTrace").process(exchange -> {
+                    exchange.getIn().setBody(new ClientReceivedEvent(
+                            instantFrom(exchange),
+                            correlationFrom(exchange),
+                            safeMethodName(methodFrom(exchange)),
+                            payloadFrom(exchange)));
+                }).to(ROUTE_trace);
+
+                from("direct:createClientSentEventAndTrace").process(exchange -> {
+                    exchange.getIn().setBody(new ClientSentEvent(
+                            instantFrom(exchange),
+                            correlationFrom(exchange),
+                            safeMethodName(methodFrom(exchange)),
+                            payloadFrom(exchange)));
+                }).to(ROUTE_trace);
+
+                //method invocation events
+                from("direct:createMISEventAndTrace").process(exchange -> {
+
+                    exchange.getIn().setBody(new MethodInvocationStartEvent(
+                            instantFrom(exchange),
+                            correlationFrom(exchange),
+                            safeMethodName(methodFrom(exchange)),
+                            payloadFrom(exchange)));
+                }).to(ROUTE_trace);
+
+                from("direct:createMIEEventAndTrace").process(exchange -> {
+                    exchange.getIn().setBody(new MethodInvocationEndEvent(
+                            instantFrom(exchange),
+                            correlationFrom(exchange),
+                            safeMethodName(methodFrom(exchange)),
+                            payloadFrom(exchange)));
                 }).to(ROUTE_trace);
             }
         };
     }
 
-
     @Override
     public ServiceState getState() {
         return state;
+    }
+
+    @Override
+    public Boolean sendEvent(Class eventClass, Method method, Payload payload) {
+        this.camelContext.createProducerTemplate()
+                .sendBodyAndHeader(directRouteFor(eventClass), Payload.of(method, payload),
+                        BeanOperationName, method);
+        return true;
     }
 
     @Override

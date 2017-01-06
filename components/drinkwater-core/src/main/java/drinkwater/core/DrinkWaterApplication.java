@@ -21,6 +21,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -40,8 +41,8 @@ public class DrinkWaterApplication implements ServiceRepository {
     static {
         //FIXME manage the logging system
         java.util.logging.Logger topLogger = java.util.logging.Logger.getLogger("");
-        topLogger.setLevel(Level.INFO);
-        System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
+        topLogger.setLevel(Level.WARNING);
+        System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "warn");
     }
 
     private List<DrinkWaterApplicationHistory> applicationHistory = List.empty();
@@ -53,9 +54,9 @@ public class DrinkWaterApplication implements ServiceRepository {
     private List<IDrinkWaterService> services;
     private Map<String, Object> serviceProxies;
     private Service managementService;
-    private boolean useServiceManagement = true;
+    private boolean useServiceManagement = false;
     private EventAggregator eventAggregator = new EventAggregator();
-    private boolean isTraceMaster = false;
+    private boolean isTraceMaster = true;
     //fixme : should support multiple service builder
     private ServiceConfigurationBuilder serviceBuilders;
 
@@ -113,12 +114,12 @@ public class DrinkWaterApplication implements ServiceRepository {
         };
     }
 
-    public static RouteBuilder createTracingRoute(String managementHost) {
+    public static RouteBuilder createTracingRoute(EventAggregator aggregator) {
         return new RouteBuilder() {
 
             ITraceLogger traceLgger = new ITraceLogger() {
                 @Override
-                public void logTrace(Object obj) {
+                public synchronized void logTrace(Object obj) {
                     if (!(obj instanceof Exchange)) {
                         logger.severe("tracing log must be an exchange");
                         return;
@@ -132,7 +133,16 @@ public class DrinkWaterApplication implements ServiceRepository {
 
                     BaseEvent event = (BaseEvent) exchange.getIn().getBody();
 
-                    System.out.println(event.getClass().getSimpleName() + " : " + event.getCorrelationId() + "  -  " + event.getTime());
+                    Method m = (Method) event.getPayload().getTarget()[0];
+
+                    if (m.getName().equals("toString")) {
+                        return;
+                    }
+
+
+                    System.out.println(event.getName() + " : " + event.getCorrelationId() + " -> " + event.getTime() + "  -  " + event.getDescription());
+
+                    aggregator.addEvent(event);
 
                 }
             };
@@ -157,7 +167,7 @@ public class DrinkWaterApplication implements ServiceRepository {
         try {
             applicationLevelContext = CamelContextFactory.createCamelContext("applicationlevelContext");
             if (isTraceMaster) {
-                applicationLevelContext.addRoutes(createTracingRoute(null));
+                applicationLevelContext.addRoutes(createTracingRoute(eventAggregator));
             }
 
             applicationLevelContext.start();
@@ -184,8 +194,10 @@ public class DrinkWaterApplication implements ServiceRepository {
         tracer = new TracerBean();
         jvmMetricsBean = new JVMMetricsBean();
         restConfiguration = new RestService();
-        eventAggregator.clear();
-        eventAggregator = new EventAggregator();
+        if (isTraceMaster) {
+            eventAggregator.clear();
+        }
+//        eventAggregator = new EventAggregator();
     }
 
     public ServiceConfigurationBuilder configuration() {
@@ -307,7 +319,7 @@ public class DrinkWaterApplication implements ServiceRepository {
                 serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Remote) {
             serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
-                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy, applicationLevelContext.createProducerTemplate())));
+                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy)));
         }
     }
 
@@ -438,10 +450,13 @@ public class DrinkWaterApplication implements ServiceRepository {
         this.start();
     }
 
-    public DrinkWaterApplicationHistory takeSnapShot() {
-        DrinkWaterApplicationHistory history = DrinkWaterApplicationHistory.createApplicationHistory(this);
+    public synchronized DrinkWaterApplicationHistory takeSnapShot() {
+//        this.stop();
 
+        DrinkWaterApplicationHistory history = DrinkWaterApplicationHistory.createApplicationHistory(this);
         applicationHistory = applicationHistory.append(history);
+
+//        this.start();
 
         return history;
     }
@@ -465,12 +480,13 @@ public class DrinkWaterApplication implements ServiceRepository {
         return applicationHistory.toJavaList();
     }
 
-    public EventAggregator getEventAggregator() {
-        return eventAggregator;
-    }
 
     public String getName() {
         return name;
+    }
+
+    public EventAggregator getEventAggregator() {
+        return eventAggregator;
     }
 
     public enum ApplicationState {Up, Stopped}

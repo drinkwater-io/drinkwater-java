@@ -5,5 +5,5 @@ package test.drinkwater.core.model.forTracing;
  */
 public interface IServiceA {
 
-    String getDataFromA();
+    String getDataFromA() throws Exception;
 }

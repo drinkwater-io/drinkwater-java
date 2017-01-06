@@ -1,13 +1,13 @@
 package drinkwater.trace;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Created by A406775 on 5/01/2017.
  */
 public class BaseEvent {
 
-    private LocalDateTime time;
+    private Instant time;
 
     private Payload payload;
 
@@ -17,9 +17,8 @@ public class BaseEvent {
 
     private String correlationId;
 
-    public BaseEvent(String correlationId, String name, String description, Payload payload) {
-        //check new time java api with clock ?
-        this.time = LocalDateTime.now();
+    public BaseEvent(Instant instant, String name, String correlationId, String description, Payload payload) {
+        this.time = instant;
         this.description = description;
         this.name = name;
         this.payload = payload;
@@ -30,7 +29,7 @@ public class BaseEvent {
         return description;
     }
 
-    public LocalDateTime getTime() {
+    public Instant getTime() {
         return time;
     }
 

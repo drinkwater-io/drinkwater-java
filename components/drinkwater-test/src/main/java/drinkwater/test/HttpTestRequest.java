@@ -32,7 +32,7 @@ public class HttpTestRequest {
                 if (responseType == ResponseType.Json) {
                     jsonResponse = Unirest.get(request).asJson();
                 } else {
-                    stringResponse = Unirest.get(request).asString();
+                    stringResponse = Unirest.get(request).header("DWDWDWDWDWD", "I am here").asString();
                 }
             } else if (method == HttpMethod.POST) {
 

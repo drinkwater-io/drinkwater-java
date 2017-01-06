@@ -16,10 +16,8 @@ public class BeanClassInvocationHandler implements InvocationHandler {
 
     private final ProducerTemplate producerTemplate;
 
-    private final CamelContext context;
 
     public BeanClassInvocationHandler(CamelContext context) {
-        this.context = context;
         this.producerTemplate = context.createProducerTemplate();
     }
 

@@ -7,8 +7,16 @@ public class ServiceAImpl implements IServiceA {
 
     IServiceB serviceB;
 
+    IServiceD serviceD;
+
     @Override
-    public String getDataFromA() {
-        return serviceB.getDataFromB();
+    public String getDataFromA() throws Exception {
+        Thread.sleep(10);
+
+        String result = serviceD.makeSomeComputation("data from A - " + serviceB.getDataFromB());
+
+        Thread.sleep(10);
+
+        return result;
     }
 }

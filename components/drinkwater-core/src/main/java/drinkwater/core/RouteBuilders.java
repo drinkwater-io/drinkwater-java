@@ -13,6 +13,8 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 
+import static drinkwater.DrinkWaterConstants.*;
+
 /**
  * Created by A406775 on 27/12/2016.
  */
@@ -99,7 +101,10 @@ public class RouteBuilders {
                 for (Method m : methods) {
                     if (Modifier.isPublic(m.getModifiers())) {
                         from("direct:" + formatBeanMethodRoute(m))
-                                .bean(beanToUse, formatBeanEndpointRoute(m), true);
+                                .setHeader(BeanOperationName).constant(m)
+                                .wireTap(ROUTE_MethodInvokedStartEvent).end()
+                                .bean(beanToUse, formatBeanEndpointRoute(m), true)
+                                .to(ROUTE_MethodInvokedEndEvent);
                     }
                 }
             }
