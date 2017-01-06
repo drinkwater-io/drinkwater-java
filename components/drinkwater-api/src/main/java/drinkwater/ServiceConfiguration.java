@@ -35,6 +35,8 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
     private int repeatInterval = 1000;
 
+    private Boolean traceEvent = false;
+
 
     public ServiceConfiguration() {
         injectionStrategy = InjectionStrategy.Default;
@@ -51,6 +53,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
         sc.scheme = null;
         sc.serviceDependencies = null;
         sc.properties = null;
+        sc.traceEvent = null;
         return sc;
     }
 
@@ -65,6 +68,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
         sc.injectionStrategy = config.getInjectionStrategy();
         sc.scheme = config.getScheme();
         sc.serviceDependencies = config.getServiceDependencies();
+        sc.traceEvent = config.getIsTraceEnabled();
 
         return sc;
 
@@ -80,8 +84,8 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
         this.targetBean = (patchConfig.getTargetBean() == null) ? this.targetBean : patchConfig.getTargetBean();
         this.injectionStrategy = (patchConfig.getInjectionStrategy() == null) ? this.injectionStrategy : patchConfig.getInjectionStrategy();
         this.scheme = (patchConfig.getScheme() == null) ? this.scheme : patchConfig.getScheme();
+        this.traceEvent = (patchConfig.getIsTraceEnabled() == null) ? this.traceEvent : patchConfig.getIsTraceEnabled();
         this.serviceDependencies = (patchConfig.getServiceDependencies() == null) ? this.serviceDependencies : patchConfig.getServiceDependencies();
-//        this.initialProperties = (patchConfig.getInitialProperties() == null) ? this.initialProperties : patchConfig.getInitialProperties();
         this.initialProperties = MapHelper.mergeProperties(this.initialProperties, patchConfig.getInitialProperties());
         return this;
     }
@@ -96,6 +100,16 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
         return repeatInterval;
     }
 
+    @Override
+    public Boolean getIsTraceEnabled() {
+        return traceEvent;
+    }
+
+    @Override
+    public void setIsTraceEnabled(Boolean traceEvent) {
+        traceEvent = traceEvent;
+    }
+
     public IServiceBuilder forService(Class serviceClass) {
         this.serviceClass = serviceClass;
         return this;
@@ -105,6 +119,12 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     public IServiceBuilder useBeanClass(Class bean) {
         this.targetBeanClass = bean;
         this.scheme = ServiceScheme.BeanClass;
+        return this;
+    }
+
+    @Override
+    public IServiceBuilder useTracing(Boolean traceEvent) {
+        this.traceEvent = traceEvent;
         return this;
     }
 

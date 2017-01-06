@@ -9,6 +9,9 @@ public class ServiceCConfiguration extends ServiceConfigurationBuilder {
 
     @Override
     public void configure() {
-        addService("serviceC", IServiceC.class, new ServiceCImpl()).withProperty("drinkwater.rest.port", 9999).asRest();
+        addService("serviceC", IServiceC.class, new ServiceCImpl())
+                .withProperty("drinkwater.rest.port", 9999)
+                .useTracing(true)
+                .asRest();
     }
 }

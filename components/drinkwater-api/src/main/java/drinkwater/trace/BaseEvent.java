@@ -47,6 +47,6 @@ public class BaseEvent {
 
     @Override
     public String toString() {
-        return correlationId + " - " + name + " - " + description + " - " + time;
+        return time + "---" + correlationId + "---" + name + "---" + description;
     }
 }

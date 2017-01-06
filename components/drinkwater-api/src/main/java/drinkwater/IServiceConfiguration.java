@@ -41,4 +41,8 @@ public interface IServiceConfiguration {
 
     int getRepeatInterval();
 
+    Boolean getIsTraceEnabled();
+
+    void setIsTraceEnabled(Boolean traceEvent);
+
 }

@@ -1,10 +1,7 @@
 package drinkwater.core.helper;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import drinkwater.IServiceConfiguration;
-import drinkwater.ITracer;
-import drinkwater.ServiceScheme;
-import drinkwater.ServiceState;
+import drinkwater.*;
 import drinkwater.core.CamelContextFactory;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.RouteBuilders;
@@ -137,7 +134,7 @@ public class Service implements drinkwater.IDrinkWaterService {
     public void configure(ServiceRepository serviceRepository) throws Exception {
 
         //create tracing routes
-        this.getCamelContext().addRoutes(createDirectServiceRoutes());
+        this.getCamelContext().addRoutes(createServiceTraceRoutes(getConfiguration().getIsTraceEnabled()));
 
         if (this.serviceConfiguration.getScheme() == ServiceScheme.BeanObject) {
             //nothing to configure here
@@ -150,10 +147,18 @@ public class Service implements drinkwater.IDrinkWaterService {
         }
     }
 
-    public RouteBuilder createDirectServiceRoutes() {
+    private RouteBuilder createServiceTraceRoutes(boolean isTracingEnabled) {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
+
+                IBaseEventLogger emptyLogger = new IBaseEventLogger() {
+                    @Override
+                    public void logEvent(BaseEvent event) {
+                        logger.finer(event.toString());
+                    }
+                };
+
                 from(ROUTE_CheckFlowIDHeader).process(exchange -> {
                     if (exchange.getIn().getHeader(FlowCorrelationIDKey) == null) {
                         exchange.getIn().setHeader(FlowCorrelationIDKey, exchange.getExchangeId());
@@ -161,6 +166,8 @@ public class Service implements drinkwater.IDrinkWaterService {
                     exchange.getIn().setHeader(DWTimeStamp, Instant.now());
 
                 });
+
+                //TODO implement undo tracing differently
 
                 //TODO : there can be some reuse here => refactor routes
                 from(ROUTE_serverReceivedEvent)
@@ -187,6 +194,14 @@ public class Service implements drinkwater.IDrinkWaterService {
                         .to(ROUTE_CheckFlowIDHeader)
                         .wireTap("direct:createMIEEventAndTrace");
 
+                from("direct:emptyLogger").bean(emptyLogger, "logEvent(${body})");
+
+                String tracingRoute = ROUTE_trace;
+
+                if (!isTracingEnabled) {
+                    tracingRoute = "direct:emptyLogger";
+                }
+
                 //server events
                 from("direct:createServerReceivedEventAndTrace").process(exchange -> {
                     exchange.getIn().setBody(new ServerReceivedEvent(
@@ -194,7 +209,7 @@ public class Service implements drinkwater.IDrinkWaterService {
                             correlationFrom(exchange),
                             safeMethodName(methodFrom(exchange)),
                             payloadFrom(exchange)));
-                }).to(ROUTE_trace);
+                }).to(tracingRoute);
 
                 from("direct:createServerSentEventAndTrace").process(exchange -> {
                     exchange.getIn().setBody(new ServerSentEvent(
@@ -202,7 +217,7 @@ public class Service implements drinkwater.IDrinkWaterService {
                             correlationFrom(exchange),
                             safeMethodName(methodFrom(exchange)),
                             payloadFrom(exchange)));
-                }).to(ROUTE_trace);
+                }).to(tracingRoute);
 
                 //client events
                 from("direct:createClientReceivedEventAndTrace").process(exchange -> {
@@ -211,7 +226,7 @@ public class Service implements drinkwater.IDrinkWaterService {
                             correlationFrom(exchange),
                             safeMethodName(methodFrom(exchange)),
                             payloadFrom(exchange)));
-                }).to(ROUTE_trace);
+                }).to(tracingRoute);
 
                 from("direct:createClientSentEventAndTrace").process(exchange -> {
                     exchange.getIn().setBody(new ClientSentEvent(
@@ -219,7 +234,7 @@ public class Service implements drinkwater.IDrinkWaterService {
                             correlationFrom(exchange),
                             safeMethodName(methodFrom(exchange)),
                             payloadFrom(exchange)));
-                }).to(ROUTE_trace);
+                }).to(tracingRoute);
 
                 //method invocation events
                 from("direct:createMISEventAndTrace").process(exchange -> {
@@ -229,7 +244,7 @@ public class Service implements drinkwater.IDrinkWaterService {
                             correlationFrom(exchange),
                             safeMethodName(methodFrom(exchange)),
                             payloadFrom(exchange)));
-                }).to(ROUTE_trace);
+                }).to(tracingRoute);
 
                 from("direct:createMIEEventAndTrace").process(exchange -> {
                     exchange.getIn().setBody(new MethodInvocationEndEvent(
@@ -237,7 +252,7 @@ public class Service implements drinkwater.IDrinkWaterService {
                             correlationFrom(exchange),
                             safeMethodName(methodFrom(exchange)),
                             payloadFrom(exchange)));
-                }).to(ROUTE_trace);
+                }).to(tracingRoute);
             }
         };
     }

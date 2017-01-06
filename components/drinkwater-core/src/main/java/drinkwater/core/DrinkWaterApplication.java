@@ -1,6 +1,7 @@
 package drinkwater.core;
 
 import drinkwater.*;
+import drinkwater.core.helper.BeanFactory;
 import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.Service;
 import drinkwater.core.internal.IServiceManagement;
@@ -12,16 +13,14 @@ import drinkwater.core.reflect.BeanInvocationHandler;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.RestInvocationHandler;
 import drinkwater.rest.RestService;
-import drinkwater.trace.BaseEvent;
+import drinkwater.trace.ConsoleEventLogger;
 import drinkwater.trace.EventAggregator;
 import javaslang.collection.List;
 import org.apache.camel.CamelContext;
-import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
-import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -114,52 +113,23 @@ public class DrinkWaterApplication implements ServiceRepository {
         };
     }
 
-    public static RouteBuilder createTracingRoute(EventAggregator aggregator) {
-        return new RouteBuilder() {
-
-            ITraceLogger traceLgger = new ITraceLogger() {
-                @Override
-                public synchronized void logTrace(Object obj) {
-                    if (!(obj instanceof Exchange)) {
-                        logger.severe("tracing log must be an exchange");
-                        return;
-                    }
-                    Exchange exchange = (Exchange) obj;
-
-                    if (!(exchange.getIn().getBody() instanceof BaseEvent)) {
-                        logger.severe("tracing log must be an exchange");
-                        return;
-                    }
-
-                    BaseEvent event = (BaseEvent) exchange.getIn().getBody();
-
-                    Method m = (Method) event.getPayload().getTarget()[0];
-
-                    if (m.getName().equals("toString")) {
-                        return;
-                    }
-
-
-                    System.out.println(event.getName() + " : " + event.getCorrelationId() + " -> " + event.getTime() + "  -  " + event.getDescription());
-
-                    aggregator.addEvent(event);
-
-                }
-            };
-
-            @Override
-            public void configure() throws Exception {
-
-                from("vm:trace").bean(traceLgger, "logTrace(${exchange})");
-
-            }
-        };
-    }
-
     public static ResourceHandler getResourceHandler() {
         ResourceHandler staticHandler = new ResourceHandler();
         staticHandler.setBaseResource(Resource.newClassPathResource("/www"));
         return staticHandler;
+    }
+
+    public RouteBuilder createTracingRoute(EventAggregator aggregator, IBaseEventLogger logger) {
+        return new RouteBuilder() {
+
+            @Override
+            public void configure() throws Exception {
+
+
+                from("vm:trace").bean(logger, "logEvent(${body})").bean(aggregator, "addEvent(${body})");
+
+            }
+        };
     }
 
     public void startApplicationContext() {
@@ -167,7 +137,18 @@ public class DrinkWaterApplication implements ServiceRepository {
         try {
             applicationLevelContext = CamelContextFactory.createCamelContext("applicationlevelContext");
             if (isTraceMaster) {
-                applicationLevelContext.addRoutes(createTracingRoute(eventAggregator));
+                ServiceConfiguration traceBeanConfig = new ServiceConfiguration();
+                traceBeanConfig.setServiceClass(IBaseEventLogger.class);
+                traceBeanConfig.setTargetBean(ConsoleEventLogger.class.newInstance());
+                traceBeanConfig.setTargetBeanClass(ConsoleEventLogger.class);
+                traceBeanConfig.setScheme(ServiceScheme.BeanObject);
+                traceBeanConfig.useTracing(false);
+
+                Service tracingService = createServiceFromConfig(traceBeanConfig, tracer);
+
+                IBaseEventLogger logger = (IBaseEventLogger) BeanFactory.createBean(this, tracingService);
+
+                applicationLevelContext.addRoutes(createTracingRoute(eventAggregator, logger));
             }
 
             applicationLevelContext.start();
@@ -347,10 +328,6 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     private void stopExternalServices() {
         restConfiguration.start();
-    }
-
-    private void createAndStartTracing() {
-
     }
 
     private void createAndStartManagementService() {

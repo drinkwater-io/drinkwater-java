@@ -7,6 +7,8 @@ public interface IServiceBuilder {
 
     IServiceBuilder forService(Class serviceClass);
 
+    IServiceBuilder useTracing(Boolean traceEvent);
+
     ServiceConfiguration name(String name);
 
     IServiceBuilder withProperties(String propertyFile);
