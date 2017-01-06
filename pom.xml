@@ -87,6 +87,7 @@
                 <configuration>
                     <nrOfIndentSpace>4</nrOfIndentSpace>
                     <createBackupFile>false</createBackupFile>
+                    <lineSeparator>\r\n</lineSeparator>
                 </configuration>
             </plugin>
         </plugins>
