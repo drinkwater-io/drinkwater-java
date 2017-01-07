@@ -59,7 +59,7 @@ public class DrinkTrackerService implements IDrinkTrackerService {
         //convert volume to string
         String volumeAsString = Integer.toString(volume);
 
-        //check that length is 10
+        //check that length route 10
         while (volumeAsString.length() < 5) {
             volumeAsString = waterVolumeFormatter.formatVolume(volumeAsString);
         }

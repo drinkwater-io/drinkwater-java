@@ -4,9 +4,11 @@ import drinkwater.core.DrinkWaterApplication;
 import drinkwater.test.HttpUnitTest;
 import drinkwater.trace.EventAggregator;
 import drinkwater.trace.FileEventLogger;
+import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.junit.runners.MethodSorters;
 import test.drinkwater.core.model.forTracing.ServiceAConfiguration;
 import test.drinkwater.core.model.forTracing.ServiceBConfiguration;
 import test.drinkwater.core.model.forTracing.ServiceCConfiguration;
@@ -22,13 +24,14 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by A406775 on 5/01/2017.
  */
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class TracingTest extends HttpUnitTest {
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
     @Test
-    public void testTracing() {
+    public void testTracing() throws Exception {
 
         DrinkWaterApplication app_C = DrinkWaterApplication.create("application-C", false, false);
         app_C.addServiceBuilder(new ServiceCConfiguration(true));
@@ -53,11 +56,13 @@ public class TracingTest extends HttpUnitTest {
         app_B.stop();
         app_C.stop();
 
+        Thread.sleep(100); //let it
+
         assertEquals(12, aggregator.currentSize());
     }
 
     @Test
-    public void testTracingInFile() throws IOException {
+    public void testTracingInFile() throws IOException, InterruptedException {
 
         File createdFolder = folder.newFolder("tracingFolder");
 
@@ -86,6 +91,7 @@ public class TracingTest extends HttpUnitTest {
         app_B.stop();
         app_C.stop();
 
+        Thread.sleep(100); //let it
         //check created file
         List<String> expectedLines = Files.readAllLines(Paths.get(createdFolder.listFiles()[0].toURI()));
         assertEquals(2, expectedLines.size());

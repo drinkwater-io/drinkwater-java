@@ -72,9 +72,9 @@ public class Main extends ServiceSupport {
     }
 
     /**
-     * Callback to run custom logic before CamelContext is being stopped.
+     * Callback to run custom logic before CamelContext route being stopped.
      * <p/>
-     * It is recommended to use {@link org.apache.camel.main.MainListener} instead.
+     * It route recommended to use {@link org.apache.camel.main.MainListener} instead.
      */
     protected void beforeStop() throws Exception {
     }
@@ -82,7 +82,7 @@ public class Main extends ServiceSupport {
     /**
      * Callback to run custom logic after CamelContext has been stopped.
      * <p/>
-     * It is recommended to use {@link org.apache.camel.main.MainListener} instead.
+     * It route recommended to use {@link org.apache.camel.main.MainListener} instead.
      */
     protected void afterStop() throws Exception {
     }

@@ -3,15 +3,10 @@ package drinkwater;
 
 import drinkwater.helper.MapHelper;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
-/**
- * Created by A406775 on 23/12/2016.
- */
-public class ServiceConfiguration implements IServiceConfiguration, IServiceBuilder, IMockBuilder {
+
+public class ServiceConfiguration implements IServiceConfiguration, IServiceBuilder, IMockBuilder, IRoutingBuilder {
 
     private String serviceName;
 
@@ -37,10 +32,17 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
     private Boolean traceEvent = false;
 
+    private String routingHeader;
+
+    private Map<String, String> routingMap = new HashMap<>();
+
+    //FIXME : this is a bad way to pass the host of service for routingScheme
+    private String serviceHost;
+
 
     public ServiceConfiguration() {
         injectionStrategy = InjectionStrategy.Default;
-        properties = new ArrayList<String>();
+        properties = new ArrayList<>();
         scheme = ServiceScheme.BeanClass;
         serviceDependencies = new ArrayList<>();
         initialProperties = new Properties();
@@ -58,7 +60,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     }
 
 
-    public static ServiceConfiguration fromConfig(IServiceConfiguration config) {
+    static ServiceConfiguration fromConfig(IServiceConfiguration config) {
         ServiceConfiguration sc = new ServiceConfiguration();
         sc.serviceName = config.getServiceName();
         sc.properties = Arrays.asList(config.getProperties());
@@ -107,7 +109,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
     @Override
     public void setIsTraceEnabled(Boolean traceEvent) {
-        traceEvent = traceEvent;
+        this.traceEvent = traceEvent;
     }
 
     public IServiceBuilder forService(Class serviceClass) {
@@ -177,9 +179,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     @Override
     public ServiceConfiguration dependsOn(String... services) {
 
-        for (String service : services) {
-            this.serviceDependencies.add(service);
-        }
+        Collections.addAll(this.serviceDependencies, services);
 
         return this;
     }
@@ -196,6 +196,12 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     public IServiceBuilder repeat(int repeatInterval) {
         this.scheme = ServiceScheme.Task;
         this.repeatInterval = repeatInterval;
+        return this;
+    }
+
+    @Override
+    public IRoutingBuilder asRouteur() {
+        this.scheme = ServiceScheme.Routeur;
         return this;
     }
 
@@ -272,7 +278,6 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     public void addInitialProperty(String key, Object value) {
         initialProperties.setProperty(key, value.toString());
 
-        String test = initialProperties.getProperty(key);
     }
 
     @Override
@@ -300,5 +305,37 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
     public void with(Object mockObject) {
         this.setTargetBean(mockObject);
+    }
+
+    @Override
+    public IRoutingBuilder useHeader(String routingheader) {
+        this.routingHeader = routingheader;
+        return this;
+    }
+
+    @Override
+    public IRoutingBuilder route(String headerValue, String serviceName) {
+        this.routingMap.put(headerValue, serviceName);
+        return this;
+    }
+
+    @Override
+    public String getRoutingHeader() {
+        return routingHeader;
+    }
+
+    @Override
+    public Map<String, String> getRoutingMap() {
+        return routingMap;
+    }
+
+    @Override
+    public String getServiceHost() {
+        return serviceHost;
+    }
+
+    @Override
+    public void setServiceHost(String host) {
+        this.serviceHost = host;
     }
 }

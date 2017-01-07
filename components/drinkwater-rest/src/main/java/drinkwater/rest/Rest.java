@@ -27,7 +27,7 @@ public final class Rest {
 
 
         try {
-            String endpoint = "http://" + host(resolver) + ":" + port(resolver) + "/" + context(resolver, config);
+            String endpoint = endpointFrom(resolver, config);
 
             switch (httpMethodFor(method)) {
                 case GET:

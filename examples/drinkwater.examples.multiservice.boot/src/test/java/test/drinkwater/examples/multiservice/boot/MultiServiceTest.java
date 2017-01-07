@@ -46,7 +46,7 @@ public class MultiServiceTest {
 
         IServiceC servicec = app.getService("serviceC");
 
-        String result = servicec.findData("whatever is passed here ");
+        String result = servicec.findData("whatever route passed here ");
 
         assertEquals("FOUND FROM MOCK", result);
 

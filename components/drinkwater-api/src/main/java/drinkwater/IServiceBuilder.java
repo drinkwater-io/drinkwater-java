@@ -30,4 +30,6 @@ public interface IServiceBuilder {
     IServiceBuilder cron(String cronExpression);
 
     IServiceBuilder repeat(int repeatInterval);
+
+    IRoutingBuilder asRouteur();
 }

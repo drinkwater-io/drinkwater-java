@@ -1,5 +1,6 @@
 package drinkwater.core;
 
+import drinkwater.IServiceConfiguration;
 import drinkwater.core.helper.BeanFactory;
 import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.Service;
@@ -7,6 +8,7 @@ import drinkwater.rest.RestHelper;
 import javaslang.collection.List;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.ChoiceDefinition;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -14,6 +16,7 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 
 import static drinkwater.DrinkWaterConstants.*;
+import static drinkwater.rest.RestHelper.endpointFrom;
 
 /**
  * Created by A406775 on 27/12/2016.
@@ -67,6 +70,34 @@ public class RouteBuilders {
 
                 //TODO : check correctness of expression see camel doc here the job must have only one method !!!!
                 from(enpoint).bean(bean);
+
+            }
+        };
+    }
+
+    public static RouteBuilder mapRoutingRoutes(ServiceRepository app, Service service) {
+
+        return new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+
+                String frontEndpoint = endpointFrom(new DefaultPropertyResolver(service), service.getConfiguration());
+
+                ChoiceDefinition choice =
+                        from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true")
+                                .choice();
+                //TODO : fix the way to get the target host
+                service.getConfiguration().getRoutingMap().forEach(
+                        (key, val) -> {
+
+                            IServiceConfiguration s = app.getServiceDefinition(val);
+
+                            choice.when(header(service.getConfiguration().getRoutingHeader()).isEqualTo(key))
+                                    .to("jetty:" + s.getServiceHost() + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=false");
+
+                        }
+
+                );
 
             }
         };

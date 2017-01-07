@@ -5,8 +5,11 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.request.GetRequest;
 import com.mashape.unirest.request.HttpRequestWithBody;
 import net.javacrumbs.jsonunit.core.Option;
+
+import java.util.Map;
 
 import static drinkwater.helper.StringHelper.trimEnclosingQuotes;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
@@ -24,16 +27,27 @@ public class HttpTestRequest {
     private HttpResponse<String> stringResponse;
 
     public HttpTestRequest(HttpMethod method, String request, String body, ResponseType responseType) {
+        this(method, request, body, responseType, null);
+    }
+
+    public HttpTestRequest(HttpMethod method, String request, String body, ResponseType responseType, Map<String, String> headers) {
         this.request = request;
         this.responseType = responseType;
 
         try {
             if (method == HttpMethod.GET) {
-                if (responseType == ResponseType.Json) {
-                    jsonResponse = Unirest.get(request).asJson();
-                } else {
-                    stringResponse = Unirest.get(request).header("DWDWDWDWDWD", "I am here").asString();
+                GetRequest getrequest = Unirest.get(request);
+
+                if (headers != null) {
+                    headers.forEach((key, value) -> getrequest.header(key, value));
                 }
+
+                if (responseType == ResponseType.Json) {
+                    jsonResponse = getrequest.asJson();
+                } else {
+                    stringResponse = getrequest.asString();
+                }
+
             } else if (method == HttpMethod.POST) {
 
                 HttpRequestWithBody postRequest = Unirest.post(request)

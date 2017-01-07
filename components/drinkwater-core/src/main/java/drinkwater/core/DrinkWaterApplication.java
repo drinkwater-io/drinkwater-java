@@ -41,8 +41,8 @@ public class DrinkWaterApplication implements ServiceRepository {
     static {
         //FIXME manage the logging system
         java.util.logging.Logger topLogger = java.util.logging.Logger.getLogger("");
-        topLogger.setLevel(Level.WARNING);
-        System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "warn");
+        topLogger.setLevel(Level.INFO);
+        System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
     }
 
     private List<DrinkWaterApplicationHistory> applicationHistory = List.empty();
@@ -135,7 +135,7 @@ public class DrinkWaterApplication implements ServiceRepository {
         };
     }
 
-    public void startApplicationContext() {
+    public synchronized void startApplicationContext() {
 
         try {
             applicationLevelContext = CamelContextFactory.createCamelContext("applicationlevelContext");

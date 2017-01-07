@@ -144,8 +144,19 @@ public class Service implements drinkwater.IDrinkWaterService {
             this.camelContext.addRoutes(RouteBuilders.mapRestRoutes(serviceRepository, this));
         } else if (this.serviceConfiguration.getScheme() == ServiceScheme.Task) {
             this.camelContext.addRoutes(RouteBuilders.mapCronRoutes(this._dwa.getName(), serviceRepository, this));
+        } else if (this.serviceConfiguration.getScheme() == ServiceScheme.Routeur) {
+            this.camelContext.addRoutes(RouteBuilders.mapRoutingRoutes(serviceRepository, this));
         }
     }
+
+//    private RouteBuilder createRouting(){
+//        return new RouteBuilder(){
+//            @Override
+//            public void configure() throws Exception {
+//
+//            }
+//        };
+//    }
 
     private RouteBuilder createServiceTraceRoutes(boolean isTracingEnabled) {
         return new RouteBuilder() {

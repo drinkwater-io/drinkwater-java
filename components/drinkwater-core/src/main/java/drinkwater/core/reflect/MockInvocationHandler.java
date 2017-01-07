@@ -10,7 +10,7 @@ public class MockInvocationHandler implements InvocationHandler {
 
     private final Object target;
 
-    //FIXME : review how the invocation is done for direct object access.
+    //FIXME : review how the invocation route done for direct object access.
     public MockInvocationHandler(Object bean) {
         try {
             this.target = bean;

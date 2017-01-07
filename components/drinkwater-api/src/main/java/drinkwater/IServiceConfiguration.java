@@ -1,6 +1,7 @@
 package drinkwater;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -45,4 +46,11 @@ public interface IServiceConfiguration {
 
     void setIsTraceEnabled(Boolean traceEvent);
 
+    String getRoutingHeader();
+
+    Map<String, String> getRoutingMap();
+
+    String getServiceHost();
+
+    void setServiceHost(String host);
 }

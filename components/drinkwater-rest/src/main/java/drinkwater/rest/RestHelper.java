@@ -34,7 +34,7 @@ public class RestHelper {
     //FIXME : get it from some config?
     static {
         prefixesMap.put(HttpMethod.GET, new String[]{"get", "find", "check"});
-        prefixesMap.put(HttpMethod.POST, new String[]{"save", "create", "set", "is", "clear", "add"});
+        prefixesMap.put(HttpMethod.POST, new String[]{"save", "create", "set", "route", "clear", "add"});
         prefixesMap.put(HttpMethod.DELETE, new String[]{"delete", "remove"});
     }
 
@@ -101,17 +101,23 @@ public class RestHelper {
         return m.getDeclaringClass().getSimpleName() + "." + m.getName();
     }
 
-    public static String host(IPropertyResolver propertiesResolver) throws Exception {
+    private static String host(IPropertyResolver propertiesResolver) throws Exception {
         return propertiesResolver.lookupProperty(RestService.REST_HOST_KEY + ":0.0.0.0");
     }
 
-    public static String port(IPropertyResolver propertiesResolver) throws Exception {
+    private static String port(IPropertyResolver propertiesResolver) throws Exception {
         String portKey = RestService.REST_PORT_KEY + ":8889";
         return propertiesResolver.lookupProperty(portKey);
     }
 
-    public static String context(IPropertyResolver propertiesResolver, IServiceConfiguration config) throws Exception {
+    private static String context(IPropertyResolver propertiesResolver, IServiceConfiguration config) throws Exception {
         return propertiesResolver.lookupProperty(RestService.REST_CONTEXT_KEY + ":" + config.getServiceName());
+    }
+
+    public static String endpointFrom(IPropertyResolver propertiesResolver, IServiceConfiguration config) throws Exception {
+        String serviceHost = "http://" + host(propertiesResolver) + ":" + port(propertiesResolver) + "/" + context(propertiesResolver, config);
+        return serviceHost;
+
     }
 
     public static void buildRestRoutes(RouteBuilder builder, Object bean,
@@ -119,8 +125,13 @@ public class RestHelper {
                                        IDrinkWaterService config) {
 
         try {
+
+            String serviceHost = endpointFrom(propertiesResolver, config.getConfiguration());
+            config.getConfiguration().setServiceHost(serviceHost);
+
             // builder.getContext().getDataFormats();
             builder.restConfiguration().component("jetty")
+                    .scheme("http")
                     .host(host(propertiesResolver))
                     .port(port(propertiesResolver))
                     .contextPath(context(propertiesResolver, config.getConfiguration()))
@@ -135,6 +146,7 @@ public class RestHelper {
                 .map(method -> buildRestRoute(builder, method, config.getTracer()))
                 .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2));
     }
+
 
     private static String restPath(Method method, HttpMethod httpMethod) {
         if (httpMethod == HttpMethod.OPTIONS) {
@@ -193,7 +205,7 @@ public class RestHelper {
     }
 
     private static RestDefinition setBodyType(RestDefinition rd, Method method) {
-        //This is necessary for the RestBindings of camel
+        //This route necessary for the RestBindings of camel
         if (method.getParameters().length > 0) {
             rd = rd.type(method.getParameters()[0].getType());
         }

@@ -18,7 +18,7 @@ public class BeanInvocationHandler implements InvocationHandler {
     private final Object target;
     DrinkWaterApplication app;
 
-    //FIXME : review how the invocation is done for direct object access.
+    //FIXME : review how the invocation route done for direct object access.
     public BeanInvocationHandler(CamelContext context, DrinkWaterApplication app, Service config) {
         this.context = context;
         this.app = app;

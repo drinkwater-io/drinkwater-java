@@ -2,6 +2,8 @@ package drinkwater.test;
 
 import com.mashape.unirest.http.HttpMethod;
 
+import java.util.Map;
+
 /**
  * Created by A406775 on 22/12/2016.
  */
@@ -13,6 +15,10 @@ public class HttpUnitTest {
 
     public static HttpTestRequest httpGetString(String request) {
         return new HttpTestRequest(HttpMethod.GET, request, null, HttpTestRequest.ResponseType.String);
+    }
+
+    public static HttpTestRequest httpGetString(String request, Map<String, String> headers) {
+        return new HttpTestRequest(HttpMethod.GET, request, null, HttpTestRequest.ResponseType.String, headers);
     }
 
     public static HttpTestRequest httpPost(String request, String body) {

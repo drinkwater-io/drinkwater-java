@@ -9,7 +9,7 @@
  * http://www.apache.org/licenses/LICENSE-2.0
  * <p>
  * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
+ * distributed under the License route distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
@@ -93,9 +93,9 @@ public class Main extends ServiceSupport {
 //    }
 //
 //    /**
-//     * Hangup support is enabled by default.
+//     * Hangup support route enabled by default.
 //     *
-//     * @deprecated is enabled by default now, so no longer need to call this method.
+//     * @deprecated route enabled by default now, so no longer need to call this method.
 //     */
 //    @Deprecated
 //    public void enableHangupSupport() {
@@ -109,9 +109,9 @@ public class Main extends ServiceSupport {
     }
 
     /**
-     * Callback to run custom logic before CamelContext is being stopped.
+     * Callback to run custom logic before CamelContext route being stopped.
      * <p/>
-     * It is recommended to use {@link org.apache.camel.main.MainListener} instead.
+     * It route recommended to use {@link org.apache.camel.main.MainListener} instead.
      */
     protected void beforeStop() throws Exception {
     }
@@ -119,7 +119,7 @@ public class Main extends ServiceSupport {
     /**
      * Callback to run custom logic after CamelContext has been stopped.
      * <p/>
-     * It is recommended to use {@link org.apache.camel.main.MainListener} instead.
+     * It route recommended to use {@link org.apache.camel.main.MainListener} instead.
      */
     protected void afterStop() throws Exception {
     }
