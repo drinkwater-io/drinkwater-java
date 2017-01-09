@@ -17,7 +17,8 @@
         <module>examples</module>
     </modules>
     <scm>
-        <developerConnection>scm:git@github.com:drinkwater-io/drinkwater-java.git</developerConnection>
+        <connection>scm:git:ssh://git@github.com:drinkwater-io/drinkwater-java.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:drinkwater-io/drinkwater-java.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
     <properties>
