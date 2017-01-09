@@ -11,19 +11,19 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater.examples.drinktracker.asbeanclass</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater.examples.drinktracker.asrest</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -34,7 +34,7 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater.examples.drinktracker.asbean</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

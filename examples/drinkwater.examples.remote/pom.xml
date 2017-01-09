@@ -17,12 +17,12 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater.examples.multiservice</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <!--need to override the versions here-->
         <!--<dependency>-->
@@ -52,7 +52,7 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-test</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

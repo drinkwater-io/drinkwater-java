@@ -12,7 +12,7 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-api</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.javaslang</groupId>

@@ -14,17 +14,17 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-api</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-helper</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-rest</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <!--metrics-->
         <dependency>
@@ -141,7 +141,7 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-test</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

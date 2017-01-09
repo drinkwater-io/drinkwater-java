@@ -11,17 +11,17 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater.examples.drinktracker</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-test</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

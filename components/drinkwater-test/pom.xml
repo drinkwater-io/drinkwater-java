@@ -11,7 +11,7 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-helper</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <!--json assertion-->
         <dependency>

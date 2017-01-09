@@ -11,12 +11,12 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater.examples.multiservice</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.3-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -45,7 +45,7 @@
                         </goals>
                         <configuration>
                             <!--<finalName>${project.getConfigurations.finalName}-fatjar</finalName>-->
-                            <finalName>multiservice-fatjar</finalName>
+                            <finalName>multiservice-${project.version}-fatjar</finalName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>drinkwater.examples.multiservice.boot.App</mainClass>
