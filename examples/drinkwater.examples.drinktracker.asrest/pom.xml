@@ -3,31 +3,30 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>examples</artifactId>
-        <groupId>drinkwater</groupId>
-        <version>0.0.1</version>
+        <groupId>io.drinkwater</groupId>
+        <version>0.0.3-SNAPSHOT</version>
     </parent>
-    <groupId>drinkwater</groupId>
     <artifactId>drinkwater.examples.drinktracker.asrest</artifactId>
     <dependencies>
         <dependency>
-            <groupId>drinkwater</groupId>
+            <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-rest</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>drinkwater</groupId>
+            <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>drinkwater</groupId>
+            <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater.examples.drinktracker</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>drinkwater</groupId>
+            <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-test</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

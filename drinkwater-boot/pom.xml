@@ -3,11 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>drinkwater</artifactId>
-        <groupId>drinkwater</groupId>
+        <groupId>io.drinkwater</groupId>
         <version>0.0.3-SNAPSHOT</version>
     </parent>
     <artifactId>drinkwater-boot</artifactId>
-  <version>0.0.1</version>
     <packaging>jar</packaging>
     <properties>
         <deltaspike.version>1.7.2</deltaspike.version>
@@ -80,9 +79,9 @@
         </dependency>
         <!-- component from drinkwater to import -->
         <dependency>
-            <groupId>drinkwater</groupId>
+            <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-cdi</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <!--delta spike core-->
         <dependency>

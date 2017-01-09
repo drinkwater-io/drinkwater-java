@@ -3,10 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>examples</artifactId>
-        <groupId>drinkwater</groupId>
-        <version>0.0.1</version>
+        <groupId>io.drinkwater</groupId>
+        <version>0.0.3-SNAPSHOT</version>
     </parent>
-    <groupId>drinkwater</groupId>
     <artifactId>drinkwater.examples.remote</artifactId>
     <dependencies>
         <dependency>
@@ -16,14 +15,14 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>drinkwater</groupId>
+            <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater.examples.multiservice</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>drinkwater</groupId>
+            <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <!--need to override the versions here-->
         <!--<dependency>-->
@@ -51,9 +50,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>drinkwater</groupId>
+            <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-test</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

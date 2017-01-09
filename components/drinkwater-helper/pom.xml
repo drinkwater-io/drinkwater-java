@@ -3,10 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>components</artifactId>
-        <groupId>drinkwater</groupId>
-        <version>0.0.1</version>
+        <groupId>io.drinkwater</groupId>
+        <version>0.0.3-SNAPSHOT</version>
     </parent>
-    <groupId>drinkwater</groupId>
     <artifactId>drinkwater-helper</artifactId>
     <dependencies>
         <dependency>

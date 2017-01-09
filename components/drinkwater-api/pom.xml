@@ -3,10 +3,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>components</artifactId>
-        <groupId>drinkwater</groupId>
-        <version>0.0.1</version>
+        <groupId>io.drinkwater</groupId>
+        <version>0.0.3-SNAPSHOT</version>
     </parent>
-    <groupId>drinkwater</groupId>
     <artifactId>drinkwater-api</artifactId>
     <dependencies>
         <dependency>
@@ -15,9 +14,9 @@
             <version>2.0.5</version>
         </dependency>
         <dependency>
-            <groupId>drinkwater</groupId>
+            <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-helper</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>

@@ -3,16 +3,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>components</artifactId>
-        <groupId>drinkwater</groupId>
-        <version>0.0.1</version>
+        <groupId>io.drinkwater</groupId>
+        <version>0.0.3-SNAPSHOT</version>
     </parent>
-    <groupId>drinkwater</groupId>
     <artifactId>drinkwater-cdi</artifactId>
     <dependencies>
         <dependency>
-            <groupId>drinkwater</groupId>
+            <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <!--j2ee dep-->
         <dependency>

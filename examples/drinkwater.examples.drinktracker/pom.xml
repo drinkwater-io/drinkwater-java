@@ -3,17 +3,16 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>examples</artifactId>
-        <groupId>drinkwater</groupId>
-        <version>0.0.1</version>
+        <groupId>io.drinkwater</groupId>
+        <version>0.0.3-SNAPSHOT</version>
     </parent>
-    <groupId>drinkwater</groupId>
     <artifactId>drinkwater.examples.drinktracker</artifactId>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
-            <groupId>drinkwater</groupId>
+            <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-api</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.javaslang</groupId>
