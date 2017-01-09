@@ -4,7 +4,7 @@
     <parent>
         <artifactId>examples</artifactId>
         <groupId>drinkwater</groupId>
-        <version>0.0.1</version>
+        <version>0.0.2</version>
     </parent>
     <groupId>drinkwater</groupId>
     <artifactId>drinkwater.examples.drinktracker.benchmark</artifactId>
@@ -12,19 +12,19 @@
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater.examples.drinktracker.asbeanclass</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater.examples.drinktracker.asrest</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -35,7 +35,7 @@
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater.examples.drinktracker.asbean</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

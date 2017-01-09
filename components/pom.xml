@@ -20,7 +20,7 @@
     <parent>
         <artifactId>drinkwater</artifactId>
         <groupId>drinkwater</groupId>
-        <version>0.0.1</version>
+        <version>0.0.2</version>
     </parent>
     <artifactId>components</artifactId>
     <packaging>pom</packaging>
@@ -32,4 +32,7 @@
         <module>drinkwater-helper</module>
         <module>drinkwater-api</module>
     </modules>
+    <scm>
+        <tag>drinkwater-0.0.2</tag>
+    </scm>
 </project>

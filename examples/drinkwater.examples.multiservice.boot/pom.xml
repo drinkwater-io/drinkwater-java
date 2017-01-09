@@ -4,23 +4,23 @@
     <parent>
         <artifactId>examples</artifactId>
         <groupId>drinkwater</groupId>
-        <version>0.0.1</version>
+        <version>0.0.2</version>
     </parent>
     <groupId>drinkwater</groupId>
     <artifactId>drinkwater.examples.multiservice.boot</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <name>drinkwater.examples.multiservice.boot</name>
     <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater.examples.multiservice</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
         </dependency>
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

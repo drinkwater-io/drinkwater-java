@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>drinkwater</groupId>
     <artifactId>drinkwater</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.2</version>
     <packaging>pom</packaging>
     <name>drinkwater</name>
     <url>http://drinkwater</url>
@@ -19,7 +19,7 @@
     <scm>
         <connection>scm:git:https://github.com/drinkwater-io/drinkwater-java.git</connection>
         <developerConnection>scm:git:https://github.com/drinkwater-io/drinkwater-java.git</developerConnection>
-        <tag>drinkwater-0.0.1</tag>
+        <tag>drinkwater-0.0.2</tag>
     </scm>
     <properties>
         <maven-enforcer-require-maven-version>3.2.5</maven-enforcer-require-maven-version>

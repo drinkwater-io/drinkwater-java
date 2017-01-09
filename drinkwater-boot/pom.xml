@@ -4,10 +4,13 @@
     <parent>
         <artifactId>drinkwater</artifactId>
         <groupId>drinkwater</groupId>
-        <version>0.0.1</version>
+        <version>0.0.2</version>
     </parent>
     <artifactId>drinkwater-boot</artifactId>
     <packaging>jar</packaging>
+    <scm>
+        <tag>drinkwater-0.0.2</tag>
+    </scm>
     <properties>
         <deltaspike.version>1.7.2</deltaspike.version>
         <weld.version>2.3.3.Final</weld.version>
@@ -81,7 +84,7 @@
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-cdi</artifactId>
-            <version>0.0.1</version>
+            <version>0.0.2</version>
         </dependency>
         <!--delta spike core-->
         <dependency>
