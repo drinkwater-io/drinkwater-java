@@ -17,3 +17,5 @@ coverage/i
 **/bower/components
 /frontend/ui/nbproject/private/
 start-env.bat
+**/*.releaseBackup
+release.properties
