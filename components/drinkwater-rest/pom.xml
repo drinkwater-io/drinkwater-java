@@ -4,7 +4,7 @@
     <parent>
         <artifactId>components</artifactId>
         <groupId>drinkwater</groupId>
-        <version>0.0.2</version>
+        <version>0.0.1</version>
     </parent>
     <groupId>drinkwater</groupId>
     <artifactId>drinkwater-rest</artifactId>
@@ -13,7 +13,7 @@
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-helper</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -77,7 +77,7 @@
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-api</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.1</version>
         </dependency>
     </dependencies>
 </project>

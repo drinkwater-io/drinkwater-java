@@ -4,10 +4,10 @@
     <parent>
         <artifactId>components</artifactId>
         <groupId>drinkwater</groupId>
-        <version>0.0.2</version>
+        <version>0.0.1</version>
     </parent>
     <artifactId>drinkwater-core</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.1</version>
     <properties>
         <project.getConfigurations.sourceEncoding>UTF-8</project.getConfigurations.sourceEncoding>
     </properties>
@@ -15,17 +15,17 @@
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-api</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-helper</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-rest</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.1</version>
         </dependency>
         <!--metrics-->
         <dependency>
@@ -142,7 +142,7 @@
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-test</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>

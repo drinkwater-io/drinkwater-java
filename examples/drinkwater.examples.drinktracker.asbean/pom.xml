@@ -4,7 +4,7 @@
     <parent>
         <artifactId>examples</artifactId>
         <groupId>drinkwater</groupId>
-        <version>0.0.2</version>
+        <version>0.0.1</version>
     </parent>
     <groupId>drinkwater</groupId>
     <artifactId>drinkwater.examples.drinktracker.asbean</artifactId>
@@ -12,17 +12,17 @@
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater.examples.drinktracker</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-test</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.1</version>
         </dependency>
     </dependencies>
 </project>

@@ -4,7 +4,7 @@
     <parent>
         <artifactId>examples</artifactId>
         <groupId>drinkwater</groupId>
-        <version>0.0.2</version>
+        <version>0.0.1</version>
     </parent>
     <groupId>drinkwater</groupId>
     <artifactId>drinkwater-examples-scheduler</artifactId>
@@ -12,7 +12,7 @@
         <dependency>
             <groupId>drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.1</version>
         </dependency>
     </dependencies>
 </project>
