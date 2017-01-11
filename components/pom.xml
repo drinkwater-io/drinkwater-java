@@ -31,5 +31,7 @@
         <module>drinkwater-rest</module>
         <module>drinkwater-helper</module>
         <module>drinkwater-api</module>
+        <module>drinkwater-datasource</module>
+        <module>drinkwater-datasource-postgres</module>
     </modules>
 </project>
