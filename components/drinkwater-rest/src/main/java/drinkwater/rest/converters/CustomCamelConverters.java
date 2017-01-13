@@ -15,12 +15,17 @@ public class CustomCamelConverters {
     @FallbackConverter
     public static <T> T convertTo(Class<T> type, Exchange exchange, Object value, TypeConverterRegistry registry) {
 
-        if (value != null && value.getClass().equals(String.class)) {
-            if (value.toString().startsWith("{") || value.toString().startsWith("[")) {
-                T result = new UnirestJacksonObjectMapper().readValue(value.toString(), type);
+        try {
+            if (value != null && value.getClass().equals(String.class)) {
+                if (value.toString().startsWith("{") || value.toString().startsWith("[")) {
+                    T result = new UnirestJacksonObjectMapper().readValue(value.toString(), type);
 
-                return result;
+                    return result;
+                }
             }
+        }
+        catch(Exception ex){
+            return null;
         }
         return null;
     }

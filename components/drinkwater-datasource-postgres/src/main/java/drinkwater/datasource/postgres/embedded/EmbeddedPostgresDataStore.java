@@ -2,7 +2,9 @@ package drinkwater.datasource.postgres.embedded;
 
 
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
+import drinkwater.DatasourceConfiguration;
 import drinkwater.datasource.SqlDataStore;
+import org.postgresql.ds.PGSimpleDataSource;
 
 import java.io.IOException;
 
@@ -13,15 +15,21 @@ public class EmbeddedPostgresDataStore extends SqlDataStore {
 
     public EmbeddedPostgres pg;
 
-    public EmbeddedPostgresDataStore(String... schema_Location) {
-        super("embedded-postgres-server");
-        try {
-            //fixme : add autostart config
-            start();
-        } catch (Exception e) {
+    public String user;
 
-            throw new RuntimeException("could not start embedded server", e);
-        }
+    public String dbName;
+
+    public String password;
+
+    public String schema;
+
+    public EmbeddedPostgresDataStore(
+            String userName, String password, String dbName, String schema, String[] schema_Location) {
+        super("embedded-postgres-server", schema_Location);
+        this.user = userName;
+        this.dbName = dbName;
+        this.password = password;
+        this.schema = schema;
     }
 
     @Override
@@ -32,7 +40,38 @@ public class EmbeddedPostgresDataStore extends SqlDataStore {
     @Override
     protected void doStart() throws IOException {
         pg = EmbeddedPostgres.start();
-        setDataSource(pg.getPostgresDatabase());
+        //DataSource ds = this.getDatabase(user, dbName, pg.getPort(), password);
+
+        PGSimpleDataSource ds = (PGSimpleDataSource)pg.getPostgresDatabase();
+        setDataSource(ds);
+
+        setConfiguration(new DatasourceConfiguration(ds.getUrl(),
+                "org.postgresql.Driver",
+                ds.getUser(), ds.getPassword(), schema));
 
     }
+
+
+
+//    //currently opentable does not support password this may change in future release
+//    public DataSource getDatabase(String userName, String dbName, int port,String password)
+//    {
+//        final PGSimpleDataSource ds = new PGSimpleDataSource();
+//        ds.setServerName("localhost");
+//        ds.setPortNumber(port);
+//        ds.setDatabaseName(dbName);
+//        ds.setUser(userName);
+//
+//        Map<String, String> props = new HashMap<>();
+//        props.put("password",password);
+//
+//        props.forEach((propertyKey, propertyValue) -> {
+//            try {
+//                ds.setProperty(propertyKey, propertyValue);
+//            } catch (SQLException e) {
+//                throw new RuntimeException(e);
+//            }
+//        });
+//        return ds;
+//    }
 }

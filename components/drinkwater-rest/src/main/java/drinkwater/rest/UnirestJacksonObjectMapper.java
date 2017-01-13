@@ -15,7 +15,7 @@ public class UnirestJacksonObjectMapper implements ObjectMapper {
 
     public <T> T readValue(String value, Class<T> valueType) {
         try {
-            if (valueType.equals(Void.TYPE)) {
+            if (valueType.equals(Void.TYPE) || value == null || value.isEmpty()) {
                 return null;
             }
             return jacksonObjectMapper.readValue(value, valueType);
@@ -26,6 +26,9 @@ public class UnirestJacksonObjectMapper implements ObjectMapper {
 
     public String writeValue(Object value) {
         try {
+            if(value == null){
+                return null;
+            }
             String result = jacksonObjectMapper.writeValueAsString(value);
             return result;
         } catch (JsonProcessingException e) {

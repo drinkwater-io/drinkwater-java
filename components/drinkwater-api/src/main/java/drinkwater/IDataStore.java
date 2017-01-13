@@ -9,4 +9,5 @@ public interface IDataStore extends Closeable {
     void migrate();
 
     void start() throws  Exception;
+
 }

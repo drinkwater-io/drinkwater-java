@@ -12,6 +12,8 @@ public class ServiceConfigurationBuilder {
 
     private java.util.List<ServiceConfiguration> configurations = new ArrayList<>();
 
+    private java.util.List<IDataStore> dataStores = new ArrayList<>();
+
     public ServiceConfigurationBuilder() {
     }
 
@@ -30,6 +32,10 @@ public class ServiceConfigurationBuilder {
 
     public final java.util.List<IServiceConfiguration> getConfigurations() {
         return List.ofAll(this.configurations).map(s -> (IServiceConfiguration) s).toJavaList();
+    }
+
+    public java.util.List<IDataStore> getDataStores() {
+        return dataStores;
     }
 
     public IServiceConfiguration getConfiguration(String serviceName) {
@@ -110,6 +116,11 @@ public class ServiceConfigurationBuilder {
     }
 
 
+    public IDataStore addDataStore(IDataStore store){
+        this.dataStores.add(store);
+        return store;
+    }
+
     public void changeScheme(ServiceScheme newScheme) {
         javaslang.collection.List.ofAll(configurations)
                 .forEach(c -> c.setScheme(newScheme));
@@ -123,5 +134,6 @@ public class ServiceConfigurationBuilder {
     public void configure() {
 
     }
+
 
 }

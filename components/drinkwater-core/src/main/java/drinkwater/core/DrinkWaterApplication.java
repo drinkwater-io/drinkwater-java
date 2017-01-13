@@ -21,6 +21,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -46,6 +47,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     private List<DrinkWaterApplicationHistory> applicationHistory = List.empty();
+    private java.util.List<IDataStore> dataStores =new ArrayList<>();
     private ApplicationState state = ApplicationState.Stopped;
     private String name;
     private TracerBean tracer;
@@ -207,7 +209,11 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     private void cofigureServices() {
+        //initialize stores
+
+
         serviceBuilders.configure();
+        dataStores = serviceBuilders.getDataStores();
         List.ofAll(serviceBuilders.getConfigurations()).forEach(this::addService);
     }
 
@@ -227,6 +233,8 @@ public class DrinkWaterApplication implements ServiceRepository {
             return;
         }
 
+
+
         startApplicationContext();
 
         logStartInfo();
@@ -236,6 +244,8 @@ public class DrinkWaterApplication implements ServiceRepository {
         startExternalServices();
 
         cofigureServices();
+
+        startDataStores();
 
         for (IDrinkWaterService service : services) {
             service.start();
@@ -270,9 +280,38 @@ public class DrinkWaterApplication implements ServiceRepository {
 
         stopApplicationContext();
 
+        stopDataStores();
+
         logStoppedInfo();
 
         state = ApplicationState.Stopped;
+    }
+
+    private void startDataStores() {
+        for (IDataStore store :
+                dataStores) {
+
+            try {
+                store.start();
+                store.migrate();
+            } catch (Exception e) {
+                throw new RuntimeException("could not start or migrate datastore", e);
+            }
+
+        }
+    }
+
+    private void stopDataStores() {
+        for (IDataStore store :
+                dataStores) {
+
+            try {
+                store.close();
+            } catch (Exception e) {
+                throw new RuntimeException("could not close datastore", e);
+            }
+
+        }
     }
 
     private void addService(IServiceConfiguration serviceConfig) {
@@ -480,6 +519,11 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     public void addProperty(String property, String value) {
         initialApplicationProperties.setProperty(property, value);
+    }
+
+    //fixme : for now I assume only one store per app....
+    public IDataStore getStore(String name){
+        return dataStores.get(0);
     }
 
     public enum ApplicationState {Up, Stopped}

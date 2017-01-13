@@ -12,11 +12,14 @@ public class DatasourceConfiguration {
 
     private String password;
 
-    public DatasourceConfiguration(String url, String driverClassname, String user, String password) {
+    private String schema;
+
+    public DatasourceConfiguration(String url, String driverClassname, String user, String password, String schema) {
         this.url = url;
         this.driverClassname = driverClassname;
         this.user = user;
         this.password = password;
+        this.schema = schema;
     }
 
     public String getUrl() {
@@ -49,5 +52,9 @@ public class DatasourceConfiguration {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getSchema() {
+        return schema;
     }
 }

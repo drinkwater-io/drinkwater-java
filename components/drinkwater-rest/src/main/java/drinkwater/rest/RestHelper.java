@@ -5,15 +5,20 @@ import drinkwater.IDrinkWaterService;
 import drinkwater.IPropertyResolver;
 import drinkwater.IServiceConfiguration;
 import drinkwater.ITracer;
+import drinkwater.helper.json.CustomJacksonObjectMapper;
 import drinkwater.helper.reflect.ReflectHelper;
+import drinkwater.rest.fileupload.FileUploadProcessor;
 import javaslang.Tuple;
 import javaslang.Tuple2;
 import javaslang.collection.List;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.model.rest.RestDefinition;
 
+import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,8 +39,9 @@ public class RestHelper {
     //FIXME : get it from some config?
     static {
         prefixesMap.put(HttpMethod.GET, new String[]{"get", "find", "check"});
-        prefixesMap.put(HttpMethod.POST, new String[]{"save", "create", "set", "route", "clear", "add"});
+        prefixesMap.put(HttpMethod.POST, new String[]{"new", "save", "create", "set", "route", "clear", "add"});
         prefixesMap.put(HttpMethod.DELETE, new String[]{"delete", "remove"});
+        prefixesMap.put(HttpMethod.PUT, new String[]{"update", "remove"});
     }
 
     public static HttpMethod httpMethodFor(Method method) {
@@ -207,11 +213,28 @@ public class RestHelper {
     private static RestDefinition setBodyType(RestDefinition rd, Method method) {
         //This route necessary for the RestBindings of camel
         if (method.getParameters().length > 0) {
-            rd = rd.type(method.getParameters()[0].getType());
+
+            Class type = method.getParameters()[0].getType();
+            if (isMultipartBody(method)) {
+                rd.bindingMode(RestBindingMode.off);
+                rd.outType(method.getReturnType().getClass());
+            }
+            rd = rd.type(type);
         }
         return rd;
     }
 
+
+    private static boolean isMultipartBody(Method method) {
+
+        if(method.getParameters().length > 0) {
+            Class type = method.getParameters()[0].getType();
+            if (type.isAssignableFrom(InputStream.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private static String camelMethodBuilder(Method m) {
 
@@ -232,14 +255,34 @@ public class RestHelper {
     private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, Method method) {
         String camelMethod = camelMethodBuilder(method);
 
-        RouteDefinition def = restDefinition.route();
+        RouteDefinition routeDefinition = restDefinition.route().setHeader(BeanOperationName).constant(method)
+                .wireTap(ROUTE_serverReceivedEvent).end();
 
-        //builder.interceptFrom().setHeader(BeanOperationName).constant(method).to(ROUTE_serverReceivedEvent);
+        //TODO create own process
+        if (isMultipartBody(method)) {
+            routeDefinition.process(new FileUploadProcessor());
+        }
 
-        return def.setHeader(BeanOperationName).constant(method)
-                .wireTap(ROUTE_serverReceivedEvent).end()
-                .bean(bean, camelMethod)
-                .to(ROUTE_serverSentEvent);
+        routeDefinition = routeDefinition.bean(bean, camelMethod);
+        //if binding is off and returns an object, then serialize as json
+        if (isMultipartBody(method) && hasObjectReturnType(method) ) {
+            routeDefinition.process(new Processor() {
+                @Override
+                public void process(Exchange exchange) throws Exception {
+                    CustomJacksonObjectMapper mapper = new CustomJacksonObjectMapper();
+                    String s = mapper.writeValueAsString(exchange.getIn().getBody());
+                    exchange.getIn().setBody(s);
+                }
+            });
+        }
+        return routeDefinition.to(ROUTE_serverSentEvent);
+    }
+
+    private static boolean hasObjectReturnType(Method method){
+        if(method.getReturnType() == String.class ){
+            return false;
+        }
+        return method.getReturnType() != Void.class;
     }
 
 

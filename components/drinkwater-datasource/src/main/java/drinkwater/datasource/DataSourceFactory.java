@@ -11,9 +11,14 @@ public class DataSourceFactory {
 
     public static DataSource createDataSource(DatasourceConfiguration configuration){
         PoolProperties p = new PoolProperties();
+//        Properties props = new Properties();
+//        props.setProperty("user","user");
+//        props.setProperty("password",configuration.getPassword());
+//
+//        p.setDbProperties(props);
         p.setUrl(configuration.getUrl());
         p.setDriverClassName(configuration.getDriverClassname());
-        p.setUsername(configuration.getUrl());
+        p.setUsername(configuration.getUser());
         p.setPassword(configuration.getPassword());
         p.setJmxEnabled(true);
         p.setTestWhileIdle(false);
