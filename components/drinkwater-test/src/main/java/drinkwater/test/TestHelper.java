@@ -1,5 +1,7 @@
 package drinkwater.test;
 
+import drinkwater.helper.json.CustomJacksonObjectMapper;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -32,8 +34,20 @@ public class TestHelper {
 
     }
 
-    private static String rs(String s) {
+    public static <T> T fromJsonString(String s, Class clazz) throws IOException {
+        CustomJacksonObjectMapper mapper = new CustomJacksonObjectMapper();
+        return (T)mapper.readValue(s, clazz);
+    }
+
+    public static String toJsonString(Object obj) throws IOException {
+        CustomJacksonObjectMapper mapper = new CustomJacksonObjectMapper();
+        return mapper.writeValueAsString(obj);
+    }
+
+    public static String rs(String s) {
         String answer = s.replaceAll("'", "\"");
         return answer;
     }
+
+
 }

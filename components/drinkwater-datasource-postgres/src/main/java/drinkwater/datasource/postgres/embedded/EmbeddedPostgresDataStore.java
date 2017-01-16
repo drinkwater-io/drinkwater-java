@@ -4,7 +4,6 @@ package drinkwater.datasource.postgres.embedded;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 import drinkwater.DatasourceConfiguration;
 import drinkwater.datasource.SqlDataStore;
-import org.postgresql.ds.PGSimpleDataSource;
 
 import java.io.IOException;
 
@@ -15,21 +14,17 @@ public class EmbeddedPostgresDataStore extends SqlDataStore {
 
     public EmbeddedPostgres pg;
 
-    public String user;
 
-    public String dbName;
+    public EmbeddedPostgresDataStore(String user, String password, String schema,
+                                        String... schemaLocation){
+        super("embedded-postgres-server",
+                getPostgresConfigWithoutUrl("postgres", "", schema),
+                getPostgresConfigWithoutUrl(user, password, schema),
+                schemaLocation);
+    }
 
-    public String password;
-
-    public String schema;
-
-    public EmbeddedPostgresDataStore(
-            String userName, String password, String dbName, String schema, String[] schema_Location) {
-        super("embedded-postgres-server", schema_Location);
-        this.user = userName;
-        this.dbName = dbName;
-        this.password = password;
-        this.schema = schema;
+    private static DatasourceConfiguration getPostgresConfigWithoutUrl(String user, String password, String schema){
+        return new DatasourceConfiguration(null, "org.postgresql.Driver", user, password, schema);
     }
 
     @Override
@@ -40,38 +35,15 @@ public class EmbeddedPostgresDataStore extends SqlDataStore {
     @Override
     protected void doStart() throws IOException {
         pg = EmbeddedPostgres.start();
-        //DataSource ds = this.getDatabase(user, dbName, pg.getPort(), password);
+        String dbName = "postgres"; // this is inherent to opentable embedded postgres library The db must be called postgres
 
-        PGSimpleDataSource ds = (PGSimpleDataSource)pg.getPostgresDatabase();
-        setDataSource(ds);
+        //init the migration config
+        String migrationUserName = getMigrationConfiguration().getUser();
+        getMigrationConfiguration().setUrl(pg.getJdbcUrl(migrationUserName, dbName));
 
-        setConfiguration(new DatasourceConfiguration(ds.getUrl(),
-                "org.postgresql.Driver",
-                ds.getUser(), ds.getPassword(), schema));
-
+        //init the normal config
+        String userName = getConfiguration().getUser();
+        getConfiguration().setUrl(pg.getJdbcUrl(userName, dbName));
     }
 
-
-
-//    //currently opentable does not support password this may change in future release
-//    public DataSource getDatabase(String userName, String dbName, int port,String password)
-//    {
-//        final PGSimpleDataSource ds = new PGSimpleDataSource();
-//        ds.setServerName("localhost");
-//        ds.setPortNumber(port);
-//        ds.setDatabaseName(dbName);
-//        ds.setUser(userName);
-//
-//        Map<String, String> props = new HashMap<>();
-//        props.put("password",password);
-//
-//        props.forEach((propertyKey, propertyValue) -> {
-//            try {
-//                ds.setProperty(propertyKey, propertyValue);
-//            } catch (SQLException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-//        return ds;
-//    }
 }

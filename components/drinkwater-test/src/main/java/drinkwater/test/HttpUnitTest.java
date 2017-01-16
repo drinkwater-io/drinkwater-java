@@ -30,6 +30,10 @@ public class HttpUnitTest {
         return new HttpTestRequest(HttpMethod.POST, request, body, HttpTestRequest.ResponseType.Json);
     }
 
+    public static HttpTestRequest httpPost(String request, String body,  Class responseType, Map<String, String> headers) {
+        return new HttpTestRequest(HttpMethod.POST, request, body, HttpTestRequest.ResponseType.Object, responseType, headers);
+    }
+
     public static HttpTestRequest httpPostFile(String request, InputStream is, Class responseType, Map<String, String> headers) {
         return new HttpTestRequest(HttpMethod.POST, request, is, HttpTestRequest.ResponseType.Object, responseType, headers);
     }
@@ -41,4 +45,14 @@ public class HttpUnitTest {
     public static HttpTestRequest httpPut(String request, String body) {
         return new HttpTestRequest(HttpMethod.PUT, request, body, HttpTestRequest.ResponseType.Json);
     }
+
+    public static HttpTestRequest httpPut(String request, String body,  Class responseType, Map<String, String> headers) {
+        return new HttpTestRequest(HttpMethod.PUT, request, body, HttpTestRequest.ResponseType.Object, responseType, headers);
+    }
+
+    public static HttpTestRequest httpDelete(String request) {
+        return new HttpTestRequest(HttpMethod.DELETE, request, null, HttpTestRequest.ResponseType.String);
+    }
+
+
 }

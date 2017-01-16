@@ -16,14 +16,15 @@ public class TestMigration {
 
     @Test
     public void shouldApplyMigrations() throws Exception {
-        EmbeddedPostgresDataStore store = new EmbeddedPostgresDataStore("","",
-                "testdb","public", new String[]{"db/migration"});
+
+        EmbeddedPostgresDataStore store = new EmbeddedPostgresDataStore(
+                "postgres",
+                "",
+                "public",
+                "db/migration");
 
         store.start();
-
         store.migrate();
-
-
         store.executeNoQuery("INSERT INTO contact(id, first_name, last_name) VALUES (2 , 'Jean-Marc', 'Canon');");
 
         try ( Connection c = store.getConnection()) {

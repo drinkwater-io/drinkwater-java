@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.util.Map;
 
 import static drinkwater.helper.StringHelper.trimEnclosingQuotes;
+import static drinkwater.test.TestHelper.rs;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
@@ -81,14 +82,58 @@ public class HttpTestRequest {
                         stringResponse = postRequest.body(rs((String) body)).asString();
                     } else if (responseType == ResponseType.Json) {
                         postRequest = postRequest.header("accept", "application/json");
+                        postRequest = postRequest.header("Content-Type", "application/json");
                         jsonResponse = postRequest.body(rs((String) body)).asJson();
+                    }
+                    else if (responseType == ResponseType.Object) {
+                        postRequest = postRequest.header("accept", "application/json");
+                        postRequest = postRequest.header("Content-Type", "application/json");
+                        objectResponse = postRequest.body(rs((String) body)).asObject(objectType);
                     }
                 }
 
             } else if (method == HttpMethod.PUT) {
-                jsonResponse = Unirest.put(request)
-                        .body(body)
-                        .asJson();
+
+                HttpRequestWithBody putRequest = Unirest.put(request);
+
+                if (responseType == ResponseType.String) {
+                    putRequest = putRequest.header("accept", "text/plain");
+                    stringResponse = putRequest.body(rs((String) body)).asString();
+                } else if (responseType == ResponseType.Json) {
+                    putRequest = putRequest.header("accept", "application/json");
+                    putRequest = putRequest.header("Content-Type", "application/json");
+                    jsonResponse = putRequest.body(rs((String) body)).asJson();
+                }
+                else if (responseType == ResponseType.Object) {
+                    putRequest = putRequest.header("accept", "application/json");
+                    putRequest = putRequest.header("Content-Type", "application/json");
+                    objectResponse = putRequest.body(rs((String) body)).asObject(objectType);
+                }
+
+            }
+
+            else if (method == HttpMethod.DELETE) {
+
+                HttpRequestWithBody deleteRequest = Unirest.delete(request);
+
+                if(body == null){
+                    body = "";
+                }
+
+                if (responseType == ResponseType.String) {
+                    deleteRequest = deleteRequest.header("accept", "text/plain");
+                    stringResponse = deleteRequest.body(rs((String) body)).asString();
+                } else if (responseType == ResponseType.Json) {
+                    deleteRequest = deleteRequest.header("accept", "application/json");
+                    deleteRequest = deleteRequest.header("Content-Type", "application/json");
+                    jsonResponse = deleteRequest.body(rs((String) body)).asJson();
+                }
+                else if (responseType == ResponseType.Object) {
+                    deleteRequest = deleteRequest.header("accept", "application/json");
+                    deleteRequest = deleteRequest.header("Content-Type", "application/json");
+                    objectResponse = deleteRequest.body(rs((String) body)).asObject(objectType);
+                }
+
             }
         } catch (Exception ex) {
             throw new RuntimeException("error while issuing request : " + request, ex);
@@ -129,11 +174,6 @@ public class HttpTestRequest {
         }
 
         return this;
-    }
-
-    private String rs(String s) {
-        String answer = s.replaceAll("'", "\"");
-        return answer;
     }
 
     public enum ResponseType {Json, String, Object}

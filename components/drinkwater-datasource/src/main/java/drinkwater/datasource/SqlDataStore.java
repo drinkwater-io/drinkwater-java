@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 
 /**
  * Created by A406775 on 11/01/2017.
@@ -21,31 +22,63 @@ public abstract class SqlDataStore implements IDataStore {
 
     private final String name;
 
+    private DatasourceConfiguration migrationConfiguration;
+
     private DatasourceConfiguration configuration;
 
     private javax.sql.DataSource dataSource;
 
+    private javax.sql.DataSource migrationDataSource;
+
     private String[] schemaLocations;
 
-    public SqlDataStore(String name, String... schemaLocation) {
+    public SqlDataStore(String name,
+                        DatasourceConfiguration migrationConfiguration,
+                        DatasourceConfiguration configuration,
+                        String... schemaLocation) {
         this.name = name;
+        this.migrationConfiguration = migrationConfiguration;
+        this.configuration = configuration;
+
         this.schemaLocations = schemaLocation;
     }
 
-    public SqlDataStore(String name, DatasourceConfiguration dataSource, String... schemaLocation) {
+    public SqlDataStore(String name, Properties prop, String... schemaLocation) {
+
+        String user = prop.getProperty("datastore.user");
+        String password = prop.getProperty("datastore.password");
+        String schema = prop.getProperty("datastore.schema");
+        String url = prop.getProperty("datastore.url");
+
+        String migrationUser = prop.getProperty("migration.datastore.user");
+        String migrationPassword = prop.getProperty("migration.datastore.password");
+        String migrationSchema = prop.getProperty("migration.datastore.schema");
+        String migrationUrl = prop.getProperty("migration.datastore.url");
+
+
+        DatasourceConfiguration config = new DatasourceConfiguration(
+                url, "org.postgresql.Driver",
+                user, password, schema);
+
+        DatasourceConfiguration migrationConfig = new DatasourceConfiguration(
+                migrationUrl, "org.postgresql.Driver",
+                migrationUser, migrationPassword, migrationSchema);
+
         this.name = name;
-        this.dataSource = DataSourceFactory.createDataSource(dataSource);
+        this.migrationConfiguration = migrationConfig;
+        this.configuration = config;
         this.schemaLocations = schemaLocation;
     }
+
 
     @Override
     public void migrate() {
-        Flyway flyway = new Flyway();
-        if(schemaLocations != null) {
+        if (schemaLocations != null) {
+            Flyway flyway = new Flyway();
             flyway.setLocations(schemaLocations);
+            flyway.setDataSource(migrationDataSource);
+            flyway.migrate();
         }
-        flyway.setDataSource(dataSource);
-        flyway.migrate();
     }
 
     public void cleanAndInject(String resourceFilePath) throws Exception {
@@ -54,11 +87,10 @@ public abstract class SqlDataStore implements IDataStore {
     }
 
     private void cleanlyInsert(IDataSet dataSet) throws Exception {
+        //FIXME this assumes we always use postgres
         PostgresDataSourceTester databaseTester = new PostgresDataSourceTester(this.getDataSource());
         databaseTester.setSetUpOperation(DatabaseOperation.CLEAN_INSERT);
         databaseTester.setDataSet(dataSet);
-        //FIXME this assumes we always use postgres
-
         databaseTester.onSetup();
     }
 
@@ -78,6 +110,8 @@ public abstract class SqlDataStore implements IDataStore {
     @Override
     public final void start() throws Exception {
         doStart();
+        this.migrationDataSource = DataSourceFactory.createDataSource(migrationConfiguration);
+        this.dataSource = DataSourceFactory.createDataSource(configuration);
     }
 
     @Override
@@ -86,12 +120,10 @@ public abstract class SqlDataStore implements IDataStore {
     }
 
     public Connection getConnection() throws SQLException {
-
         return dataSource.getConnection();
     }
 
     public void executeNoQuery(String sql) {
-
         try (Connection connection = getConnection()) {
             Statement statement = connection.createStatement();
             statement.execute(sql);
@@ -104,27 +136,33 @@ public abstract class SqlDataStore implements IDataStore {
         return dataSource;
     }
 
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
+//    public void setDataSource(DataSource dataSource) {
+//        this.dataSource = dataSource;
+//    }
 
     protected abstract void doClose() throws IOException;
 
     protected abstract void doStart() throws IOException;
 
-    public DatasourceConfiguration getConfiguration() {
+    protected DatasourceConfiguration getMigrationConfiguration() {
+        return migrationConfiguration;
+    }
+
+    protected DatasourceConfiguration getConfiguration() {
         return configuration;
     }
 
-    public void setConfiguration(DatasourceConfiguration configuration) {
-        this.configuration = configuration;
-
-
-    }
-
-    public void resetConfiguration(DatasourceConfiguration configuration){
-        this.dataSource = DataSourceFactory.createDataSource(configuration);
-
-        this.configuration = configuration;
-    }
+    //    public DatasourceConfiguration getConfiguration() {
+//        return configuration;
+//    }
+//
+//    public void setConfiguration(DatasourceConfiguration configuration) {
+//        this.configuration = configuration;
+//    }
+//
+//    public void resetConfiguration(DatasourceConfiguration configuration) {
+//        this.dataSource = DataSourceFactory.createDataSource(configuration);
+//
+//        this.configuration = configuration;
+//    }
 }
