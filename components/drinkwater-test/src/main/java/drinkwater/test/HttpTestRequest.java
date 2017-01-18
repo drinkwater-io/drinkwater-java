@@ -144,6 +144,9 @@ public class HttpTestRequest {
         if (responseType == ResponseType.String || responseType == ResponseType.Json) {
             return (T) result();
         } else {
+            if(objectResponse == null){
+                return null;
+            }
             Object response = objectResponse.getBody();
             return (T) response;
         }

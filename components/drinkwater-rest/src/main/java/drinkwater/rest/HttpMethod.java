@@ -14,4 +14,5 @@ import static java.lang.annotation.ElementType.METHOD;
 public @interface HttpMethod {
 
     String value() default "GET";
+
 }

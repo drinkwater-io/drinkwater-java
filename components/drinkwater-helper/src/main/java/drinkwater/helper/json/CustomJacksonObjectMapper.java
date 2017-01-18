@@ -15,7 +15,7 @@ public class CustomJacksonObjectMapper extends ObjectMapper {
         //TODo fix this issue on deprecetion
         //this.registerModule(new JSR310Module());
         this.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        this.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        this.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         this.enable(SerializationFeature.INDENT_OUTPUT);
         this.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
         this.disable(SerializationFeature.FAIL_ON_SELF_REFERENCES);
