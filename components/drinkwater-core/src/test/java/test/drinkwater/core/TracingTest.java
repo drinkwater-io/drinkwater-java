@@ -9,6 +9,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runners.MethodSorters;
+import test.drinkwater.core.model.forTracing.CustomTraceClass;
 import test.drinkwater.core.model.forTracing.ServiceAConfiguration;
 import test.drinkwater.core.model.forTracing.ServiceBConfiguration;
 import test.drinkwater.core.model.forTracing.ServiceCConfiguration;
@@ -96,5 +97,24 @@ public class TracingTest extends HttpUnitTest {
         List<String> expectedLines = Files.readAllLines(Paths.get(createdFolder.listFiles()[0].toURI()));
         assertEquals(2, expectedLines.size());
         assertEquals(2, aggregator.currentSize());
+    }
+
+    @Test
+    public void testTracingWithCustomLogger() throws Exception {
+
+        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-C-custom-logger", false, true);
+        app_C.addServiceBuilder(new ServiceCConfiguration(true));
+        app_C.setEventLoggerClass(CustomTraceClass.class);
+        CustomTraceClass.called = 0;
+
+        app_C.start();
+
+        String result = httpGetString("http://127.0.0.1:9999/serviceC/DataFromC").result();
+
+        assertEquals("data from c", result);
+
+        app_C.stop();
+
+        assertEquals(CustomTraceClass.called, 2);
     }
 }

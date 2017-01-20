@@ -22,7 +22,7 @@ import static drinkwater.DrinkWaterConstants.*;
 /**
  * Created by A406775 on 29/12/2016.
  */
-public class Service implements drinkwater.IDrinkWaterService {
+public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver {
 
     @JsonIgnore
     DrinkWaterApplication _dwa;
@@ -58,15 +58,23 @@ public class Service implements drinkwater.IDrinkWaterService {
         return Payload.of(methodFrom(exchange), exchange.getIn().getHeaders(), exchange.getIn().getBody());
     }
 
-    private static Method methodFrom(Exchange exchange) {
-        return (Method) exchange.getIn().getHeader(BeanOperationName);
+    private static Operation methodFrom(Exchange exchange) {
+        Object operation = exchange.getIn().getHeader(BeanOperationName);
+        if( operation == null){
+            return null;
+        }
+
+        if(operation instanceof  String){
+            return Operation.of((String)operation);
+        }
+        return (Operation)operation ;
     }
 
-    private static String safeMethodName(Method method) {
-        if (method != null) {
-            return method.getDeclaringClass().getName() + "." + method.getName();
+    private static String safeMethodName(Operation operation) {
+        if (operation != null) {
+            return operation.toString();
         }
-        return "UNSPECIFIED-METHOD";
+        return "UNSPECIFIED-OPERATION";
     }
 
     private static String correlationFrom(Exchange exchange) {
@@ -107,8 +115,15 @@ public class Service implements drinkwater.IDrinkWaterService {
         return propertiesComponent;
     }
 
+    @Override
     public String lookupProperty(String s) throws Exception {
         return getPropertiesComponent().parseUri(s);
+    }
+
+    @Override
+    public Object lookupProperty(Class resultType, String uri)throws Exception{
+            String value = lookupProperty(uri);
+            return this.camelContext.getTypeConverter().convertTo(resultType, value);
     }
 
     @Override
@@ -146,7 +161,10 @@ public class Service implements drinkwater.IDrinkWaterService {
             this.camelContext.addRoutes(RouteBuilders.mapCronRoutes(this._dwa.getName(), serviceRepository, this));
         } else if (this.serviceConfiguration.getScheme() == ServiceScheme.Routeur) {
             this.camelContext.addRoutes(RouteBuilders.mapRoutingRoutes(serviceRepository, this));
+        } else if (this.serviceConfiguration.getScheme() == ServiceScheme.HttpProxy) {
+            this.camelContext.addRoutes(RouteBuilders.mapHttpProxyRoutes(serviceRepository, this));
         }
+
     }
 
 //    private RouteBuilder createRouting(){
@@ -170,7 +188,7 @@ public class Service implements drinkwater.IDrinkWaterService {
                     }
                 };
 
-                from(ROUTE_CheckFlowIDHeader).process(exchange -> {
+                from(ROUTE_CheckFlowIDHeader).id("CheckFlowIDHeader").process(exchange -> {
                     if (exchange.getIn().getHeader(FlowCorrelationIDKey) == null) {
                         exchange.getIn().setHeader(FlowCorrelationIDKey, exchange.getExchangeId());
                     }
@@ -183,27 +201,27 @@ public class Service implements drinkwater.IDrinkWaterService {
                 //TODO : there can be some reuse here => refactor routes
                 from(ROUTE_serverReceivedEvent)
                         .to(ROUTE_CheckFlowIDHeader)
-                        .wireTap("direct:createServerReceivedEventAndTrace");
+                        .wireTap("direct:createServerReceivedEventAndTrace").id("async-createServerReceivedEventAndTrace");
 
                 from(ROUTE_serverSentEvent)
                         .to(ROUTE_CheckFlowIDHeader)
-                        .wireTap("direct:createServerSentEventAndTrace");
+                        .wireTap("direct:createServerSentEventAndTrace").id("async-createServerSentEventAndTrace");
 
                 from(ROUTE_clientReceivedEvent)
                         .to(ROUTE_CheckFlowIDHeader)
-                        .wireTap("direct:createClientReceivedEventAndTrace");
+                        .wireTap("direct:createClientReceivedEventAndTrace").id("async-createClientReceivedEventAndTrace");
 
                 from(ROUTE_clientSentEvent)
                         .to(ROUTE_CheckFlowIDHeader)
-                        .wireTap("direct:createClientSentEventAndTrace");
+                        .wireTap("direct:createClientSentEventAndTrace").id("async-createClientSentEventAndTrace");
 
                 from(ROUTE_MethodInvokedStartEvent)
                         .to(ROUTE_CheckFlowIDHeader)
-                        .wireTap("direct:createMISEventAndTrace");
+                        .wireTap("direct:createMISEventAndTrace").id("async-createMISEventAndTrace");
 
                 from(ROUTE_MethodInvokedEndEvent)
                         .to(ROUTE_CheckFlowIDHeader)
-                        .wireTap("direct:createMIEEventAndTrace");
+                        .wireTap("direct:createMIEEventAndTrace").id("async-createMIEEventAndTrace");
 
                 from("direct:emptyLogger").bean(emptyLogger, "logEvent(${body})");
 
@@ -274,10 +292,10 @@ public class Service implements drinkwater.IDrinkWaterService {
     }
 
     @Override
-    public Boolean sendEvent(Class eventClass, Method method, Payload payload) {
+    public Boolean sendEvent(Class eventClass, Method method, Object body) {
         this.camelContext.createProducerTemplate()
-                .sendBodyAndHeader(directRouteFor(eventClass), Payload.of(method, payload),
-                        BeanOperationName, method);
+                .sendBodyAndHeader(directRouteFor(eventClass), body,
+                        BeanOperationName, Operation.of(method));
         return true;
     }
 

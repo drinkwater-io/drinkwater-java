@@ -5,6 +5,7 @@ import drinkwater.trace.Payload;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 
@@ -16,12 +17,12 @@ public class BaseEvenetTest {
 
     @Test
     public void testCreateEvent() {
-        ClientReceivedEvent clientReceivedEvent = new ClientReceivedEvent(Instant.now(), "1", "description", Payload.of("test", "test2"));
+        ClientReceivedEvent clientReceivedEvent = new ClientReceivedEvent(Instant.now(), "1", "description", Payload.of(null, new HashMap<String, Object>(), "someBody"));
 
         Payload payload = clientReceivedEvent.getPayload();
 
-        assertEquals("test", payload.getTarget()[0]);
-        assertEquals("test2", payload.getTarget()[1]);
+        assertEquals(null, payload.getOperation());
+        assertEquals("someBody", payload.getBody());
     }
 
 }

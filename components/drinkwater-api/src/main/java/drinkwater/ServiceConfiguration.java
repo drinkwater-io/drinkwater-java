@@ -159,6 +159,12 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     }
 
     @Override
+    public IServiceBuilder asHttpProxy() {
+        this.scheme = ServiceScheme.HttpProxy;
+        return this;
+    }
+
+    @Override
     public IServiceBuilder asRemote() {
         this.scheme = ServiceScheme.Remote;
         return this;

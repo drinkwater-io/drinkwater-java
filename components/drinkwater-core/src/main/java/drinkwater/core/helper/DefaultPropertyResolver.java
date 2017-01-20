@@ -17,4 +17,11 @@ public class DefaultPropertyResolver implements IPropertyResolver {
     public String lookupProperty(String uri) throws Exception {
         return config.lookupProperty(uri);
     }
+
+    @Override
+    public Object lookupProperty(Class resultType, String uri)throws Exception{
+        String value = lookupProperty(uri);
+        return this.config.getCamelContext().getTypeConverter().convertTo(resultType, value);
+    }
+
 }

@@ -3,6 +3,7 @@ package drinkwater.core.internal;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import drinkwater.ITracer;
+import drinkwater.trace.Operation;
 import org.apache.camel.Exchange;
 
 import static drinkwater.DrinkWaterConstants.BeanOperationName;
@@ -18,9 +19,9 @@ public class TracerBean implements ITracer {
     public void start(Object exchange) {
         if (exchange != null && exchange instanceof Exchange) {
             Exchange exchange1 = (Exchange) exchange;
-            Object uriName = exchange1.getIn().getHeader(BeanOperationName);
+            Operation uriName = (Operation)exchange1.getIn().getHeader(BeanOperationName);
             if (uriName != null) {
-                exchange1.getIn().setHeader(MetricsOperationTimer, createTimerContext((String) uriName));
+                exchange1.getIn().setHeader(MetricsOperationTimer, createTimerContext(uriName.toString()));
             }
         }
 

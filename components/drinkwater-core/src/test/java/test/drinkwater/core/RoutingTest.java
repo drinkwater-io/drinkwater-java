@@ -1,9 +1,10 @@
 package test.drinkwater.core;
 
+import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.test.HttpUnitTest;
 import org.junit.Test;
-import test.drinkwater.core.model.forRouting.RoutingServiceConfiguration;
+import test.drinkwater.core.model.forRouting.RoutingServiceConfigurationFromConfigFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,10 +16,17 @@ import static org.junit.Assert.assertEquals;
  */
 public class RoutingTest extends HttpUnitTest {
 
+
     @Test
-    public void shouldRouteCorrectly() {
+    public void shouldRouteFromSimpleConfig() {
+        //shouldRouteCorrectly(new RoutingServiceConfiguration());
+        shouldRouteCorrectly(new RoutingServiceConfigurationFromConfigFile());
+    }
+
+    public void shouldRouteCorrectly(ServiceConfigurationBuilder config) {
+
         DrinkWaterApplication app = DrinkWaterApplication.create("routing-test", false);
-        app.addServiceBuilder(new RoutingServiceConfiguration());
+        app.addServiceBuilder(config);
 
         try {
             app.start();
@@ -46,12 +54,10 @@ public class RoutingTest extends HttpUnitTest {
             headers.replace("ROUTINGHEADER", "B");
             result = httpGetString(frontHost, headers).result();
             assertEquals("propertyFromB", result);
+
         } finally {
             app.stop();
         }
-
-
     }
-
 
 }

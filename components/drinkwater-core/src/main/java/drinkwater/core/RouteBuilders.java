@@ -3,12 +3,15 @@ package drinkwater.core;
 import drinkwater.IServiceConfiguration;
 import drinkwater.core.helper.BeanFactory;
 import drinkwater.core.helper.DefaultPropertyResolver;
+import drinkwater.core.helper.ExtractHttpMethodFromExchange;
 import drinkwater.core.helper.Service;
 import drinkwater.rest.RestHelper;
+import drinkwater.trace.Operation;
 import javaslang.collection.List;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.ChoiceDefinition;
+import org.apache.camel.model.RouteDefinition;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -51,7 +54,7 @@ public class RouteBuilders {
                 String enpoint = "quartz2://" + groupName + "/" +
                         service.getConfiguration().getServiceName() + "?fireNow=true";
 
-                Object bean = BeanFactory.createBean(app, service);
+                Object bean = BeanFactory.createBean(app, service.getConfiguration(), service);
 
                 String cronExpression = service.getConfiguration().getCronExpression();
 
@@ -74,6 +77,34 @@ public class RouteBuilders {
             }
         };
     }
+
+    public static RouteBuilder mapHttpProxyRoutes(ServiceRepository app, Service service) {
+
+        return new RouteBuilder() {
+            @Override
+            public void configure() throws Exception {
+
+                String frontEndpoint = service.lookupProperty(
+                        service.getConfiguration().getServiceName() + ".proxy.endpoint");
+
+                String destinationEndpoint = service.lookupProperty(
+                        service.getConfiguration().getServiceName() + ".destination.endpoint");
+
+                if (frontEndpoint == null || destinationEndpoint == null) {
+                    throw new RuntimeException("could not find proxy and destination endpoint from config");
+                }
+
+                RouteDefinition choice =
+                        from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true").id("front-proxy-received-" + service.getConfiguration().getServiceName())
+                                .setHeader(BeanOperationName).method(ExtractHttpMethodFromExchange.class).id("setOperationNameInHeader")
+                                .to(ROUTE_serverReceivedEvent).id("trace-received")
+                                .to("jetty:" + destinationEndpoint + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=true")
+                                .id("front-proxy-reply-" + service.getConfiguration().getServiceName())
+                                .to(ROUTE_serverSentEvent).id("trace-received");
+            }
+        };
+    }
+
 
     public static RouteBuilder mapRoutingRoutes(ServiceRepository app, Service service) {
 
@@ -109,7 +140,7 @@ public class RouteBuilders {
             @Override
             public void configure() throws Exception {
 
-                Object bean = BeanFactory.createBean(app, service);
+                Object bean = BeanFactory.createBean(app, service.getConfiguration(), service);
 
                 RestHelper.buildRestRoutes(this, bean, new DefaultPropertyResolver(service), service);
 
@@ -127,12 +158,12 @@ public class RouteBuilders {
                 List<Method> methods = javaslang.collection.List.of(service.getConfiguration().getServiceClass().getDeclaredMethods());
 
                 // create an instance of the bean
-                Object beanToUse = BeanFactory.createBeanClass(app, service);
+                Object beanToUse = BeanFactory.createBeanClass(app, service.getConfiguration(), service);
 
                 for (Method m : methods) {
                     if (Modifier.isPublic(m.getModifiers())) {
                         from("direct:" + formatBeanMethodRoute(m))
-                                .setHeader(BeanOperationName).constant(m)
+                                .setHeader(BeanOperationName).constant(Operation.of(m))
                                 .wireTap(ROUTE_MethodInvokedStartEvent).end()
                                 .bean(beanToUse, formatBeanEndpointRoute(m), true)
                                 .to(ROUTE_MethodInvokedEndEvent);

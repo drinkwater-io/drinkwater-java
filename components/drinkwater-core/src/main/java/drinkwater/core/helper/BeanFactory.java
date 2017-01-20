@@ -1,9 +1,12 @@
 package drinkwater.core.helper;
 
+import drinkwater.IPropertyResolver;
 import drinkwater.IServiceConfiguration;
 import drinkwater.InjectionStrategy;
+import drinkwater.ServiceDependency;
 import drinkwater.core.ServiceRepository;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.Map;
 
@@ -12,53 +15,65 @@ import java.util.Map;
  */
 public class BeanFactory {
 
-    public static Object createBean(ServiceRepository app, Service config) throws Exception {
-        if (config.getConfiguration().getTargetBean() != null) {
-            return createBeanObject(app, config);
+    public static Object createBean(ServiceRepository app, IServiceConfiguration service, IPropertyResolver propertyResolver) throws Exception {
+        if (service.getTargetBean() != null) {
+            return createBeanObject(app, service, propertyResolver);
         }
 
-        return createBeanClass(app, config);
+        return createBeanClass(app, service, propertyResolver);
 
     }
 
-    public static Object createBeanClass(ServiceRepository app, Service config) throws Exception {
+    public static Object createBeanClass(ServiceRepository app, IServiceConfiguration service, IPropertyResolver propertyResolver) throws Exception {
         // create an instance of the bean
-        Object beanToUse = config.getConfiguration().getTargetBeanClass().newInstance();
+        Object beanToUse = service.getTargetBeanClass().newInstance();
 
-        injectFields(beanToUse, config);
+        injectFields(beanToUse, service, propertyResolver);
 
-        injectDependencies(app, config, beanToUse);
+        injectDependencies(app, service, beanToUse);
 
         return beanToUse;
 
     }
 
-    public static Object createBeanObject(ServiceRepository app, Service config) throws Exception {
+    public static Object createBeanObject(ServiceRepository app, IServiceConfiguration serviceConfiguration, IPropertyResolver propertyResolver) throws Exception {
         // create an instance of the bean
-        Object beanToUse = config.getConfiguration().getTargetBean();
+        Object beanToUse = serviceConfiguration.getTargetBean();
 
-        if (config.getConfiguration().getInjectionStrategy() != InjectionStrategy.None) {
-            if (!beanToUse.getClass().isAssignableFrom(config.getConfiguration().getTargetBeanClass())) {
+        if (serviceConfiguration.getInjectionStrategy() != InjectionStrategy.None) {
+            if (!beanToUse.getClass().isAssignableFrom(serviceConfiguration.getTargetBeanClass())) {
                 //we likely come from a serialization process so use the create from class
-                beanToUse = config.getConfiguration().getTargetBeanClass().newInstance();
+                beanToUse = serviceConfiguration.getTargetBeanClass().newInstance();
                 //inject from hashmap
                 //fixme we could better use the camel typeconversion facilities
-                injectFields(beanToUse, (Map<String, Object>) config.getConfiguration().getTargetBean(), config);
+                injectFields(beanToUse, (Map<String, Object>) serviceConfiguration.getTargetBean(), serviceConfiguration);
             } else {
                 //inject fields eventually
-                injectFields(beanToUse, config);
+                injectFields(beanToUse, serviceConfiguration, propertyResolver);
             }
 
-            injectDependencies(app, config, beanToUse);
+            injectDependencies(app, serviceConfiguration, beanToUse);
         }
 
         return beanToUse;
 
     }
 
-    private static void injectDependencies(ServiceRepository app, Service config, Object beanToUse) throws IllegalAccessException {
-        if (config.getConfiguration().getInjectionStrategy() == InjectionStrategy.Default) {
-            for (String dependency : config.getConfiguration().getServiceDependencies()) {
+    private static void injectDependencies(ServiceRepository app, IServiceConfiguration config, Object beanToUse) throws IllegalAccessException {
+
+        //TODO : fix dependency management
+        for (Field f : beanToUse.getClass().getFields()) {
+            Annotation serviceAnnotation = f.getAnnotation(ServiceDependency.class) ;
+
+            if(serviceAnnotation != null){
+                Object dependencyBean = app.getService(f.getType());
+                f.setAccessible(true);
+                f.set(beanToUse, dependencyBean);
+            }
+        }
+
+        if (config.getInjectionStrategy() == InjectionStrategy.Default) {
+            for (String dependency : config.getServiceDependencies()) {
                 Object dependencyBean = app.getService(dependency);
 
                 IServiceConfiguration dependencyDefinition = app.getServiceDefinition(dependency);
@@ -74,8 +89,8 @@ public class BeanFactory {
         }
     }
 
-    private static Object injectFields(Object bean, Map<String, Object> propertMap, Service config) throws Exception {
-        if (config.getConfiguration().getInjectionStrategy() == InjectionStrategy.Default) {
+    private static Object injectFields(Object bean, Map<String, Object> propertMap, IServiceConfiguration config) throws Exception {
+        if (config.getInjectionStrategy() == InjectionStrategy.Default) {
             for (Field f : bean.getClass().getDeclaredFields()) {
                 Object value = propertMap.getOrDefault(f.getName(), "undefined");
                 if (!"undefined".equals(value)) {
@@ -89,14 +104,17 @@ public class BeanFactory {
     }
 
 
-    private static Object injectFields(Object bean, Service config) throws Exception {
+    private static Object injectFields(Object bean, IServiceConfiguration config, IPropertyResolver propertyresolver) throws Exception {
 
-        if (config.getConfiguration().getInjectionStrategy() == InjectionStrategy.Default) {
+        if (config.getInjectionStrategy() == InjectionStrategy.Default) {
             for (Field f : bean.getClass().getDeclaredFields()) {
-                String value = config.lookupProperty(config.getConfiguration().getServiceName() + "." + f.getName() + ":undefined");
+                String value = propertyresolver.lookupProperty(config.getServiceName() + "." + f.getName() + ":undefined");
+
                 if (!"undefined".equals(value)) {
+                    Object convertedValue = propertyresolver.lookupProperty(f.getType(),config.getServiceName() + "." + f.getName() + ":undefined");
+
                     f.setAccessible(true);
-                    f.set(bean, value);
+                    f.set(bean, convertedValue);
                 }
             }
         }

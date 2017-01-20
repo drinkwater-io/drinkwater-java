@@ -6,7 +6,7 @@
         <groupId>io.drinkwater</groupId>
         <version>0.0.3-SNAPSHOT</version>
     </parent>
-    <artifactId>drinkwater-datasource-postgres</artifactId>
+    <artifactId>drinkwater-datasource-postgres-embedded</artifactId>
     <dependencies>
         <dependency>
             <groupId>io.drinkwater</groupId>
@@ -14,10 +14,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>9.4.1212</version>
-            <scope>runtime</scope>
+            <groupId>com.opentable.components</groupId>
+            <artifactId>otj-pg-embedded</artifactId>
+            <version>0.7.1</version>
         </dependency>
     </dependencies>
 </project>

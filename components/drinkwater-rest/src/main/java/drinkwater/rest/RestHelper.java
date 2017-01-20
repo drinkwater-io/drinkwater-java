@@ -8,6 +8,7 @@ import drinkwater.ITracer;
 import drinkwater.helper.json.CustomJacksonObjectMapper;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.fileupload.FileUploadProcessor;
+import drinkwater.trace.Operation;
 import javaslang.Tuple;
 import javaslang.Tuple2;
 import javaslang.collection.List;
@@ -255,8 +256,10 @@ public class RestHelper {
     private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, Method method) {
         String camelMethod = camelMethodBuilder(method);
 
-        RouteDefinition routeDefinition = restDefinition.route().setHeader(BeanOperationName).constant(method)
-                .wireTap(ROUTE_serverReceivedEvent).end();
+        RouteDefinition routeDefinition = restDefinition.route()
+                .setHeader(BeanOperationName)
+                .constant(Operation.of(method))
+                .to(ROUTE_serverReceivedEvent);
 
         //TODO create own process
         if (isMultipartBody(method)) {

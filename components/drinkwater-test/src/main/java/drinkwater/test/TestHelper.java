@@ -16,6 +16,8 @@ import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
  */
 public class TestHelper {
 
+    //TODO make some check to inform of invalid path
+    //example not starting with slash
     public static String getFileContent(String resourceFilePath) throws IOException {
 
         ClassLoader classLoader = TestHelper.class.getClassLoader();

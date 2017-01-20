@@ -19,6 +19,8 @@ public interface IServiceBuilder {
 
     IServiceBuilder asRest();
 
+    IServiceBuilder asHttpProxy();
+
     IServiceBuilder asRemote();
 
     IServiceBuilder withInjectionStrategy(InjectionStrategy strategy);

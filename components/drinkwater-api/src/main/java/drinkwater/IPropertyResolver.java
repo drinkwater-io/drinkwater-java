@@ -6,4 +6,7 @@ package drinkwater;
 public interface IPropertyResolver {
 
     String lookupProperty(String uri) throws Exception;
+
+    Object lookupProperty(Class resultType, String uri) throws Exception;
+
 }

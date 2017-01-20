@@ -1,7 +1,5 @@
 package drinkwater;
 
-import drinkwater.trace.Payload;
-
 import java.lang.reflect.Method;
 
 /**
@@ -11,6 +9,8 @@ public interface IDrinkWaterService {
 
     ITracer getTracer();
 
+    Boolean sendEvent(Class eventClass, Method method, Object body);
+
     IServiceConfiguration getConfiguration();
 
     void start();
@@ -19,5 +19,4 @@ public interface IDrinkWaterService {
 
     ServiceState getState();
 
-    Boolean sendEvent(Class eventClass, Method method, Payload payload);
 }

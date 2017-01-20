@@ -47,7 +47,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     private List<DrinkWaterApplicationHistory> applicationHistory = List.empty();
-    private java.util.List<IDataStore> dataStores =new ArrayList<>();
+    private java.util.List<IDataStore> dataStores = new ArrayList<>();
     private ApplicationState state = ApplicationState.Stopped;
     private String name;
     private TracerBean tracer;
@@ -65,6 +65,9 @@ public class DrinkWaterApplication implements ServiceRepository {
     private Properties initialApplicationProperties = new Properties();
 
     private CamelContext applicationLevelContext;
+
+    private IBaseEventLogger currentBaseEventLogger;
+
 
     private DrinkWaterApplication() {
         this(null);
@@ -124,12 +127,11 @@ public class DrinkWaterApplication implements ServiceRepository {
         return staticHandler;
     }
 
-    public RouteBuilder createTracingRoute(EventAggregator aggregator, IBaseEventLogger logger) {
+    private RouteBuilder createTracingRoute(EventAggregator aggregator, IBaseEventLogger logger) {
         return new RouteBuilder() {
 
             @Override
             public void configure() throws Exception {
-
 
                 from("vm:trace").bean(logger, "logEvent(${body})").bean(aggregator, "addEvent(${body})");
 
@@ -137,10 +139,8 @@ public class DrinkWaterApplication implements ServiceRepository {
         };
     }
 
-    public synchronized void startApplicationContext() {
-
+    public synchronized void startTracingRoute() {
         try {
-            applicationLevelContext = CamelContextFactory.createCamelContext("applicationlevelContext");
             if (isTraceMaster) {
 
                 //get logger class
@@ -148,22 +148,35 @@ public class DrinkWaterApplication implements ServiceRepository {
                 ServiceConfiguration traceBeanConfig = new ServiceConfiguration();
                 traceBeanConfig.setServiceName(this.getName() + "." + loggerImplementationClass.getSimpleName());
                 traceBeanConfig.setServiceClass(IBaseEventLogger.class);
-                traceBeanConfig.setTargetBean(loggerImplementationClass.newInstance());
+                //traceBeanConfig.setTargetBean(loggerImplementationClass.newInstance());
                 traceBeanConfig.setTargetBeanClass(loggerImplementationClass);
-                traceBeanConfig.setScheme(ServiceScheme.BeanObject);
+                traceBeanConfig.setScheme(ServiceScheme.BeanClass);
                 traceBeanConfig.useTracing(false);
                 initialApplicationProperties.forEach((key, value) -> traceBeanConfig.withProperty(key.toString(), value.toString()));
 
                 Service tracingService = createServiceFromConfig(traceBeanConfig, tracer);
 
-                IBaseEventLogger logger = (IBaseEventLogger) BeanFactory.createBean(this, tracingService);
+                currentBaseEventLogger = (IBaseEventLogger) BeanFactory.createBean(this, tracingService.getConfiguration(), tracingService);
 
-                applicationLevelContext.addRoutes(createTracingRoute(eventAggregator, logger));
+                applicationLevelContext.addRoutes(createTracingRoute(eventAggregator, currentBaseEventLogger));
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
+    }
+
+    public IBaseEventLogger getCurrentBaseEventLogger() {
+        return currentBaseEventLogger;
+    }
+
+    public synchronized void startApplicationContext() {
+
+        try {
+            applicationLevelContext = CamelContextFactory.createCamelContext("applicationlevelContext");
             applicationLevelContext.start();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
 
     }
@@ -234,7 +247,6 @@ public class DrinkWaterApplication implements ServiceRepository {
         }
 
 
-
         startApplicationContext();
 
         logStartInfo();
@@ -246,6 +258,8 @@ public class DrinkWaterApplication implements ServiceRepository {
         cofigureServices();
 
         startDataStores();
+
+        startTracingRoute();
 
         for (IDrinkWaterService service : services) {
             service.start();
@@ -351,9 +365,18 @@ public class DrinkWaterApplication implements ServiceRepository {
         }
     }
 
+    //TODO : it could be that more than one implements a service class
     @Override
     public <T> T getService(Class<? extends T> iface) {
-        return (T) serviceProxies.get(iface.getName());
+        T service = null;
+        //check in service if there is one that serves iface
+        if(services.filter(s -> s.getConfiguration().getServiceClass().equals(iface)).size() > 0){
+            service = (T) serviceProxies.get(services.filter(s -> s.getConfiguration().getServiceClass().equals(iface)).get().getConfiguration().getServiceName());
+        }
+        if(service == null){
+            service = (T) serviceProxies.get(iface.getName());
+        }
+        return service;
     }
 
     @Override
@@ -522,7 +545,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     //fixme : for now I assume only one store per app....
-    public IDataStore getStore(String name){
+    public IDataStore getStore(String name) {
         return dataStores.get(0);
     }
 

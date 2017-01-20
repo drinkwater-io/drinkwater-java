@@ -5,7 +5,6 @@ import drinkwater.IPropertyResolver;
 import drinkwater.IServiceConfiguration;
 import drinkwater.trace.ClientReceivedEvent;
 import drinkwater.trace.ClientSentEvent;
-import drinkwater.trace.Payload;
 import javaslang.Function3;
 
 import java.lang.reflect.InvocationHandler;
@@ -20,27 +19,27 @@ public class RestInvocationHandler implements InvocationHandler {
     private final IPropertyResolver resolver;
     private final IDrinkWaterService service;
     private final IServiceConfiguration configuration;
-    private final Function3<Class, Method, Payload, Boolean> sendEventFunc;
+    private final Function3<Class, Method, Object, Boolean> sendEventFunc;
 
     public RestInvocationHandler(IPropertyResolver resolver, IDrinkWaterService service) {
 
         this.configuration = service.getConfiguration();
         this.service = service;
         this.resolver = resolver;
-        this.sendEventFunc = (clazz, method, payload) ->
-                service.sendEvent(clazz, method, payload);
+        this.sendEventFunc = (clazz, method, body) ->
+                service.sendEvent(clazz, method, body);
     }
 
     //fixme make it thread safe another way. the probleme here route the configuration...
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
-        sendEventFunc.apply(ClientSentEvent.class, method, Payload.of(method, args));
+        sendEventFunc.apply(ClientSentEvent.class, method, args);
         Object invocationResult = null;
         try {
             invocationResult = Rest.invoke(proxy, method, args, resolver, configuration);
         } finally {
-            sendEventFunc.apply(ClientReceivedEvent.class, method, Payload.of(invocationResult));
+            sendEventFunc.apply(ClientReceivedEvent.class, method, invocationResult);
         }
 
         return invocationResult;

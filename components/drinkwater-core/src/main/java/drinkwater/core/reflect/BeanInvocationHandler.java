@@ -19,11 +19,11 @@ public class BeanInvocationHandler implements InvocationHandler {
     DrinkWaterApplication app;
 
     //FIXME : review how the invocation route done for direct object access.
-    public BeanInvocationHandler(CamelContext context, DrinkWaterApplication app, Service config) {
+    public BeanInvocationHandler(CamelContext context, DrinkWaterApplication app, Service service) {
         this.context = context;
         this.app = app;
         try {
-            this.target = createBeanObject(app, config);
+            this.target = createBeanObject(app, service.getConfiguration(), service);
         } catch (Exception e) {
             throw new RuntimeException("could not create bean");
         }
