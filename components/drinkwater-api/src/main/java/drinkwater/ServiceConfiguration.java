@@ -161,6 +161,8 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     @Override
     public IServiceBuilder asHttpProxy() {
         this.scheme = ServiceScheme.HttpProxy;
+        this.serviceClass = IEmptyService.class;
+        this.targetBeanClass = EmptyServiceImpl.class;
         return this;
     }
 

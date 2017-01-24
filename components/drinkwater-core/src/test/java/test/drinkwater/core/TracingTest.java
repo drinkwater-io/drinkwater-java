@@ -4,6 +4,7 @@ import drinkwater.core.DrinkWaterApplication;
 import drinkwater.test.HttpUnitTest;
 import drinkwater.trace.EventAggregator;
 import drinkwater.trace.FileEventLogger;
+import drinkwater.trace.MockEventLogger;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
@@ -20,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -109,12 +111,41 @@ public class TracingTest extends HttpUnitTest {
 
         app_C.start();
 
-        String result = httpGetString("http://127.0.0.1:9999/serviceC/DataFromC").result();
+        try {
+            String result = httpGetString("http://127.0.0.1:9999/serviceC/DataFromC").result();
 
-        assertEquals("data from c", result);
+            assertEquals("data from c", result);
+        }
+        finally {
 
-        app_C.stop();
+            app_C.stop();
+        }
 
         assertEquals(CustomTraceClass.called, 2);
+    }
+
+    @Test
+    public void testTracingWithException() throws Exception {
+
+        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-withException", false, true);
+        app_C.addServiceBuilder(new ServiceCConfiguration(true));
+        app_C.setEventLoggerClass(MockEventLogger.class);
+
+        app_C.start();
+
+        try {
+            String result = httpGetString("http://127.0.0.1:9999/serviceC/TestThrowException").result();
+
+            MockEventLogger logger = (MockEventLogger) app_C.getCurrentBaseEventLogger();
+
+            Thread.sleep(50);
+
+            assertThat(logger.getEvents().size()).isEqualTo(2);
+        }
+        finally {
+
+            app_C.stop();
+        }
+
     }
 }

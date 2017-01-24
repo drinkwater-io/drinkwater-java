@@ -11,12 +11,13 @@ public abstract class AbstractEventLogger implements IBaseEventLogger {
 
     protected String serializeObject(Object obj) throws JsonProcessingException {
 
-
+        if (obj == null) {
+            return null;
+        }
         final StringBuilder builder = new StringBuilder();
         if (obj instanceof Operation) {
             builder.append(obj.toString());
-        }
-        if (obj instanceof Method) {
+        } else if (obj instanceof Method) {
             builder.append(((Method) obj).getName());
         } else if (obj instanceof String) {
             builder.append(obj);
@@ -24,12 +25,32 @@ public abstract class AbstractEventLogger implements IBaseEventLogger {
             ((Map) obj).keySet().forEach(
                     key -> builder.append(" (" + key + " --> " + ((Map) obj).get(key) + ")"));
 
+        } else if (obj instanceof Exception) {
+            Exception exc = (Exception) obj;
+            builder.append(serializeException(exc));
+
         } else {
             CustomJacksonObjectMapper mapper = new CustomJacksonObjectMapper(false);
             builder.append(mapper.writeValueAsString(obj));
         }
 
         return builder.toString();
+    }
+
+    private String serializeException(Exception ex) {
+        StringBuilder builder = new StringBuilder();
+        String lineseparator = System.getProperty("line.separator");
+
+        builder.append("Exception message  :" + ex.getMessage() + lineseparator);
+        builder.append("Exception stack  :" + lineseparator);
+
+        for (StackTraceElement stackElement :
+                ex.getStackTrace()) {
+            builder.append(stackElement.toString() + lineseparator);
+        }
+
+        return builder.toString();
+
     }
 
     protected String serializeEvent(BaseEvent event) throws JsonProcessingException {

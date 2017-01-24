@@ -38,6 +38,12 @@ public class Main extends ServiceSupport {
         dwApplication.addServiceBuilder(builder);
     }
 
+    public Main(String appName, ServiceConfigurationBuilder builder, Class EventLoggerClass) {
+        dwApplication = DrinkWaterApplication.create(appName, false, true);
+        dwApplication.addServiceBuilder(builder);
+        dwApplication.setEventLoggerClass(EventLoggerClass);
+    }
+
     public ServiceRepository getDrinkWaterApplication() {
         return dwApplication;
 

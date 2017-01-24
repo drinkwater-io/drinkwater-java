@@ -94,6 +94,8 @@ public class RouteBuilders {
                     throw new RuntimeException("could not find proxy and destination endpoint from config");
                 }
 
+                onException(Exception.class).to(ROUTE_exceptionEvent);
+
                 RouteDefinition choice =
                         from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true").id("front-proxy-received-" + service.getConfiguration().getServiceName())
                                 .setHeader(BeanOperationName).method(ExtractHttpMethodFromExchange.class).id("setOperationNameInHeader")
@@ -101,6 +103,7 @@ public class RouteBuilders {
                                 .to("jetty:" + destinationEndpoint + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=true")
                                 .id("front-proxy-reply-" + service.getConfiguration().getServiceName())
                                 .to(ROUTE_serverSentEvent).id("trace-received");
+
             }
         };
     }

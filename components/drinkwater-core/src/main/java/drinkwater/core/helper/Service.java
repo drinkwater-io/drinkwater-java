@@ -215,6 +215,11 @@ public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver
                         .to(ROUTE_CheckFlowIDHeader)
                         .wireTap("direct:createClientSentEventAndTrace").id("async-createClientSentEventAndTrace");
 
+                from(ROUTE_exceptionEvent)
+                        .to(ROUTE_CheckFlowIDHeader)
+                        .wireTap("direct:createExceptionEventAndTrace").id("async-createExceptionEventAndTrace");
+
+
                 from(ROUTE_MethodInvokedStartEvent)
                         .to(ROUTE_CheckFlowIDHeader)
                         .wireTap("direct:createMISEventAndTrace").id("async-createMISEventAndTrace");
@@ -281,6 +286,25 @@ public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver
                             correlationFrom(exchange),
                             safeMethodName(methodFrom(exchange)),
                             payloadFrom(exchange)));
+                }).to(tracingRoute);
+
+                //method invocation events
+                from("direct:createExceptionEventAndTrace").process(exchange -> {
+
+                    //set track trace in body
+                    Exception exception = (Exception)exchange.getProperties().get("CamelExceptionCaught");
+
+                    Payload payload = Payload.of(
+                            methodFrom(exchange),
+                            exchange.getIn().getHeaders(),
+                            exception);
+
+                    exchange.getIn().setBody(new ExceptionEvent(
+                            instantFrom(exchange),
+                            correlationFrom(exchange),
+                            safeMethodName(methodFrom(exchange)),
+                            payload));
+
                 }).to(tracingRoute);
             }
         };

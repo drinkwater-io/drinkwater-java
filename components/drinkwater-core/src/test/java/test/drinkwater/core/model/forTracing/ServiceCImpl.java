@@ -12,4 +12,9 @@ public class ServiceCImpl implements IServiceC {
 
         return result;
     }
+
+    @Override
+    public String getTestThrowException() throws Exception {
+        throw new Exception("exception message");
+    }
 }

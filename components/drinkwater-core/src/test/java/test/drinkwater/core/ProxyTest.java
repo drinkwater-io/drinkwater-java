@@ -17,19 +17,23 @@ public class ProxyTest extends HttpUnitTest {
         proxyApp.addServiceBuilder(new ProxyTestConfiguration());
         proxyApp.setEventLoggerClass(MockEventLogger.class);
 
-        proxyApp.start();
+        try {
+            proxyApp.start();
 
-        String result = httpGetString("http://127.0.0.1:7777/icc/info").result();
-        assertEquals("test info", result);
-        result = httpGetString("http://127.0.0.1:7777/icc/info").result();
-        assertEquals("test info", result);
+            String result = httpGetString("http://127.0.0.1:7777/icc/info").result();
+            assertEquals("test info", result);
+            result = httpGetString("http://127.0.0.1:7777/icc/info").result();
+            assertEquals("test info", result);
 
-        Thread.sleep(40);
+            Thread.sleep(40);
 
-        MockEventLogger logger = (MockEventLogger)proxyApp.getCurrentBaseEventLogger();
+            MockEventLogger logger = (MockEventLogger) proxyApp.getCurrentBaseEventLogger();
 
-        assertEquals(logger.getEvents().size(), 4);
+            assertEquals(logger.getEvents().size(), 4);
 
-        proxyApp.stop();
+        }
+        finally {
+            proxyApp.stop();
+        }
     }
 }

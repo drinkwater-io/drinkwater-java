@@ -25,6 +25,8 @@
     <artifactId>components</artifactId>
     <packaging>pom</packaging>
     <modules>
+    
+    <module>drinkwater-servlet</module>
         <module>drinkwater-core</module>
         <module>drinkwater-test</module>
         <module>drinkwater-cdi</module>

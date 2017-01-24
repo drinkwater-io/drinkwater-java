@@ -21,6 +21,8 @@ public class DrinkWaterConstants {
 
     public static String ROUTE_serverSentEvent = "direct:serverSentEvent";
 
+    public static String ROUTE_exceptionEvent = "direct:exceptionEvent";
+
     public static String ROUTE_clientReceivedEvent = "direct:clientReceivedEvent";
 
     public static String ROUTE_clientSentEvent = "direct:clientSentEvent";

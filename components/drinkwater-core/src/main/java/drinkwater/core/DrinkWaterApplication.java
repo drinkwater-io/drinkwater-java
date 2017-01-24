@@ -225,9 +225,16 @@ public class DrinkWaterApplication implements ServiceRepository {
         //initialize stores
 
 
-        serviceBuilders.configure();
-        dataStores = serviceBuilders.getDataStores();
-        List.ofAll(serviceBuilders.getConfigurations()).forEach(this::addService);
+        if(serviceBuilders != null){
+            serviceBuilders.configure();
+            dataStores = serviceBuilders.getDataStores();
+            List.ofAll(serviceBuilders.getConfigurations()).forEach(this::addService);
+        }
+        else{
+            //TODO add explanation how to ad a srvice
+            logger.warning("no service builder initialized, add at leas one service");
+        }
+
     }
 
     public boolean isStarted() {

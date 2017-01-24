@@ -1,10 +1,9 @@
 package drinkwater.test;
 
-import drinkwater.helper.json.CustomJacksonObjectMapper;
+import drinkwater.helper.GeneralHelper;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
@@ -20,13 +19,14 @@ public class TestHelper {
     //example not starting with slash
     public static String getFileContent(String resourceFilePath) throws IOException {
 
-        ClassLoader classLoader = TestHelper.class.getClassLoader();
-
-        File file = new File(classLoader.getResource(resourceFilePath).getFile());
-
-        String content = new String(Files.readAllBytes(file.toPath()), Charset.forName("UTF-8"));
-
-        return content;
+        return GeneralHelper.getFileContent(resourceFilePath);
+//        ClassLoader classLoader = TestHelper.class.getClassLoader();
+//
+//        File file = new File(classLoader.getResource(resourceFilePath).getFile());
+//
+//        String content = new String(Files.readAllBytes(file.toPath()), Charset.forName("UTF-8"));
+//
+//        return content;
     }
 
     public static byte[] getFileAsBytes(String resourceFilePath) throws IOException {
@@ -46,19 +46,19 @@ public class TestHelper {
     }
 
     public static <T> T fromJsonString(String s, Class clazz) throws IOException {
-        CustomJacksonObjectMapper mapper = new CustomJacksonObjectMapper();
-        return (T) mapper.readValue(s, clazz);
+        return GeneralHelper.fromJsonString(s, clazz);
     }
 
     public static String toJsonString(Object obj) throws IOException {
-        CustomJacksonObjectMapper mapper = new CustomJacksonObjectMapper();
-        return mapper.writeValueAsString(obj);
+        return GeneralHelper.toJsonString(obj);
     }
 
     public static String rs(String s) {
         String answer = s.replaceAll("'", "\"");
         return answer;
     }
+
+
 
 
 }
