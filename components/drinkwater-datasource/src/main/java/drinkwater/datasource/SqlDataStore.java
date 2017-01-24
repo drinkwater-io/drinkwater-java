@@ -2,9 +2,6 @@ package drinkwater.datasource;
 
 import drinkwater.DatasourceConfiguration;
 import drinkwater.IDataStore;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.operation.DatabaseOperation;
 import org.flywaydb.core.Flyway;
 
 import javax.sql.DataSource;
@@ -14,6 +11,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+
+//import org.dbunit.dataset.IDataSet;
+//import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
+//import org.dbunit.operation.DatabaseOperation;
 
 /**
  * Created by A406775 on 11/01/2017.
@@ -81,22 +82,22 @@ public abstract class SqlDataStore implements IDataStore {
         }
     }
 
-    public void cleanAndInject(String resourceFilePath) throws Exception {
-        IDataSet ds = readDataSet(resourceFilePath);
-        cleanlyInsert(ds);
-    }
+//    public void cleanAndInject(String resourceFilePath) throws Exception {
+//        IDataSet ds = readDataSet(resourceFilePath);
+//        cleanlyInsert(ds);
+//    }
+//
+//    private void cleanlyInsert(IDataSet dataSet) throws Exception {
+//        //FIXME this assumes we always use postgres
+//        PostgresDataSourceTester databaseTester = new PostgresDataSourceTester(this.getDataSource());
+//        databaseTester.setSetUpOperation(DatabaseOperation.CLEAN_INSERT);
+//        databaseTester.setDataSet(dataSet);
+//        databaseTester.onSetup();
+//    }
 
-    private void cleanlyInsert(IDataSet dataSet) throws Exception {
-        //FIXME this assumes we always use postgres
-        PostgresDataSourceTester databaseTester = new PostgresDataSourceTester(this.getDataSource());
-        databaseTester.setSetUpOperation(DatabaseOperation.CLEAN_INSERT);
-        databaseTester.setDataSet(dataSet);
-        databaseTester.onSetup();
-    }
-
-    private IDataSet readDataSet(String fileName) throws Exception {
-        return new FlatXmlDataSetBuilder().build(getFullFilepath(fileName));
-    }
+//    private IDataSet readDataSet(String fileName) throws Exception {
+//        return new FlatXmlDataSetBuilder().build(getFullFilepath(fileName));
+//    }
 
     private File getFullFilepath(String resourceFilePath) throws IOException {
 

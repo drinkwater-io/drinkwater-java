@@ -4,7 +4,7 @@
     <parent>
         <artifactId>components</artifactId>
         <groupId>io.drinkwater</groupId>
-        <version>0.0.3</version>
+        <version>0.0.4-SNAPSHOT</version>
     </parent>
     <artifactId>drinkwater-datasource</artifactId>
     <dependencies>
@@ -28,10 +28,10 @@
             <artifactId>drinkwater-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.dbunit</groupId>
-            <artifactId>dbunit</artifactId>
-            <version>2.5.3</version>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>org.dbunit</groupId>-->
+        <!--<artifactId>dbunit</artifactId>-->
+        <!--<version>2.5.3</version>-->
+        <!--</dependency>-->
     </dependencies>
 </project>

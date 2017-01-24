@@ -1,4 +1,4 @@
-package drinkwater.datasource;
+package drinkwater.test.db;
 
 import org.dbunit.dataset.datatype.AbstractDataType;
 import org.dbunit.dataset.datatype.TypeCastException;

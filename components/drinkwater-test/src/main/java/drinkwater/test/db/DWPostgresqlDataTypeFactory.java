@@ -1,4 +1,4 @@
-package drinkwater.datasource;
+package drinkwater.test.db;//package drinkwater.datasource;
 
 import org.dbunit.dataset.datatype.DataType;
 import org.dbunit.dataset.datatype.DataTypeException;

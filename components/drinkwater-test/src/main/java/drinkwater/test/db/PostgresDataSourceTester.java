@@ -1,4 +1,4 @@
-package drinkwater.datasource;
+package drinkwater.test.db;//package drinkwater.datasource;
 
 import org.dbunit.DataSourceDatabaseTester;
 import org.dbunit.database.DatabaseConfig;
