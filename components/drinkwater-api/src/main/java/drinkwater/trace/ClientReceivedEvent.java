@@ -7,7 +7,8 @@ import java.time.Instant;
  */
 public class ClientReceivedEvent extends BaseEvent {
 
-    public ClientReceivedEvent(Instant instant, String correlationId, String description, Payload payloads) {
-        super(instant, "CLR", correlationId, description, payloads);
+    public ClientReceivedEvent(Instant instant, String correlationId, String description,
+                               String applicationName, String serviceName,Payload payloads) {
+        super(instant, "CLR", correlationId, description, applicationName, serviceName, payloads);
     }
 }

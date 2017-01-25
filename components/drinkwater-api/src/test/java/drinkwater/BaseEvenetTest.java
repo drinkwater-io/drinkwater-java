@@ -17,7 +17,9 @@ public class BaseEvenetTest {
 
     @Test
     public void testCreateEvent() {
-        ClientReceivedEvent clientReceivedEvent = new ClientReceivedEvent(Instant.now(), "1", "description", Payload.of(null, new HashMap<String, Object>(), "someBody"));
+        ClientReceivedEvent clientReceivedEvent = new ClientReceivedEvent(
+                Instant.now(), "1", "description", "testApp", "testservice",
+                Payload.of(null, new HashMap<String, Object>(), "someBody"));
 
         Payload payload = clientReceivedEvent.getPayload();
 

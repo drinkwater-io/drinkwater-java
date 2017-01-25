@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import static drinkwater.DrinkWaterConstants.*;
 import static drinkwater.rest.RestHelper.endpointFrom;
+import static org.apache.camel.builder.Builder.constant;
 
 /**
  * Created by A406775 on 27/12/2016.
@@ -102,7 +103,7 @@ public class RouteBuilders {
                                 .to(ROUTE_serverReceivedEvent).id("trace-received")
                                 .to("jetty:" + destinationEndpoint + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=true")
                                 .id("front-proxy-reply-" + service.getConfiguration().getServiceName())
-                                .to(ROUTE_serverSentEvent).id("trace-received");
+                                .to(ROUTE_serverSentEvent).id("trace-sent");
 
             }
         };
@@ -117,9 +118,12 @@ public class RouteBuilders {
 
                 String frontEndpoint = endpointFrom(new DefaultPropertyResolver(service), service.getConfiguration());
 
-                ChoiceDefinition choice =
-                        from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true")
-                                .choice();
+                RouteDefinition frontRoute = from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true&optionsEnabled=true");
+
+                frontRoute = enableCorsOnRoute(frontRoute);
+
+                ChoiceDefinition choice = frontRoute.choice();
+
                 //TODO : fix the way to get the target host
                 service.getConfiguration().getRoutingMap().forEach(
                         (key, val) -> {
@@ -127,7 +131,10 @@ public class RouteBuilders {
                             IServiceConfiguration s = app.getServiceDefinition(val);
 
                             choice.when(header(service.getConfiguration().getRoutingHeader()).isEqualTo(key))
-                                    .to("jetty:" + s.getServiceHost() + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=false");
+                                    .setHeader(BeanOperationName).method(ExtractHttpMethodFromExchange.class).id("setOperationNameInHeader")
+                                    .to(ROUTE_serverReceivedEvent).id("trace-received")
+                                    .to("jetty:" + s.getServiceHost() + "?bridgeEndpoint=true&throwExceptionOnFailure=true")
+                                    .to(ROUTE_serverSentEvent).id("trace-sent");
 
                         }
 
@@ -135,6 +142,15 @@ public class RouteBuilders {
 
             }
         };
+    }
+
+    private static RouteDefinition enableCorsOnRoute(RouteDefinition route) {
+        return route
+                .setHeader("Access-Control-Allow-Origin", constant("*"))
+                .setHeader("Access-Control-Allow-Methods", constant("GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH"))
+                .setHeader("Access-Control-Allow-Headers", constant("Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers,ngba_origin,ngba_user"))
+                .setHeader("Allow", constant("GET, OPTIONS, POST, PATCH"));
+
     }
 
     public static RouteBuilder mapRestRoutes(ServiceRepository app, Service service) {

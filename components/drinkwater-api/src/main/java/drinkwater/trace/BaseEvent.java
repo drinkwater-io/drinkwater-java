@@ -17,12 +17,19 @@ public class BaseEvent {
 
     private String correlationId;
 
-    public BaseEvent(Instant instant, String name, String correlationId, String description, Payload payload) {
+    private String applicationName;
+
+    private String serviceName;
+
+    public BaseEvent(Instant instant, String name, String correlationId, String description,
+                     String applicationName, String serviceName,Payload payload) {
         this.time = instant;
         this.description = description;
         this.name = name;
         this.payload = payload;
         this.correlationId = correlationId;
+        this.serviceName = serviceName;
+        this.applicationName = applicationName;
     }
 
     public String getDescription() {
@@ -45,8 +52,16 @@ public class BaseEvent {
         return correlationId;
     }
 
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
     @Override
     public String toString() {
-        return time + "---" + correlationId + "---" + name + "---" + description;
+        return time + "---" + correlationId + "---" + applicationName + "." + serviceName + "\t - " + name + "---" + description;
     }
 }

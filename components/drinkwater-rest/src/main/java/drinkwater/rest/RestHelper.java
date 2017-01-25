@@ -157,7 +157,7 @@ public class RestHelper {
 
             RestPropertyDefinition corsAllowedHeaders = new RestPropertyDefinition();
             corsAllowedHeaders.setKey("Access-Control-Allow-Headers");
-            corsAllowedHeaders.setValue("origin, content-type, accept, authorization, x-filename, icc-origin, icc-endpoint, icc-repository, Content-Disposition");
+            corsAllowedHeaders.setValue("origin, content-type, accept, authorization, x-filename, ngba_origin,ngba_user, Content-Disposition");
 
 //            cres.getHeaders().add("Access-Control-Allow-Origin", "*");
 //            cres.getHeaders().add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization, x-filename, icc-origin, icc-endpoint, icc-repository, Content-Disposition");
