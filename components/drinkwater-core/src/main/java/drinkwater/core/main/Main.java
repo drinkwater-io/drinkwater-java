@@ -49,9 +49,6 @@ public class Main extends ServiceSupport {
 
     }
 
-    /**
-     * Runs this process with the given arguments, and will wait until completed, or the JVM terminates.
-     */
     public void run() throws Exception {
         if (!completed.get()) {
             internalBeforeStart();

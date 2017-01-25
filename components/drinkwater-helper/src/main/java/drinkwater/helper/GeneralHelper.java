@@ -4,16 +4,18 @@ import drinkwater.helper.json.CustomJacksonObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.util.Properties;
 
 public class GeneralHelper {
     public static String getJarFolder() {
         String s = GeneralHelper.class.getProtectionDomain().getCodeSource().getLocation().getPath();
 
-        s = s.substring(0, s.lastIndexOf("/")+ 1);
+        s = s.substring(0, s.lastIndexOf("/") + 1);
 
 //        Path path = Paths.get();
 //        String url = path.getParent().toString() ;
@@ -46,5 +48,14 @@ public class GeneralHelper {
         String content = new String(Files.readAllBytes(file.toPath()), Charset.forName("UTF-8"));
 
         return content;
+    }
+
+    public static Properties loadResourceFromClassPath(Class clazzOrigin, String resourceFile) throws IOException {
+        final Properties properties = new Properties();
+        try (final InputStream stream = clazzOrigin.getResourceAsStream(resourceFile)) {
+            properties.load(stream);
+
+            return properties;
+        }
     }
 }
