@@ -1,7 +1,7 @@
 package test.drinkwater.core;
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.core.DrinkWaterApplicationHistory;
+import drinkwater.core.internal.DrinkWaterApplicationHistory;
 import org.junit.Test;
 import test.drinkwater.core.model.ITestService;
 import test.drinkwater.core.model.TestConfiguration;

@@ -52,7 +52,7 @@ public final class DWServletContextListener implements ServletContextListener {
             application.start();
 
         } catch (Exception ex) {
-            logger.severe("COULD NOT START DrinkWater APPLICATION");
+            logger.severe("COULD NOT START DrinkWater APPLICATION " + ex.getMessage());
             throw new RuntimeException(ex);
         }
 

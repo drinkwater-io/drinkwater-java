@@ -16,8 +16,8 @@
  */
 package drinkwater.boot;
 
+import drinkwater.ServiceRepository;
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.core.ServiceRepository;
 import org.apache.camel.support.ServiceSupport;
 import org.apache.deltaspike.cdise.api.CdiContainer;
 import org.apache.deltaspike.cdise.api.CdiContainerLoader;

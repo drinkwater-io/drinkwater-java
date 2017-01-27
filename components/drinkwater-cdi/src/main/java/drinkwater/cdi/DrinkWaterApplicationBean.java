@@ -1,7 +1,7 @@
 package drinkwater.cdi;
 
+import drinkwater.ServiceRepository;
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.core.ServiceRepository;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.spi.CreationalContext;
@@ -45,12 +45,12 @@ public class DrinkWaterApplicationBean implements Bean<ServiceRepository> {
 
     @Override
     public Set<Type> getTypes() {
-        return Collections.singleton((Type) DrinkWaterApplication.class);
+        return Collections.singleton(DrinkWaterApplication.class);
     }
 
     @Override
     public Set<Annotation> getQualifiers() {
-        return Collections.singleton((Annotation) new AnnotationLiteral<Default>() {
+        return Collections.singleton(new AnnotationLiteral<Default>() {
         });
     }
 

@@ -4,10 +4,7 @@ import drinkwater.*;
 import drinkwater.core.helper.BeanFactory;
 import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.Service;
-import drinkwater.core.internal.IServiceManagement;
-import drinkwater.core.internal.JVMMetricsBean;
-import drinkwater.core.internal.ServiceManagementBean;
-import drinkwater.core.internal.TracerBean;
+import drinkwater.core.internal.*;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.reflect.BeanInvocationHandler;
 import drinkwater.helper.reflect.ReflectHelper;
@@ -18,6 +15,7 @@ import drinkwater.trace.EventAggregator;
 import javaslang.collection.List;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.util.StopWatch;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
@@ -25,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -106,7 +105,7 @@ public class DrinkWaterApplication implements ServiceRepository {
         return new DrinkWaterApplication(name, useServiceManagement, traceMaster);
     }
 
-    public static RouteBuilder createCoreRoutes(String managementHost) {
+    public static RouteBuilder createCoreRoutes(String managementHost, DrinkWaterApplication app) {
         return new RouteBuilder() {
 
             @Override
@@ -116,6 +115,11 @@ public class DrinkWaterApplication implements ServiceRepository {
                         "jetty:http://%s?handlers=%s", managementHost, DW_STATICHANDLER))
                         .to("mock:empty?retainFirst=1");
 
+                from(String.format(
+                        "jetty:http://%s/stopApplication?httpMethodRestrict=POST",managementHost))
+                        .bean(new ShutDownDrinkWaterBean(app)).id("app_shutdown");
+
+
 
             }
         };
@@ -123,7 +127,7 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     public static ResourceHandler getResourceHandler() {
         ResourceHandler staticHandler = new ResourceHandler();
-        staticHandler.setBaseResource(Resource.newClassPathResource("/www"));
+        staticHandler.setBaseResource(Resource.newClassPathResource("/www/management"));
         return staticHandler;
     }
 
@@ -174,6 +178,8 @@ public class DrinkWaterApplication implements ServiceRepository {
 
         try {
             applicationLevelContext = CamelContextFactory.createCamelContext("applicationlevelContext");
+            applicationLevelContext.getShutdownStrategy().setTimeout(1);
+            applicationLevelContext.getShutdownStrategy().setTimeUnit(TimeUnit.NANOSECONDS);
             applicationLevelContext.start();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -183,9 +189,10 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     public void stopApplicationContext() {
         try {
+            logger.info(String.format("Shutting down application context for  %s .... goodbye !!!", this.getName()));
             applicationLevelContext.stop();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
@@ -283,29 +290,37 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     public void stop() {
 
-        if (isStopped()) {
-            return;
+        StopWatch timingWath = new StopWatch();
+        try {
+
+
+            if (isStopped()) {
+                return;
+            }
+
+            logStopingInfo();
+
+            for (IDrinkWaterService service : services) {
+                service.stop();
+            }
+
+            stopExternalServices();
+
+            if (useServiceManagement) {
+                stopManagementService();
+            }
+
+            stopDataStores();
+
+            stopApplicationContext();
+
+            state = ApplicationState.Stopped;
+            timingWath.stop();
+        }
+        finally {
+            logStoppedInfo(timingWath);
         }
 
-        logStopingInfo();
-
-        for (IDrinkWaterService service : services) {
-            service.stop();
-        }
-
-        stopExternalServices();
-
-        if (useServiceManagement) {
-            stopManagementService();
-        }
-
-        stopApplicationContext();
-
-        stopDataStores();
-
-        logStoppedInfo();
-
-        state = ApplicationState.Stopped;
     }
 
     private void startDataStores() {
@@ -414,8 +429,7 @@ public class DrinkWaterApplication implements ServiceRepository {
             logger.info("starting management service");
 
             ServiceManagementBean serviceManagement = new ServiceManagementBean(
-                    services.toJavaList(),
-                    tracer.getMetrics(),
+                    this,
                     jvmMetricsBean.getMetrics());
 
             String defaultPropertiesName = "classpath:" + this.name + ".properties";
@@ -434,15 +448,16 @@ public class DrinkWaterApplication implements ServiceRepository {
 
             managementService = createServiceFromConfig(config, tracer);
 
-            CamelContextFactory.registerBean(managementService.getCamelContext(), DW_STATICHANDLER, getResourceHandler());
+            CamelContextFactory.registerBean(applicationLevelContext, DW_STATICHANDLER, getResourceHandler());
 
             String managementHost = managementService.lookupProperty(name + ".management.host:0.0.0.0");
             String managementPort = managementService.lookupProperty(name + ".management.port:9000");
             String managementHostAndPort = managementHost + ":" + managementPort;
 
-            managementService.getCamelContext().addRoutes(createCoreRoutes(managementHostAndPort));
+            applicationLevelContext.addRoutes(createCoreRoutes(managementHostAndPort, this));
 
             logger.info("management web page can be found here : http://" + managementHostAndPort);
+
 
             managementService.start();
 
@@ -451,6 +466,7 @@ public class DrinkWaterApplication implements ServiceRepository {
             throw new RuntimeException("Could not start Core Context ", ex);
         }
     }
+
 
     private void stopManagementService() {
         if (managementService != null) {
@@ -471,7 +487,9 @@ public class DrinkWaterApplication implements ServiceRepository {
         logger.info("-----------------------STOPING " + name + "------------------------------------");
     }
 
-    private void logStoppedInfo() {
+    private void logStoppedInfo(StopWatch stoppedwatch) {
+        logger.info(String.format("application stopped in %d ms", stoppedwatch.taken()));
+        logger.info("have a nice day");
         logger.info("-----------------------STOPPED " + name + "------------------------------------");
     }
 
@@ -557,5 +575,9 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
     public enum ApplicationState {Up, Stopped}
+
+    public java.util.List<IDrinkWaterService> getServices(){
+        return services.toJavaList();
+    }
 
 }

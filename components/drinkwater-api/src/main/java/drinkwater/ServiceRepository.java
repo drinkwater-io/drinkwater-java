@@ -1,6 +1,4 @@
-package drinkwater.core;
-
-import drinkwater.IServiceConfiguration;
+package drinkwater;
 
 /**
  * Created by A406775 on 2/01/2017.

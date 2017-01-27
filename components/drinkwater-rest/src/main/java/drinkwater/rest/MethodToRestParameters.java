@@ -2,6 +2,7 @@ package drinkwater.rest;
 
 import com.mashape.unirest.http.HttpMethod;
 import javaslang.collection.List;
+import org.apache.camel.Exchange;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -45,23 +46,30 @@ public class MethodToRestParameters {
             if (parameterInfos.size() > 0) {
                 hasBody = true;
             }
-            if(noBodyAnnotation != null) {
+            if (noBodyAnnotation != null) {
                 hasBody = false;
             }
         } else {
             throw new RuntimeException("come back here : MethodToRestParameters.init()");
         }
 
-        if(hasBody) { // first parameter of the method will be assigned with the body content
+        if (hasBody) { // first parameter of the method will be assigned with the body content
             headerNames = parameterInfos.tail().map(p -> p.getName()).toList();
-        }
-        else{
-            headerNames = parameterInfos.map(p -> p.getName()).toList();
+        } else {
+
+            headerNames = parameterInfos.map(p ->
+            {
+                String name;
+                if(p.getClass().isAssignableFrom(Exchange.class)){
+                    name = "exchange";
+                }else {
+                    name = "header." + p.getName();
+                }
+                return name;
+            }).toList();
         }
 
     }
-
-
 
     public boolean hasBody() {
         return hasBody;
@@ -84,11 +92,12 @@ public class MethodToRestParameters {
         String params = "";
 
         java.util.List<String> methodParams = new ArrayList<>();
+        //if has bod, first parm will be the body
         if (hasBody) {
             methodParams.add("${body}");
         }
         headerNames.forEach(name -> {
-            methodParams.add("${header." + name + "}");
+            methodParams.add("${" + name + "}");
         });
 
         params = List.ofAll(methodParams).mkString(",");

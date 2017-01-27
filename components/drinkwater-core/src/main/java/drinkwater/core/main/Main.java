@@ -1,8 +1,8 @@
 package drinkwater.core.main;
 
 import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ServiceRepository;
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.core.ServiceRepository;
 import org.apache.camel.support.ServiceSupport;
 
 import java.util.concurrent.CountDownLatch;
@@ -40,6 +40,12 @@ public class Main extends ServiceSupport {
 
     public Main(String appName, ServiceConfigurationBuilder builder, Class EventLoggerClass) {
         dwApplication = DrinkWaterApplication.create(appName, false, true);
+        dwApplication.addServiceBuilder(builder);
+        dwApplication.setEventLoggerClass(EventLoggerClass);
+    }
+
+    public Main(String appName, ServiceConfigurationBuilder builder, Class EventLoggerClass, boolean serviceManagement, boolean useTracing) {
+        dwApplication = DrinkWaterApplication.create(appName, serviceManagement, useTracing);
         dwApplication.addServiceBuilder(builder);
         dwApplication.setEventLoggerClass(EventLoggerClass);
     }

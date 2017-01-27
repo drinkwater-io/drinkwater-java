@@ -1,6 +1,7 @@
-package drinkwater.core;
+package drinkwater.core.internal;
 
 import drinkwater.ServiceConfiguration;
+import drinkwater.core.DrinkWaterApplication;
 import drinkwater.helper.json.CustomJacksonObjectMapper;
 
 import java.time.LocalDateTime;

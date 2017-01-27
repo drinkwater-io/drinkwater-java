@@ -1,6 +1,7 @@
-package drinkwater.core;
+package drinkwater.core.internal;
 
 import drinkwater.IServiceConfiguration;
+import drinkwater.ServiceRepository;
 import drinkwater.core.helper.BeanFactory;
 import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.ExtractHttpMethodFromExchange;

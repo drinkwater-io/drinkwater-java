@@ -1,6 +1,6 @@
 package drinkwater.core.reflect;
 
-import drinkwater.core.RouteBuilders;
+import drinkwater.core.internal.RouteBuilders;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 
