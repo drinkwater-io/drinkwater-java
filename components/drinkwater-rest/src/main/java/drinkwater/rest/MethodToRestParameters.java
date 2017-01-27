@@ -54,22 +54,24 @@ public class MethodToRestParameters {
         }
 
         if (hasBody) { // first parameter of the method will be assigned with the body content
-            headerNames = parameterInfos.tail().map(p -> p.getName()).toList();
+            headerNames = parameterInfos.tail().map(p -> mapName(p)).toList();
         } else {
 
-            headerNames = parameterInfos.map(p ->
-            {
-                String name;
-                if(p.getClass().isAssignableFrom(Exchange.class)){
-                    name = "exchange";
-                }else {
-                    name = "header." + p.getName();
-                }
-                return name;
-            }).toList();
+            headerNames = parameterInfos.map(p -> mapName(p)).toList();
         }
 
     }
+
+    private static String mapName(Parameter p){
+        String name;
+        if(p.getClass().isAssignableFrom(Exchange.class)){
+            name = "exchange";
+        }else {
+            name =  p.getName();
+        }
+        return name;
+    }
+
 
     public boolean hasBody() {
         return hasBody;
@@ -97,7 +99,10 @@ public class MethodToRestParameters {
             methodParams.add("${body}");
         }
         headerNames.forEach(name -> {
-            methodParams.add("${" + name + "}");
+            if("exchange".equals(name)){
+                methodParams.add("${exchange}");
+            }
+            methodParams.add("${header." + name + "}");
         });
 
         params = List.ofAll(methodParams).mkString(",");

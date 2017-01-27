@@ -50,6 +50,7 @@ public class ServiceConfigurationAsRestTest extends HttpUnitTest {
     public void shouldSaveNumberThroughRestWithServiceReference() throws Exception {
         IAccountService accountService = app.getService(IAccountService.class);
         IDrinkTrackerService drinkTracker = app.getService(IDrinkTrackerService.class);
+        accountService.clearAccounts();
         Account account = accountService.createAccount("cedric", "secret");
 
         account = accountService.login("cedric", "secret");

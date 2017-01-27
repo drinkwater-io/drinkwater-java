@@ -13,7 +13,8 @@ public class ServiceConfigurationAsRest extends ServiceConfigurationBuilder {
     public void configure() {
         addConfigurations(BaseLinefactory.createServices());
 
-        getBuilder(IWaterVolumeRepository.class).withProperties("classpath:drinktracker.properties")
+        getBuilder(IWaterVolumeRepository.class)
+                .withProperties("classpath:drinktracker.properties")
                 .withInjectionStrategy(InjectionStrategy.Default);
 
         changeScheme(ServiceScheme.Rest);

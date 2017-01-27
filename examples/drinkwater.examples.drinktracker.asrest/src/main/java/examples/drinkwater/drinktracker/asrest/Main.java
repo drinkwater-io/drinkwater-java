@@ -8,7 +8,7 @@ public class Main {
                 "test-rest",
                 new ServiceConfigurationAsRest(),
                 ConsoleEventLogger.class,
-                true, false);
+                true, true);
         app.run();
 
     }

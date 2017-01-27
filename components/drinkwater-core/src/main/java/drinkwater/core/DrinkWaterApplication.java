@@ -106,19 +106,35 @@ public class DrinkWaterApplication implements ServiceRepository {
         return new DrinkWaterApplication(name, useServiceManagement, traceMaster);
     }
 
-    public static RouteBuilder createCoreRoutes(String managementHost, DrinkWaterApplication app) {
+    public static RouteBuilder createCoreRoutes(Service managementService, DrinkWaterApplication app) {
         return new RouteBuilder() {
 
             @Override
             public void configure() throws Exception {
 
-                from(String.format(
-                        "jetty:http://%s?handlers=%s", managementHost, DW_STATICHANDLER))
-                        .to("mock:empty?retainFirst=1");
+                String managementHost = managementService.lookupProperty(app.getName() + ".management.host:0.0.0.0");
+                String managementPort = managementService.lookupProperty(app.getName() + ".management.port:9000");
+                String managementHostAndPort = managementHost + ":" + managementPort;
 
                 from(String.format(
-                        "jetty:http://%s?handlers=%s", "localhost:8380", DW_STATIC_WWW_HANDLER))
+                        "jetty:http://%s?handlers=%s", managementHostAndPort, DW_STATICHANDLER))
                         .to("mock:empty?retainFirst=1");
+
+                logger.info("management web page can be found here : http://" + managementHostAndPort);
+
+                Boolean serveStaticWWW = Boolean.parseBoolean(managementService.lookupProperty(app.getName() + ".www.enabled:false"));
+
+                if(serveStaticWWW) {
+                    String wwwHost = managementService.lookupProperty(app.getName() + ".www.host:0.0.0.0");
+                    String wwwPort = managementService.lookupProperty(app.getName() + ".www.port:8080");
+                    String wwwHostAndPort = wwwHost + ":" + wwwPort;
+
+                    from(String.format(
+                            "jetty:http://%s?handlers=%s", wwwHostAndPort, DW_STATIC_WWW_HANDLER))
+                            .to("mock:empty?retainFirst=1");
+
+                    logger.info("static files served from : http://" + wwwHostAndPort);
+                }
 
                 from(String.format(
                         "jetty:http://%s/stopApplication?httpMethodRestrict=POST",managementHost))
@@ -459,16 +475,13 @@ public class DrinkWaterApplication implements ServiceRepository {
             managementService = createServiceFromConfig(config, tracer);
 
             CamelContextFactory.registerBean(applicationLevelContext, DW_STATICHANDLER, getManagementResourceHandler());
-
             CamelContextFactory.registerBean(applicationLevelContext, DW_STATIC_WWW_HANDLER, getWWWResourceHandler());
 
-            String managementHost = managementService.lookupProperty(name + ".management.host:0.0.0.0");
-            String managementPort = managementService.lookupProperty(name + ".management.port:9000");
-            String managementHostAndPort = managementHost + ":" + managementPort;
 
-            applicationLevelContext.addRoutes(createCoreRoutes(managementHostAndPort, this));
 
-            logger.info("management web page can be found here : http://" + managementHostAndPort);
+            applicationLevelContext.addRoutes(createCoreRoutes(managementService, this));
+
+
 
 
             managementService.start();

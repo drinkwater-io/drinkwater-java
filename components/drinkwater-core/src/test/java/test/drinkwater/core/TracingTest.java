@@ -45,23 +45,28 @@ public class TracingTest extends HttpUnitTest {
         DrinkWaterApplication app_A = DrinkWaterApplication.create("application-A", false, true);
         app_A.addServiceBuilder(new ServiceAConfiguration(true, false));
 
-        app_A.start();
-        app_B.start();
-        app_C.start();
+        try {
+            app_A.start();
+            app_B.start();
+            app_C.start();
 
-        String result = httpGetString("http://127.0.0.1:7777/serviceA/datafroma").result();
+            String result = httpGetString("http://127.0.0.1:7777/serviceA/datafroma").result();
 
-        assertEquals("data from A - data from B - data from c /computed in D/ ", result);
+            assertEquals("data from A - data from B - data from c /computed in D/ ", result);
 
-        EventAggregator aggregator = app_A.getEventAggregator();
+            EventAggregator aggregator = app_A.getEventAggregator();
 
-        app_A.stop();
-        app_B.stop();
-        app_C.stop();
+            Thread.sleep(300); //let it
 
-        Thread.sleep(100); //let it
+            assertEquals(12, aggregator.currentSize());
 
-        assertEquals(12, aggregator.currentSize());
+        } finally {
+            app_A.stop();
+            app_B.stop();
+            app_C.stop();
+        }
+
+
     }
 
     @Test
@@ -80,25 +85,30 @@ public class TracingTest extends HttpUnitTest {
         app_A.addServiceBuilder(new ServiceAConfiguration(false, true));
         app_A.addProperty("application-a.FileEventLogger.folder", createdFolder.getAbsolutePath());
 
-        app_A.start();
-        app_B.start();
-        app_C.start();
+        try {
+            app_A.start();
+            app_B.start();
+            app_C.start();
 
-        String result = httpGetString("http://127.0.0.1:7777/serviceA/datafroma").result();
+            String result = httpGetString("http://127.0.0.1:7777/serviceA/datafroma").result();
 
-        assertEquals("data from A - data from B - data from c /computed in D/ ", result);
+            assertEquals("data from A - data from B - data from c /computed in D/ ", result);
 
-        EventAggregator aggregator = app_A.getEventAggregator();
+            EventAggregator aggregator = app_A.getEventAggregator();
 
-        app_A.stop();
-        app_B.stop();
-        app_C.stop();
+            Thread.sleep(100); //let it
+            //check created file
+            List<String> expectedLines = Files.readAllLines(Paths.get(createdFolder.listFiles()[0].toURI()));
+            assertEquals(2, expectedLines.size());
+            assertEquals(2, aggregator.currentSize());
 
-        Thread.sleep(100); //let it
-        //check created file
-        List<String> expectedLines = Files.readAllLines(Paths.get(createdFolder.listFiles()[0].toURI()));
-        assertEquals(2, expectedLines.size());
-        assertEquals(2, aggregator.currentSize());
+        }finally {
+            app_A.stop();
+            app_B.stop();
+            app_C.stop();
+        }
+
+
     }
 
     @Test
@@ -115,13 +125,16 @@ public class TracingTest extends HttpUnitTest {
             String result = httpGetString("http://127.0.0.1:9999/serviceC/DataFromC").result();
 
             assertEquals("data from c", result);
-        }
-        finally {
+
+            Thread.sleep(50);
+
+            assertEquals(CustomTraceClass.called, 2);
+        } finally {
 
             app_C.stop();
         }
 
-        assertEquals(CustomTraceClass.called, 2);
+
     }
 
     @Test
@@ -141,8 +154,7 @@ public class TracingTest extends HttpUnitTest {
             Thread.sleep(50);
 
             assertThat(logger.getEvents().size()).isEqualTo(2);
-        }
-        finally {
+        } finally {
 
             app_C.stop();
         }

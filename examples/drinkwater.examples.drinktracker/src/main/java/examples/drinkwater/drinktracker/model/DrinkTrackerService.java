@@ -7,11 +7,11 @@ import java.util.List;
  */
 public class DrinkTrackerService implements IDrinkTrackerService {
 
-    private IWaterVolumeRepository waterVolumeRepository;
+    public IWaterVolumeRepository waterVolumeRepository;
 
-    private IWaterVolumeFormatter waterVolumeFormatter;
+    public IWaterVolumeFormatter waterVolumeFormatter;
 
-    private IAccountService accountService;
+    public IAccountService accountService;
 
     public DrinkTrackerService() {
     }

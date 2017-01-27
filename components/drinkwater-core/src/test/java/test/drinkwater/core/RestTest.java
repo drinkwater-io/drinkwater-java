@@ -21,23 +21,27 @@ public class RestTest extends HttpUnitTest{
     public void testUploadFile() throws IOException {
 
         DrinkWaterApplication app = DrinkWaterApplication.create("rest-test", false);
-        app.addServiceBuilder(new RestConfiguration());
-        app.start();
+        try {
+            app.addServiceBuilder(new RestConfiguration());
+            app.start();
 
-        String file_to_upload = getFileContent("file_to_upload.txt");
-        InputStream is = new ByteArrayInputStream( file_to_upload.getBytes() );
+            String file_to_upload = getFileContent("file_to_upload.txt");
+            InputStream is = new ByteArrayInputStream(file_to_upload.getBytes());
 
-        FileReadResult result = httpPostFile("http://127.0.0.1:8889/serviceA/upload", is, FileReadResult.class, null).asObject();
+            FileReadResult result = httpPostFile("http://127.0.0.1:8889/serviceA/upload", is, FileReadResult.class, null).asObject();
 
-        assertEquals("hello world uploaded", result.getContent());
+            assertEquals("hello world uploaded", result.getContent());
+        }finally {
 
-        app.stop();
+            app.stop();
+        }
     }
 
     @Test
     public void testParameterAsMap() throws Exception {
 
         DrinkWaterApplication app = DrinkWaterApplication.create("rest-test", false);
+        try{
         app.addServiceBuilder(new RestConfiguration());
         app.start();
 
@@ -55,6 +59,8 @@ public class RestTest extends HttpUnitTest{
         //assert
         assertEquals("paramAsMap=[(myKey:myValue)(mynumber:1)] - another_param=someOtherParamValue", result);
 
-        app.stop();
+        }finally {
+            app.stop();
+        }
     }
 }
