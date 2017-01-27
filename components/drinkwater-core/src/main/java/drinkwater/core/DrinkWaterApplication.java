@@ -35,7 +35,8 @@ import java.util.logging.Logger;
 //@Vetoed
 public class DrinkWaterApplication implements ServiceRepository {
 
-    public static final String DW_STATICHANDLER = "dw-statichandler";
+    public static final String DW_STATICHANDLER = "dw-static-management-handler";
+    public static final String DW_STATIC_WWW_HANDLER = "dw-static-www-handler";
     private static Logger logger = Logger.getLogger(DrinkWaterApplication.class.getName());
 
     static {
@@ -116,18 +117,27 @@ public class DrinkWaterApplication implements ServiceRepository {
                         .to("mock:empty?retainFirst=1");
 
                 from(String.format(
+                        "jetty:http://%s?handlers=%s", "localhost:8380", DW_STATIC_WWW_HANDLER))
+                        .to("mock:empty?retainFirst=1");
+
+                from(String.format(
                         "jetty:http://%s/stopApplication?httpMethodRestrict=POST",managementHost))
                         .bean(new ShutDownDrinkWaterBean(app)).id("app_shutdown");
-
 
 
             }
         };
     }
 
-    public static ResourceHandler getResourceHandler() {
+    private static ResourceHandler getManagementResourceHandler() {
         ResourceHandler staticHandler = new ResourceHandler();
-        staticHandler.setBaseResource(Resource.newClassPathResource("/www/management"));
+        staticHandler.setBaseResource(Resource.newClassPathResource("/www/drinkwater/management"));
+        return staticHandler;
+    }
+
+    private static ResourceHandler getWWWResourceHandler() {
+        ResourceHandler staticHandler = new ResourceHandler();
+        staticHandler.setBaseResource(Resource.newClassPathResource("/www"));
         return staticHandler;
     }
 
@@ -448,7 +458,9 @@ public class DrinkWaterApplication implements ServiceRepository {
 
             managementService = createServiceFromConfig(config, tracer);
 
-            CamelContextFactory.registerBean(applicationLevelContext, DW_STATICHANDLER, getResourceHandler());
+            CamelContextFactory.registerBean(applicationLevelContext, DW_STATICHANDLER, getManagementResourceHandler());
+
+            CamelContextFactory.registerBean(applicationLevelContext, DW_STATIC_WWW_HANDLER, getWWWResourceHandler());
 
             String managementHost = managementService.lookupProperty(name + ".management.host:0.0.0.0");
             String managementPort = managementService.lookupProperty(name + ".management.port:9000");
@@ -466,6 +478,7 @@ public class DrinkWaterApplication implements ServiceRepository {
             throw new RuntimeException("Could not start Core Context ", ex);
         }
     }
+
 
 
     private void stopManagementService() {
