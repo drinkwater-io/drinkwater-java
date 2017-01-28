@@ -1,8 +1,10 @@
 package drinkwater;
 
 
-import drinkwater.helper.MapHelper;
+import drinkwater.helper.GeneralUtils;
+import drinkwater.helper.MapUtils;
 
+import java.nio.file.Paths;
 import java.util.*;
 
 
@@ -10,7 +12,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
     private String serviceName;
 
-    private List<String> properties;
+    private ArrayList<String> properties;
 
     private Class serviceClass;
 
@@ -63,7 +65,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     static ServiceConfiguration fromConfig(IServiceConfiguration config) {
         ServiceConfiguration sc = new ServiceConfiguration();
         sc.serviceName = config.getServiceName();
-        sc.properties = Arrays.asList(config.getProperties());
+        sc.properties = new ArrayList<>(Arrays.asList(config.getPropertiesLocations()));
         sc.serviceClass = config.getServiceClass();
         sc.targetBeanClass = config.getTargetBeanClass();
         sc.targetBean = config.getTargetBean();
@@ -80,7 +82,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     public IServiceConfiguration patchWith(IServiceConfiguration patchConfig) {
         //TODO fixme : changing the name of the service can be potentially dangerous as it might be a dependency...
         this.serviceName = (patchConfig.getServiceName() == null) ? this.serviceName : patchConfig.getServiceName();
-        this.properties = (patchConfig.getProperties().length == 0) ? this.properties : Arrays.asList(patchConfig.getProperties());
+        this.properties = (patchConfig.getPropertiesLocations().length == 0) ? this.properties : new ArrayList<>(Arrays.asList(patchConfig.getPropertiesLocations()));
         this.serviceClass = (patchConfig.getServiceClass() == null) ? this.serviceClass : patchConfig.getServiceClass();
         this.targetBeanClass = (patchConfig.getTargetBeanClass() == null) ? this.targetBeanClass : patchConfig.getTargetBeanClass();
         this.targetBean = (patchConfig.getTargetBean() == null) ? this.targetBean : patchConfig.getTargetBean();
@@ -88,7 +90,7 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
         this.scheme = (patchConfig.getScheme() == null) ? this.scheme : patchConfig.getScheme();
         this.traceEvent = (patchConfig.getIsTraceEnabled() == null) ? this.traceEvent : patchConfig.getIsTraceEnabled();
         this.serviceDependencies = (patchConfig.getServiceDependencies() == null) ? this.serviceDependencies : patchConfig.getServiceDependencies();
-        this.initialProperties = MapHelper.mergeProperties(this.initialProperties, patchConfig.getInitialProperties());
+        this.initialProperties = MapUtils.mergeProperties(this.initialProperties, patchConfig.getInitialProperties());
         return this;
     }
 
@@ -179,10 +181,11 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     }
 
     @Override
-    public IServiceBuilder withProperty(String key, Object value) {
-        this.addInitialProperty(key, value);
+    public IServiceBuilder addInitialProperty(String key, Object value) {
+        initialProperties.setProperty(key, value.toString());
         return this;
     }
+
 
     @Override
     public ServiceConfiguration dependsOn(String... services) {
@@ -224,15 +227,33 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
     }
 
     @Override
-    public String[] getProperties() {
-        if (properties != null) {
-            return properties.toArray(new String[0]);
+    public String[] getPropertiesLocations() {
+        if (properties == null) {
+            properties = new ArrayList<>();
         }
-        return new String[0];
+
+        //default file from classpath
+        properties.add(0, "classpath:" + getServiceName() + ".properties");
+        //default file from file
+        properties.add(1,"file:" +
+                Paths.get( GeneralUtils.getJarFolderPath(this.getClass()).toString() ,
+                        getServiceName() + ".properties"));
+
+        return properties.toArray(new String[0]);
+    }
+
+    @Override
+    public String getpropertiesPrefix() {
+        return getPropertiesDefaultName();
+    }
+
+    @Override
+    public String getPropertiesDefaultName() {
+        return getServiceName();
     }
 
     public void setProperties(List<String> properties) {
-        this.properties = properties;
+        this.properties = new ArrayList<>(properties);
     }
 
     @Override
@@ -282,18 +303,18 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
         return initialProperties;
     }
 
-    @Override
-    public void addInitialProperty(String key, Object value) {
-        initialProperties.setProperty(key, value.toString());
-
-    }
+//    @Override
+//    public void addInitialProperty(String key, Object value) {
+//        initialProperties.setProperty(key, value.toString());
+//
+//    }
 
     @Override
     public String getServiceName() {
         if (serviceName == null) {
             //fallback to service class if present
             if (this.getServiceClass() != null) {
-                return this.getServiceClass().getName();
+                return this.getTargetBeanClass().getSimpleName();
             }
         }
         return serviceName;

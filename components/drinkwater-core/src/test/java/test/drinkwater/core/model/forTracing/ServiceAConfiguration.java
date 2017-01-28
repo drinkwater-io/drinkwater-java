@@ -28,9 +28,9 @@ public class ServiceAConfiguration extends ServiceConfigurationBuilder {
         }
         addService("serviceD", IServiceD.class, ServiceDImpl.class)
                 .useTracing(traced);
-        addService("serviceB", IServiceB.class).withProperty("drinkwater.rest.port", 8888)
+        addService("serviceB", IServiceB.class).addInitialProperty("drinkwater.rest.port", 8888)
                 .useTracing(traceb).asRemote();
         addService("serviceA", IServiceA.class, new ServiceAImpl(), "serviceD", "serviceB")
-                .useTracing(tracea).withProperty("drinkwater.rest.port", 7777).asRest();
+                .useTracing(tracea).addInitialProperty("drinkwater.rest.port", 7777).asRest();
     }
 }

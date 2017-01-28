@@ -62,7 +62,7 @@ public class MultiServiceRemoteTest extends HttpUnitTest {
 
         //TODO change the property setting using a constant
         IServiceConfiguration config = (IServiceConfiguration)
-                ServiceConfiguration.empty().withProperty("drinkwater.rest.port", wireMockRule.port()).asRemote();
+                ServiceConfiguration.empty().addInitialProperty("drinkwater.rest.port", wireMockRule.port()).asRemote();
 
         app.patchService("serviceD", config);
 
@@ -78,7 +78,7 @@ public class MultiServiceRemoteTest extends HttpUnitTest {
 
         //TODO change the property setting using a constant
         IServiceConfiguration config = (IServiceConfiguration)
-                ServiceConfiguration.empty().withProperty("drinkwater.rest.port", wireMockRule.port()).asRemote();
+                ServiceConfiguration.empty().addInitialProperty("drinkwater.rest.port", wireMockRule.port()).asRemote();
 
         //not remote
         IServiceA serviceA = app.getService("serviceA");

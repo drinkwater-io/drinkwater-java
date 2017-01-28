@@ -25,7 +25,7 @@ public interface IServiceBuilder {
 
     IServiceBuilder withInjectionStrategy(InjectionStrategy strategy);
 
-    IServiceBuilder withProperty(String key, Object value);
+    IServiceBuilder addInitialProperty(String key, Object value);
 
     ServiceConfiguration dependsOn(String... services);
 

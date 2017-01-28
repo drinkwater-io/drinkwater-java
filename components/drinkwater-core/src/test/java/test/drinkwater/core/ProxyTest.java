@@ -25,9 +25,11 @@ public class ProxyTest extends HttpUnitTest {
             result = httpGetString("http://127.0.0.1:7777/icc/info").result();
             assertEquals("test info", result);
 
-            Thread.sleep(500);
+            Thread.sleep(400);
 
             MockEventLogger logger = (MockEventLogger) proxyApp.getCurrentBaseEventLogger();
+
+            Thread.sleep(100);
 
             assertEquals(logger.getEvents().size(), 4);
 

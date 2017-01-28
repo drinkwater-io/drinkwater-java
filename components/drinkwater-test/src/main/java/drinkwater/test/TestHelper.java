@@ -1,6 +1,6 @@
 package drinkwater.test;
 
-import drinkwater.helper.GeneralHelper;
+import drinkwater.helper.GeneralUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +19,7 @@ public class TestHelper {
     //example not starting with slash
     public static String getFileContent(String resourceFilePath) throws IOException {
 
-        return GeneralHelper.getFileContent(resourceFilePath);
+        return GeneralUtils.getFileContent(resourceFilePath);
 //        ClassLoader classLoader = TestHelper.class.getClassLoader();
 //
 //        File file = new File(classLoader.getResource(resourceFilePath).getFile());
@@ -46,11 +46,11 @@ public class TestHelper {
     }
 
     public static <T> T fromJsonString(String s, Class clazz) throws IOException {
-        return GeneralHelper.fromJsonString(s, clazz);
+        return GeneralUtils.fromJsonString(s, clazz);
     }
 
     public static String toJsonString(Object obj) throws IOException {
-        return GeneralHelper.toJsonString(obj);
+        return GeneralUtils.toJsonString(obj);
     }
 
     public static String rs(String s) {

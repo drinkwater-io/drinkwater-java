@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 import static drinkwater.DrinkWaterConstants.*;
-import static drinkwater.helper.StringHelper.startsWithOneOf;
+import static drinkwater.helper.StringUtils.startsWithOneOf;
 import static java.util.Collections.singletonList;
 import static org.apache.camel.builder.Builder.constant;
 

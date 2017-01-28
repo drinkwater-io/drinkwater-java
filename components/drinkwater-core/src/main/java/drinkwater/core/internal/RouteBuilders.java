@@ -2,8 +2,8 @@ package drinkwater.core.internal;
 
 import drinkwater.IServiceConfiguration;
 import drinkwater.ServiceRepository;
+import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.helper.BeanFactory;
-import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.ExtractHttpMethodFromExchange;
 import drinkwater.core.helper.Service;
 import drinkwater.rest.RestHelper;
@@ -48,7 +48,7 @@ public class RouteBuilders {
         };
     }
 
-    public static RoutesBuilder mapCronRoutes(String groupName, ServiceRepository app, Service service) {
+    public static RoutesBuilder mapCronRoutes(String groupName, DrinkWaterApplication app, Service service) {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -86,11 +86,9 @@ public class RouteBuilders {
             @Override
             public void configure() throws Exception {
 
-                String frontEndpoint = service.lookupProperty(
-                        service.getConfiguration().getServiceName() + ".proxy.endpoint");
+                String frontEndpoint = service.lookupProperty("proxy.endpoint");
 
-                String destinationEndpoint = service.lookupProperty(
-                        service.getConfiguration().getServiceName() + ".destination.endpoint");
+                String destinationEndpoint = service.lookupProperty("destination.endpoint");
 
                 if (frontEndpoint == null || destinationEndpoint == null) {
                     throw new RuntimeException("could not find proxy and destination endpoint from config");
@@ -117,7 +115,7 @@ public class RouteBuilders {
             @Override
             public void configure() throws Exception {
 
-                String frontEndpoint = endpointFrom(new DefaultPropertyResolver(service), service.getConfiguration());
+                String frontEndpoint = endpointFrom(service, service.getConfiguration());
 
                 RouteDefinition frontRoute = from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true&optionsEnabled=true");
 
@@ -154,7 +152,7 @@ public class RouteBuilders {
 
     }
 
-    public static RouteBuilder mapRestRoutes(ServiceRepository app, Service service) {
+    public static RouteBuilder mapRestRoutes(DrinkWaterApplication app, Service service) {
 
         return new RouteBuilder() {
             @Override
@@ -162,7 +160,7 @@ public class RouteBuilders {
 
                 Object bean = BeanFactory.createBean(app, service.getConfiguration(), service);
 
-                RestHelper.buildRestRoutes(this, bean, new DefaultPropertyResolver(service), service);
+                RestHelper.buildRestRoutes(this, bean, service, service);
 
             }
         };
@@ -170,7 +168,7 @@ public class RouteBuilders {
 
 
     //FIXME to many params
-    public static RouteBuilder mapBeanClassRoutes(ServiceRepository app, Service service) {
+    public static RouteBuilder mapBeanClassRoutes(DrinkWaterApplication app, Service service) {
 
         return new RouteBuilder() {
             @Override

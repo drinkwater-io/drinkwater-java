@@ -2,16 +2,15 @@ package drinkwater.core;
 
 import drinkwater.*;
 import drinkwater.core.helper.BeanFactory;
-import drinkwater.core.helper.DefaultPropertyResolver;
 import drinkwater.core.helper.Service;
 import drinkwater.core.internal.*;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.reflect.BeanInvocationHandler;
+import drinkwater.helper.GeneralUtils;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.RestInvocationHandler;
 import drinkwater.rest.RestService;
-import drinkwater.trace.ConsoleEventLogger;
-import drinkwater.trace.EventAggregator;
+import drinkwater.trace.JavaLoggingEventLogger;
 import javaslang.collection.List;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
@@ -19,6 +18,7 @@ import org.apache.camel.util.StopWatch;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +33,7 @@ import java.util.logging.Logger;
  * Created by A406775 on 27/12/2016.
  */
 //@Vetoed
-public class DrinkWaterApplication implements ServiceRepository {
+public class DrinkWaterApplication implements ServiceRepository, IPropertiesAware {
 
     public static final String DW_STATICHANDLER = "dw-static-management-handler";
     public static final String DW_STATIC_WWW_HANDLER = "dw-static-www-handler";
@@ -57,7 +57,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     private Map<String, Object> serviceProxies;
     private Service managementService;
     private boolean useServiceManagement = false;
-    private EventAggregator eventAggregator = new EventAggregator();
+//    private EventAggregator eventAggregator = new EventAggregator();
     private boolean isTraceMaster = true;
     private Class eventLoggerClass = null;
     //fixme : should support multiple service builder
@@ -112,8 +112,8 @@ public class DrinkWaterApplication implements ServiceRepository {
             @Override
             public void configure() throws Exception {
 
-                String managementHost = managementService.lookupProperty(app.getName() + ".management.host:0.0.0.0");
-                String managementPort = managementService.lookupProperty(app.getName() + ".management.port:9000");
+                String managementHost = managementService.lookupProperty(app.getPropertiesDefaultName() + ".management.host:0.0.0.0");
+                String managementPort = managementService.lookupProperty(app.getPropertiesDefaultName() + ".management.port:9000");
                 String managementHostAndPort = managementHost + ":" + managementPort;
 
                 from(String.format(
@@ -122,11 +122,11 @@ public class DrinkWaterApplication implements ServiceRepository {
 
                 logger.info("management web page can be found here : http://" + managementHostAndPort);
 
-                Boolean serveStaticWWW = Boolean.parseBoolean(managementService.lookupProperty(app.getName() + ".www.enabled:false"));
+                Boolean serveStaticWWW = Boolean.parseBoolean(managementService.lookupProperty(app.getPropertiesDefaultName() + ".www.enabled:false"));
 
                 if(serveStaticWWW) {
-                    String wwwHost = managementService.lookupProperty(app.getName() + ".www.host:0.0.0.0");
-                    String wwwPort = managementService.lookupProperty(app.getName() + ".www.port:8080");
+                    String wwwHost = managementService.lookupProperty(app.getPropertiesDefaultName() + ".www.host:0.0.0.0");
+                    String wwwPort = managementService.lookupProperty(app.getPropertiesDefaultName() + ".www.port:8080");
                     String wwwHostAndPort = wwwHost + ":" + wwwPort;
 
                     from(String.format(
@@ -157,13 +157,13 @@ public class DrinkWaterApplication implements ServiceRepository {
         return staticHandler;
     }
 
-    private RouteBuilder createTracingRoute(EventAggregator aggregator, IBaseEventLogger logger) {
+    private RouteBuilder createTracingRoute(IBaseEventLogger logger) {
         return new RouteBuilder() {
 
             @Override
             public void configure() throws Exception {
 
-                from("vm:trace").bean(logger, "logEvent(${body})").bean(aggregator, "addEvent(${body})");
+                from("vm:trace").bean(logger, "logEvent(${body})");
 
             }
         };
@@ -174,21 +174,21 @@ public class DrinkWaterApplication implements ServiceRepository {
             if (isTraceMaster) {
 
                 //get logger class
-                Class loggerImplementationClass = eventLoggerClass == null ? ConsoleEventLogger.class : eventLoggerClass;
+                Class loggerImplementationClass = eventLoggerClass == null ? JavaLoggingEventLogger.class : eventLoggerClass;
                 ServiceConfiguration traceBeanConfig = new ServiceConfiguration();
-                traceBeanConfig.setServiceName(this.getName() + "." + loggerImplementationClass.getSimpleName());
+//                traceBeanConfig.setServiceName(this.getName() + "." + loggerImplementationClass.getSimpleName());
+                traceBeanConfig.setServiceName("eventLogger");
                 traceBeanConfig.setServiceClass(IBaseEventLogger.class);
-                //traceBeanConfig.setTargetBean(loggerImplementationClass.newInstance());
                 traceBeanConfig.setTargetBeanClass(loggerImplementationClass);
                 traceBeanConfig.setScheme(ServiceScheme.BeanClass);
                 traceBeanConfig.useTracing(false);
-                initialApplicationProperties.forEach((key, value) -> traceBeanConfig.withProperty(key.toString(), value.toString()));
+                //initialApplicationProperties.forEach((key, value) -> traceBeanConfig.addInitialProperty(key.toString(), value.toString()));
 
                 Service tracingService = createServiceFromConfig(traceBeanConfig, tracer);
 
                 currentBaseEventLogger = (IBaseEventLogger) BeanFactory.createBean(this, tracingService.getConfiguration(), tracingService);
 
-                applicationLevelContext.addRoutes(createTracingRoute(eventAggregator, currentBaseEventLogger));
+                applicationLevelContext.addRoutes(createTracingRoute(currentBaseEventLogger));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -203,7 +203,7 @@ public class DrinkWaterApplication implements ServiceRepository {
     public synchronized void startApplicationContext() {
 
         try {
-            applicationLevelContext = CamelContextFactory.createCamelContext("applicationlevelContext");
+            applicationLevelContext = CamelContextFactory.createCamelContext(this);
             applicationLevelContext.getShutdownStrategy().setTimeout(1);
             applicationLevelContext.getShutdownStrategy().setTimeUnit(TimeUnit.NANOSECONDS);
             applicationLevelContext.start();
@@ -215,7 +215,7 @@ public class DrinkWaterApplication implements ServiceRepository {
 
     public void stopApplicationContext() {
         try {
-            logger.info(String.format("Shutting down application context for  %s .... goodbye !!!", this.getName()));
+            logger.info(String.format("Shutting down application context for  %s .... goodbye !!!", this.getPropertiesDefaultName()));
             applicationLevelContext.stop();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -231,9 +231,9 @@ public class DrinkWaterApplication implements ServiceRepository {
         tracer = new TracerBean();
         jvmMetricsBean = new JVMMetricsBean();
         restConfiguration = new RestService();
-        if (isTraceMaster) {
-            eventAggregator.clear();
-        }
+//        if (isTraceMaster) {
+//            eventAggregator.clear();
+//        }
 //        eventAggregator = new EventAggregator();
     }
 
@@ -409,7 +409,7 @@ public class DrinkWaterApplication implements ServiceRepository {
                 serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Remote) {
             serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
-                            new RestInvocationHandler(new DefaultPropertyResolver(serviceToProxy), serviceToProxy)));
+                            new RestInvocationHandler(serviceToProxy, serviceToProxy)));
         }
     }
 
@@ -579,13 +579,13 @@ public class DrinkWaterApplication implements ServiceRepository {
     }
 
 
-    public String getName() {
+    public String getPropertiesDefaultName() {
         return name;
     }
 
-    public EventAggregator getEventAggregator() {
-        return eventAggregator;
-    }
+//    public EventAggregator getEventAggregator() {
+//        return eventAggregator;
+//    }
 
     public void setEventLoggerClass(Class eventLoggerClass) {
         this.eventLoggerClass = eventLoggerClass;
@@ -600,10 +600,43 @@ public class DrinkWaterApplication implements ServiceRepository {
         return dataStores.get(0);
     }
 
+    @Override
+    public Properties getInitialProperties() {
+        return initialApplicationProperties;
+    }
+
+    @Override
+    public String[] getPropertiesLocations() {
+
+        String generalClassPathLocation = "classpath:drinkwater-application.properties";
+        String classPathLocation = "classpath:" + getApplicationName() + ".properties";
+        String fileLocation = "file:" +
+                Paths.get( GeneralUtils.getJarFolderPath(this.getClass()).toString() ,
+                        getApplicationName() + ".properties");
+
+        String[] defaultLocations = new String[]{generalClassPathLocation, classPathLocation, fileLocation };
+
+        return defaultLocations;
+    }
+
+    @Override
+    public String getpropertiesPrefix() {
+        return getPropertiesDefaultName();
+    }
+
     public enum ApplicationState {Up, Stopped}
 
     public java.util.List<IDrinkWaterService> getServices(){
         return services.toJavaList();
     }
+
+    public String getApplicationName(){
+        if (name == null) {
+            return "drinkwater-application";
+        }
+        return name;
+    }
+
+
 
 }

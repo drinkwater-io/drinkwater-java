@@ -15,11 +15,11 @@ public class ServiceBConfiguration extends ServiceConfigurationBuilder {
     @Override
     public void configure() {
 
-        addService("serviceC", IServiceC.class).withProperty("drinkwater.rest.port", 9999)
+        addService("serviceC", IServiceC.class).addInitialProperty("drinkwater.rest.port", 9999)
                 .useTracing(useTracing)
                 .asRemote();
         addService("serviceB", IServiceB.class, new ServiceBImpl(), "serviceC")
                 .useTracing(useTracing)
-                .withProperty("drinkwater.rest.port", 8888).asRest();
+                .addInitialProperty("drinkwater.rest.port", 8888).asRest();
     }
 }

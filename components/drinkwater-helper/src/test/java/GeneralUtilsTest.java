@@ -1,13 +1,15 @@
-import drinkwater.helper.GeneralHelper;
+import drinkwater.helper.GeneralUtils;
 import org.junit.Test;
+
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GeneralHelperTest {
+public class GeneralUtilsTest {
 
     @Test
     public void shouldGetCurrentFolder(){
-       String currentFolder =  GeneralHelper.getJarFolder();
+       Path currentFolder =  GeneralUtils.getJarFolderPath(null);
 
        assertThat(currentFolder).isNotNull();
     }

@@ -2,7 +2,6 @@ package test.drinkwater.core;
 
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.test.HttpUnitTest;
-import drinkwater.trace.EventAggregator;
 import drinkwater.trace.FileEventLogger;
 import drinkwater.trace.MockEventLogger;
 import org.junit.FixMethodOrder;
@@ -44,6 +43,7 @@ public class TracingTest extends HttpUnitTest {
 
         DrinkWaterApplication app_A = DrinkWaterApplication.create("application-A", false, true);
         app_A.addServiceBuilder(new ServiceAConfiguration(true, false));
+        app_A.setEventLoggerClass(MockEventLogger.class);
 
         try {
             app_A.start();
@@ -54,11 +54,13 @@ public class TracingTest extends HttpUnitTest {
 
             assertEquals("data from A - data from B - data from c /computed in D/ ", result);
 
-            EventAggregator aggregator = app_A.getEventAggregator();
+            Thread.sleep(300);
 
-            Thread.sleep(300); //let it
+            MockEventLogger aggregator = (MockEventLogger)app_A.getCurrentBaseEventLogger();
 
-            assertEquals(12, aggregator.currentSize());
+            Thread.sleep(200); //let it
+
+            assertEquals(12, aggregator.getEvents().size());
 
         } finally {
             app_A.stop();
@@ -83,7 +85,7 @@ public class TracingTest extends HttpUnitTest {
         DrinkWaterApplication app_A = DrinkWaterApplication.create("application-a", false, true);
         app_A.setEventLoggerClass(FileEventLogger.class);
         app_A.addServiceBuilder(new ServiceAConfiguration(false, true));
-        app_A.addProperty("application-a.FileEventLogger.folder", createdFolder.getAbsolutePath());
+        app_A.addProperty("eventLogger.folder", createdFolder.getAbsolutePath());
 
         try {
             app_A.start();
@@ -94,13 +96,10 @@ public class TracingTest extends HttpUnitTest {
 
             assertEquals("data from A - data from B - data from c /computed in D/ ", result);
 
-            EventAggregator aggregator = app_A.getEventAggregator();
-
-            Thread.sleep(100); //let it
+            Thread.sleep(200); //let it
             //check created file
             List<String> expectedLines = Files.readAllLines(Paths.get(createdFolder.listFiles()[0].toURI()));
             assertEquals(2, expectedLines.size());
-            assertEquals(2, aggregator.currentSize());
 
         }finally {
             app_A.stop();
@@ -151,7 +150,7 @@ public class TracingTest extends HttpUnitTest {
 
             MockEventLogger logger = (MockEventLogger) app_C.getCurrentBaseEventLogger();
 
-            Thread.sleep(50);
+            Thread.sleep(500);
 
             assertThat(logger.getEvents().size()).isEqualTo(2);
         } finally {

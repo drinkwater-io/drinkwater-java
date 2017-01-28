@@ -7,7 +7,7 @@ import java.util.Arrays;
 /**
  * Created by A406775 on 30/12/2016.
  */
-public final class StringHelper {
+public final class StringUtils {
 
     public static boolean startsWithOneOf(String value, String[] prefixes) {
         boolean result = List.of(prefixes)

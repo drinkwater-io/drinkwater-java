@@ -12,7 +12,7 @@ import drinkwater.IServiceConfiguration;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import static drinkwater.helper.StringHelper.trimEnclosingQuotes;
+import static drinkwater.helper.StringUtils.trimEnclosingQuotes;
 import static drinkwater.helper.reflect.ReflectHelper.isPrimitiveOrString;
 import static drinkwater.helper.reflect.ReflectHelper.isString;
 import static drinkwater.rest.RestHelper.*;

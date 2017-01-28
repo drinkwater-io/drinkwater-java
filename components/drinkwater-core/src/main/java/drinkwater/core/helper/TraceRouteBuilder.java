@@ -89,7 +89,7 @@ public class TraceRouteBuilder extends RouteBuilder {
                     instantFrom(exchange),
                     correlationFrom(exchange),
                     safeMethodName(methodFrom(exchange)),
-                    service._dwa.getName(),
+                    service._dwa.getPropertiesDefaultName(),
                     service.getConfiguration().getServiceName(),
                     payloadFrom(exchange)));
         }).to(tracingRoute);
@@ -99,7 +99,7 @@ public class TraceRouteBuilder extends RouteBuilder {
                     instantFrom(exchange),
                     correlationFrom(exchange),
                     safeMethodName(methodFrom(exchange)),
-                    service._dwa.getName(),
+                    service._dwa.getPropertiesDefaultName(),
                     service.getConfiguration().getServiceName(),
                     payloadFrom(exchange)));
         }).to(tracingRoute);
@@ -110,7 +110,7 @@ public class TraceRouteBuilder extends RouteBuilder {
                     instantFrom(exchange),
                     correlationFrom(exchange),
                     safeMethodName(methodFrom(exchange)),
-                    service._dwa.getName(),
+                    service._dwa.getPropertiesDefaultName(),
                     service.getConfiguration().getServiceName(),
                     payloadFrom(exchange)));
         }).to(tracingRoute);
@@ -120,7 +120,7 @@ public class TraceRouteBuilder extends RouteBuilder {
                     instantFrom(exchange),
                     correlationFrom(exchange),
                     safeMethodName(methodFrom(exchange)),
-                    service._dwa.getName(),
+                    service._dwa.getPropertiesDefaultName(),
                     service.getConfiguration().getServiceName(),
                     payloadFrom(exchange)));
         }).to(tracingRoute);
@@ -132,7 +132,7 @@ public class TraceRouteBuilder extends RouteBuilder {
                     instantFrom(exchange),
                     correlationFrom(exchange),
                     safeMethodName(methodFrom(exchange)),
-                    service._dwa.getName(),
+                    service._dwa.getPropertiesDefaultName(),
                     service.getConfiguration().getServiceName(),
                     payloadFrom(exchange)));
         }).to(tracingRoute);
@@ -142,7 +142,7 @@ public class TraceRouteBuilder extends RouteBuilder {
                     instantFrom(exchange),
                     correlationFrom(exchange),
                     safeMethodName(methodFrom(exchange)),
-                    service._dwa.getName(),
+                    service._dwa.getPropertiesDefaultName(),
                     service.getConfiguration().getServiceName(),
                     payloadFrom(exchange)));
         }).to(tracingRoute);
@@ -162,7 +162,7 @@ public class TraceRouteBuilder extends RouteBuilder {
                     instantFrom(exchange),
                     correlationFrom(exchange),
                     safeMethodName(methodFrom(exchange)),
-                    service._dwa.getName(),
+                    service._dwa.getPropertiesDefaultName(),
                     service.getConfiguration().getServiceName(),
                     payload));
 

@@ -1,6 +1,7 @@
 package drinkwater.core.helper;
 
 import drinkwater.*;
+import drinkwater.core.DrinkWaterApplication;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -11,7 +12,9 @@ import java.util.Map;
  */
 public class BeanFactory {
 
-    public static Object createBean(ServiceRepository app, IServiceConfiguration service, IPropertyResolver propertyResolver) throws Exception {
+    public static Object createBean(DrinkWaterApplication app,
+                                    IServiceConfiguration service,
+                                    IPropertyResolver propertyResolver) throws Exception {
         if (service.getTargetBean() != null) {
             return createBeanObject(app, service, propertyResolver);
         }
@@ -20,11 +23,13 @@ public class BeanFactory {
 
     }
 
-    public static Object createBeanClass(ServiceRepository app, IServiceConfiguration service, IPropertyResolver propertyResolver) throws Exception {
+    public static Object createBeanClass(DrinkWaterApplication app,
+                                         IServiceConfiguration service,
+                                         IPropertyResolver propertyResolver) throws Exception {
         // create an instance of the bean
         Object beanToUse = service.getTargetBeanClass().newInstance();
 
-        injectFields(beanToUse, service, propertyResolver);
+        injectFields(beanToUse, app, service, propertyResolver);
 
         injectDependencies(app, service, beanToUse);
 
@@ -32,7 +37,7 @@ public class BeanFactory {
 
     }
 
-    public static Object createBeanObject(ServiceRepository app, IServiceConfiguration serviceConfiguration, IPropertyResolver propertyResolver) throws Exception {
+    public static Object createBeanObject(DrinkWaterApplication app, IServiceConfiguration serviceConfiguration, IPropertyResolver propertyResolver) throws Exception {
         // create an instance of the bean
         Object beanToUse = serviceConfiguration.getTargetBean();
 
@@ -45,7 +50,7 @@ public class BeanFactory {
                 injectFields(beanToUse, (Map<String, Object>) serviceConfiguration.getTargetBean(), serviceConfiguration);
             } else {
                 //inject fields eventually
-                injectFields(beanToUse, serviceConfiguration, propertyResolver);
+                injectFields(beanToUse, app, serviceConfiguration, propertyResolver);
             }
 
             injectDependencies(app, serviceConfiguration, beanToUse);
@@ -100,14 +105,16 @@ public class BeanFactory {
     }
 
 
-    private static Object injectFields(Object bean, IServiceConfiguration config, IPropertyResolver propertyresolver) throws Exception {
+    private static Object injectFields(Object bean, DrinkWaterApplication app, IServiceConfiguration config, IPropertyResolver propertyresolver) throws Exception {
 
         if (config.getInjectionStrategy() == InjectionStrategy.Default) {
             for (Field f : bean.getClass().getDeclaredFields()) {
-                String value = propertyresolver.lookupProperty(config.getServiceName() + "." + f.getName() + ":undefined");
+//                String propertyUri = app.getApplicationName() +"." +  config.getServiceName() + "." + f.getName() + ":undefined";
+                String propertyUri = f.getName() + ":undefined";
+                String value = propertyresolver.lookupProperty(propertyUri);
 
                 if (!"undefined".equals(value)) {
-                    Object convertedValue = propertyresolver.lookupProperty(f.getType(),config.getServiceName() + "." + f.getName() + ":undefined");
+                    Object convertedValue = propertyresolver.lookupProperty(f.getType(),propertyUri);
 
                     f.setAccessible(true);
                     f.set(bean, convertedValue);

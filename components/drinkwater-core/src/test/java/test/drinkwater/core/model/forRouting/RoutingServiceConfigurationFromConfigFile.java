@@ -18,7 +18,6 @@ public class RoutingServiceConfigurationFromConfigFile extends ServiceConfigurat
         for (String serviceName: services
              ) {
             addService("service" + serviceName, ITestRouting.class, TestRoutingImpl.class)
-                    .withProperties("classpath:routing.properties")
                     .asRest();
 
         }

@@ -12,7 +12,7 @@ import org.apache.http.entity.ContentType;
 import java.io.InputStream;
 import java.util.Map;
 
-import static drinkwater.helper.StringHelper.trimEnclosingQuotes;
+import static drinkwater.helper.StringUtils.trimEnclosingQuotes;
 import static drinkwater.test.TestHelper.rs;
 import static net.javacrumbs.jsonunit.JsonAssert.assertJsonEquals;
 import static net.javacrumbs.jsonunit.JsonAssert.when;

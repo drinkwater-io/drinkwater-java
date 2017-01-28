@@ -5,28 +5,25 @@ import drinkwater.helper.json.CustomJacksonObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
-public class GeneralHelper {
-    public static String getJarFolder() {
-        String s = GeneralHelper.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-
-        s = s.substring(0, s.lastIndexOf("/") + 1);
-
-//        Path path = Paths.get();
-//        String url = path.getParent().toString() ;
-        String decodedPath = null;
-        try {
-            decodedPath = URLDecoder.decode(s, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+public class GeneralUtils {
+    public static Path getJarFolderPath(Class clazzOrigin) {
+        if (clazzOrigin == null) {
+            clazzOrigin = GeneralUtils.class;
         }
 
-        return decodedPath;
+        try {
+            Path path = Paths.get(clazzOrigin.getProtectionDomain().getCodeSource().getLocation().toURI());
+            return path;
+        } catch (Exception e) {
+            throw new RuntimeException("could not get the jar folder", e);
+        }
+
     }
 
     public static <T> T fromJsonString(String s, Class clazz) throws IOException {
@@ -41,7 +38,7 @@ public class GeneralHelper {
 
     public static String getFileContent(String resourceFilePath) throws IOException {
 
-        ClassLoader classLoader = GeneralHelper.class.getClassLoader();
+        ClassLoader classLoader = GeneralUtils.class.getClassLoader();
 
         File file = new File(classLoader.getResource(resourceFilePath).getFile());
 

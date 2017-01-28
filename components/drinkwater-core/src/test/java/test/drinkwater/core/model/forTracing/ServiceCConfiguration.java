@@ -16,7 +16,7 @@ public class ServiceCConfiguration extends ServiceConfigurationBuilder {
     @Override
     public void configure() {
         addService("serviceC", IServiceC.class, new ServiceCImpl())
-                .withProperty("drinkwater.rest.port", 9999)
+                .addInitialProperty("drinkwater.rest.port", 9999)
                 .useTracing(useTracing)
                 .asRest();
     }

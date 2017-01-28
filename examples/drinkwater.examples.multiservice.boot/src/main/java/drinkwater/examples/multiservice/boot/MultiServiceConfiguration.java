@@ -1,6 +1,5 @@
 package drinkwater.examples.multiservice.boot;
 
-import drinkwater.InjectionStrategy;
 import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.examples.multiservice.IServiceA;
 import drinkwater.examples.multiservice.IServiceB;
@@ -18,8 +17,8 @@ public class MultiServiceConfiguration extends ServiceConfigurationBuilder {
 
     @Override
     public void configure() {
-        addService("serviceD", IServiceD.class, ServiceDImpl.class, "classpath:multiservice.properties", InjectionStrategy.Default);
-        addService("serviceC", IServiceC.class, ServiceCImpl.class, "classpath:multiservice.properties", InjectionStrategy.Default);
+        addService("serviceD", IServiceD.class, ServiceDImpl.class);
+        addService("serviceC", IServiceC.class, ServiceCImpl.class);
         addService("serviceB", IServiceB.class, ServiceBImpl.class, "serviceC", "serviceD");
         addService("serviceA", IServiceA.class, ServiceAImpl.class, "serviceB").asRest();
     }

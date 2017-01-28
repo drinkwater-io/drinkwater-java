@@ -20,7 +20,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ServiceConfigurationAsRestTest extends HttpUnitTest {
     private static DrinkWaterApplication app;
-    private static String apiEnpoint = "http://localhost:8889/examples.drinkwater.drinktracker.model.IDrinkTrackerService";
+    private static String apiEnpoint = "http://127.0.0.1:8889/WaterVolumeFileRepository";
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -37,11 +37,11 @@ public class ServiceConfigurationAsRestTest extends HttpUnitTest {
     @Test
     public void shouldSaveNumberThroughRest() throws Exception {
         IAccountService accountService = app.getService(IAccountService.class);
-        accountService.createAccount("cedric", "secret");
+        Account acc = accountService.createAccount("cedric", "secret");
 
-        httpPostRequestString(apiEnpoint + "/volume?volume=10",
-                "{'accountName':'cedric','authenticated':true, 'accountPassword':'secret'}")
-                .expectsBody("00010");
+        httpPostRequestString(apiEnpoint + "/WaterVolume?volume=10",
+                "{'accountName':'cedric','authenticated':true, 'accountPassword':'secret'}");
+
 
         accountService.clearAccounts();
     }

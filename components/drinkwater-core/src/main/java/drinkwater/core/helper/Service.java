@@ -46,7 +46,7 @@ public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver
 
     public Service(IServiceConfiguration serviceConfiguration, ITracer tracer, DrinkWaterApplication dwa) {
         this.serviceConfiguration = serviceConfiguration;
-        this.camelContext = CamelContextFactory.createCamelContext(serviceConfiguration);
+        this.camelContext = CamelContextFactory.createCamelContext(dwa, serviceConfiguration);
         this.tracer = tracer;
         this._dwa = dwa;
     }
@@ -83,7 +83,9 @@ public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver
 
     @Override
     public String lookupProperty(String s) throws Exception {
-        return getPropertiesComponent().parseUri(s);
+        //create the propertyprefix
+        String prefix = this._dwa.getApplicationName() + "." + getConfiguration().getServiceName() +".";
+        return getPropertiesComponent().parseUri(prefix + s);
     }
 
     @Override
@@ -112,7 +114,7 @@ public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver
         }
     }
 
-    public void configure(ServiceRepository serviceRepository) throws Exception {
+    public void configure(DrinkWaterApplication serviceRepository) throws Exception {
 
         //create tracing routes
         this.getCamelContext().addRoutes(createServiceTraceRoutes(getConfiguration().getIsTraceEnabled()));
@@ -124,7 +126,7 @@ public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver
         } else if (this.serviceConfiguration.getScheme() == ServiceScheme.Rest) {
             this.camelContext.addRoutes(RouteBuilders.mapRestRoutes(serviceRepository, this));
         } else if (this.serviceConfiguration.getScheme() == ServiceScheme.Task) {
-            this.camelContext.addRoutes(RouteBuilders.mapCronRoutes(this._dwa.getName(), serviceRepository, this));
+            this.camelContext.addRoutes(RouteBuilders.mapCronRoutes(this._dwa.getPropertiesDefaultName(), serviceRepository, this));
         } else if (this.serviceConfiguration.getScheme() == ServiceScheme.Routeur) {
             this.camelContext.addRoutes(RouteBuilders.mapRoutingRoutes(serviceRepository, this));
         } else if (this.serviceConfiguration.getScheme() == ServiceScheme.HttpProxy) {

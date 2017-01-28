@@ -11,11 +11,11 @@ public class RoutingServiceConfiguration extends ServiceConfigurationBuilder {
     @Override
     public void configure() {
         addService("serviceA", ITestRouting.class, TestRoutingImpl.class).asRest()
-                .withProperty("serviceA.someServiceSpecificProperty", "propertyFromA");
+                .addInitialProperty("serviceA.someServiceSpecificProperty", "propertyFromA");
         addService("serviceB", ITestRouting.class, TestRoutingImpl.class).asRest()
-                .withProperty("serviceB.someServiceSpecificProperty", "propertyFromB");
+                .addInitialProperty("serviceB.someServiceSpecificProperty", "propertyFromB");
         addService("serviceC", ITestRouting.class, TestRoutingImpl.class)
-                .asRest().withProperty("serviceC.someServiceSpecificProperty", "propertyFromC");
+                .asRest().addInitialProperty("serviceC.someServiceSpecificProperty", "propertyFromC");
 
         addService("frontService", ITestRouting.class, TestRoutingImpl.class)
                 .useTracing(true).asRouteur()

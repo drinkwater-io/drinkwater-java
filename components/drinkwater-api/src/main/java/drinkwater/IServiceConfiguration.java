@@ -2,21 +2,15 @@ package drinkwater;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * Created by A406775 on 29/12/2016.
  */
-public interface IServiceConfiguration {
+public interface IServiceConfiguration extends IPropertiesAware{
 
     Class getServiceClass();
 
-    Properties getInitialProperties();
 
-    void addInitialProperty(String key, Object value);
-
-    //Fixme : refactor by renaming to getPropertiesLocations
-    String[] getProperties();
 
     Class getTargetBeanClass();
 
@@ -53,4 +47,6 @@ public interface IServiceConfiguration {
     String getServiceHost();
 
     void setServiceHost(String host);
+
+
 }
