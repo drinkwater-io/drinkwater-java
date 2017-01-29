@@ -1,13 +1,13 @@
 package test.drinkwater.core.model.forProperties;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 import test.drinkwater.core.model.ITestService;
 import test.drinkwater.core.model.TestServiceImpl;
 
 /**
  * Created by A406775 on 4/01/2017.
  */
-public class PropertiesTestConfiguration extends ServiceConfigurationBuilder {
+public class PropertiesTestConfiguration extends ApplicationBuilder {
 
     private String propertiesFilePath;
 

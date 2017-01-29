@@ -1,12 +1,12 @@
 package examples.drinkwater.drinktracker.asbeanclass;
 
 import baseline.BaseLinefactory;
+import drinkwater.ApplicationBuilder;
 import drinkwater.InjectionStrategy;
-import drinkwater.ServiceConfigurationBuilder;
 import drinkwater.ServiceScheme;
 import examples.drinkwater.drinktracker.model.IWaterVolumeRepository;
 
-public class ServiceConfigurationAsBeanClass extends ServiceConfigurationBuilder {
+public class ApplicationAsBeanClass extends ApplicationBuilder {
 
     @Override
     public void configure() {

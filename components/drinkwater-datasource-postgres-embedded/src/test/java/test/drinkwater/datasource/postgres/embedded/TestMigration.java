@@ -1,6 +1,6 @@
 package test.drinkwater.datasource.postgres.embedded;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.datasource.postgres.embedded.EmbeddedPostgresDataStore;
 import org.junit.Test;
@@ -22,7 +22,7 @@ public class TestMigration {
 
         try (DrinkWaterApplication app = DrinkWaterApplication.start(TestMigrationConfiguration.class)) {
 
-            EmbeddedPostgresDataStore store = (EmbeddedPostgresDataStore)app.getStore("test");
+            EmbeddedPostgresDataStore store = app.getStore("test");
             store.executeNoQuery("INSERT INTO contact(id, first_name, last_name) VALUES (2 , 'Jean-Marc', 'Canon');");
 
             try (Connection c = store.getConnection()) {
@@ -36,11 +36,11 @@ public class TestMigration {
     }
 }
 
-class TestMigrationConfiguration extends ServiceConfigurationBuilder {
+class TestMigrationConfiguration extends ApplicationBuilder {
 
     public TestMigrationConfiguration(){}
     @Override
     public void configure() {
-        addStore2("test", EmbeddedPostgresDataStore.class);
+        addStore("test", EmbeddedPostgresDataStore.class);
     }
 }

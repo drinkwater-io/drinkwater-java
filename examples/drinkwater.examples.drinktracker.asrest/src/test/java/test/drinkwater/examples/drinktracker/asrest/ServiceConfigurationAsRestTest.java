@@ -2,7 +2,7 @@ package test.drinkwater.examples.drinktracker.asrest;
 
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.test.HttpUnitTest;
-import examples.drinkwater.drinktracker.asrest.ServiceConfigurationAsRest;
+import examples.drinkwater.drinktracker.asrest.ApplicationAsRest;
 import examples.drinkwater.drinktracker.model.Account;
 import examples.drinkwater.drinktracker.model.IAccountService;
 import examples.drinkwater.drinktracker.model.IDrinkTrackerService;
@@ -25,7 +25,7 @@ public class ServiceConfigurationAsRestTest extends HttpUnitTest {
     @BeforeClass
     public static void setup() throws Exception {
         app = DrinkWaterApplication.create();
-        app.addServiceBuilder(new ServiceConfigurationAsRest());
+        app.addServiceBuilder(new ApplicationAsRest());
         app.start();
     }
 

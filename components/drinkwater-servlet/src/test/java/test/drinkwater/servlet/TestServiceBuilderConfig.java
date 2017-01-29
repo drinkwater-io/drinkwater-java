@@ -1,10 +1,10 @@
 package test.drinkwater.servlet;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 import drinkwater.test.samples.ISimpleTestService;
 import drinkwater.test.samples.SimpleTestServiceImpl;
 
-public class TestServiceBuilderConfig extends ServiceConfigurationBuilder {
+public class TestServiceBuilderConfig extends ApplicationBuilder {
 
     public String applicationName;
 

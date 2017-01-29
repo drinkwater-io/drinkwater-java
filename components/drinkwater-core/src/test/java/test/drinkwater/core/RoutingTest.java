@@ -1,10 +1,10 @@
 package test.drinkwater.core;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.test.HttpUnitTest;
 import org.junit.Test;
-import test.drinkwater.core.model.forRouting.RoutingServiceConfigurationFromConfigFile;
+import test.drinkwater.core.model.forRouting.RoutingApplicationFromConfigFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,10 +20,10 @@ public class RoutingTest extends HttpUnitTest {
     @Test
     public void shouldRouteFromSimpleConfig() {
         //shouldRouteCorrectly(new RoutingServiceConfiguration());
-        shouldRouteCorrectly(new RoutingServiceConfigurationFromConfigFile());
+        shouldRouteCorrectly(new RoutingApplicationFromConfigFile());
     }
 
-    public void shouldRouteCorrectly(ServiceConfigurationBuilder config) {
+    public void shouldRouteCorrectly(ApplicationBuilder config) {
 
         DrinkWaterApplication app = DrinkWaterApplication.create("routing-test", false);
         app.addServiceBuilder(config);

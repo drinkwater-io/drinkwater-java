@@ -6,7 +6,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
         drinkwater.core.main.Main app = new drinkwater.core.main.Main(
                 "test-rest",
-                new ServiceConfigurationAsRest(),
+                new ApplicationAsRest(),
                 ConsoleEventLogger.class,
                 true, true);
         app.run();

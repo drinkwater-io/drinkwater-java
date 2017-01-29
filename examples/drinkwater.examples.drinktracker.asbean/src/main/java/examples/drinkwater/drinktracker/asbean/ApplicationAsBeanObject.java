@@ -1,9 +1,9 @@
 package examples.drinkwater.drinktracker.asbean;
 
 import baseline.BaseLinefactory;
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 
-public class ServiceConfigurationAsBeanObject extends ServiceConfigurationBuilder {
+public class ApplicationAsBeanObject extends ApplicationBuilder {
 
     @Override
     public void configure() {

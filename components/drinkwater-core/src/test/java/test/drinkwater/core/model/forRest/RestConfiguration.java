@@ -1,8 +1,8 @@
 package test.drinkwater.core.model.forRest;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 
-public class RestConfiguration extends ServiceConfigurationBuilder {
+public class RestConfiguration extends ApplicationBuilder {
 
 
     @Override

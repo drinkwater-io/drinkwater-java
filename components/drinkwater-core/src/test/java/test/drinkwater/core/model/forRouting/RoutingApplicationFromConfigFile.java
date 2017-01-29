@@ -1,12 +1,12 @@
 package test.drinkwater.core.model.forRouting;
 
+import drinkwater.ApplicationBuilder;
 import drinkwater.IRoutingBuilder;
-import drinkwater.ServiceConfigurationBuilder;
 
 /**
  * Created by A406775 on 5/01/2017.
  */
-public class RoutingServiceConfigurationFromConfigFile extends ServiceConfigurationBuilder {
+public class RoutingApplicationFromConfigFile extends ApplicationBuilder {
 
     //we could take then from properties or db....
     private String[] services = new String[]{"A", "B", "C", "D"};

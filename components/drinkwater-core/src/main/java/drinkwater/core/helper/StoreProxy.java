@@ -1,25 +1,24 @@
 package drinkwater.core.helper;
 
 import drinkwater.IDataStore;
-import drinkwater.IDataStore2;
 import drinkwater.IDataStoreConfiguration;
 import drinkwater.core.DrinkWaterApplication;
 
 import java.io.IOException;
 
-public class StoreProxy implements IDataStore2 {
+public class StoreProxy implements IDataStore {
 
     DrinkWaterApplication application;
 
     IDataStoreConfiguration configuration;
 
-    IDataStore2 realStore;
+    IDataStore realStore;
 
     public StoreProxy(DrinkWaterApplication application, IDataStoreConfiguration configuration) {
         this.application = application;
         this.configuration = configuration;
 
-        this.realStore = (IDataStore2)BeanFactory.createBean(application, configuration);
+        this.realStore = (IDataStore)BeanFactory.createBean(application, configuration);
 
     }
 

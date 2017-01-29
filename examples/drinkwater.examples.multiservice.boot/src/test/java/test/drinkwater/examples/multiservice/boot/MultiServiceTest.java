@@ -3,7 +3,7 @@ package test.drinkwater.examples.multiservice.boot;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.examples.multiservice.IServiceA;
 import drinkwater.examples.multiservice.IServiceC;
-import drinkwater.examples.multiservice.boot.MultiServiceConfiguration;
+import drinkwater.examples.multiservice.boot.MultiServiceApplication;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,7 +23,7 @@ public class MultiServiceTest {
     @BeforeClass
     public static void setup() throws Exception {
         app = DrinkWaterApplication.create();
-        MultiServiceConfiguration config = new MultiServiceConfiguration();
+        MultiServiceApplication config = new MultiServiceApplication();
         app.addServiceBuilder(config);
         app.start();
     }

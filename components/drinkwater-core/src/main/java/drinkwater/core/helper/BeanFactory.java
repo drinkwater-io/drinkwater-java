@@ -33,6 +33,8 @@ public class BeanFactory {
 
         injectDependencies(app, service, beanToUse);
 
+        injectStores(app, beanToUse);
+
         return beanToUse;
 
     }
@@ -46,6 +48,8 @@ public class BeanFactory {
             injectFields(beanToUse, app, storeConfig);
 
             injectDependencies(app, beanToUse);
+
+            injectStores(app, beanToUse);
 
             return beanToUse;
         }
@@ -72,10 +76,27 @@ public class BeanFactory {
             }
 
             injectDependencies(app, serviceConfiguration, beanToUse);
+
+            injectStores(app, beanToUse);
         }
 
         return beanToUse;
 
+    }
+
+    private static void injectStores(DrinkWaterApplication app,
+                              Object beanToUse) throws IllegalAccessException {
+
+
+        //TODO : fix dependency management here we assume one store
+        for (Field f : beanToUse.getClass().getDeclaredFields()) {
+
+            if(f.getType().isAssignableFrom(IDataStore.class)){
+                f.setAccessible(true);
+                f.set(beanToUse, app.getStore(""));
+            }
+
+        }
     }
 
     private static void injectDependencies(ServiceRepository app,
@@ -168,11 +189,15 @@ public class BeanFactory {
 
             for (Field f : bean.getClass().getFields()) {
                 String propertyUri = f.getName() + ":undefined";
-                Object value = storeConfig.getProperty(propertyresolver, f.getType(),propertyUri);
 
-                if (value != null) {
-                    f.setAccessible(true);
-                    f.set(bean, value);
+                String propertyValue = storeConfig.getProperty(propertyresolver, propertyUri);
+
+                if (!"undefined".equals(propertyValue)) {
+                    Object value = storeConfig.getProperty(propertyresolver, f.getType(), propertyUri);
+                    if (value != null) {
+                        f.setAccessible(true);
+                        f.set(bean, value);
+                    }
                 }
             }
 

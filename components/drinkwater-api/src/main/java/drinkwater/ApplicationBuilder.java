@@ -8,18 +8,16 @@ import java.util.ArrayList;
 /**
  * Created by A406775 on 29/12/2016.
  */
-public class ServiceConfigurationBuilder {
+public class ApplicationBuilder {
 
     private java.util.List<ServiceConfiguration> configurations = new ArrayList<>();
 
-    private java.util.List<IDataStore> dataStores = new ArrayList<>();
-
     private java.util.List<IDataStoreConfiguration> dataStoreConfigs = new ArrayList<>();
 
-    public ServiceConfigurationBuilder() {
+    public ApplicationBuilder() {
     }
 
-    public ServiceConfigurationBuilder(java.util.List<IServiceConfiguration> configurations) {
+    public ApplicationBuilder(java.util.List<IServiceConfiguration> configurations) {
         this.configurations = toServiceConfiguration(configurations);
     }
 
@@ -36,11 +34,7 @@ public class ServiceConfigurationBuilder {
         return List.ofAll(this.configurations).map(s -> (IServiceConfiguration) s).toJavaList();
     }
 
-    public java.util.List<IDataStore> getDataStores() {
-        return dataStores;
-    }
-
-    public java.util.List<IDataStoreConfiguration> getDataStores2() {
+    public java.util.List<IDataStoreConfiguration> getStores() {
         return dataStoreConfigs;
     }
 
@@ -122,11 +116,6 @@ public class ServiceConfigurationBuilder {
     }
 
 
-    public IDataStore addDataStore(IDataStore store){
-        this.dataStores.add(store);
-        return store;
-    }
-
     public void changeScheme(ServiceScheme newScheme) {
         javaslang.collection.List.ofAll(configurations)
                 .forEach(c -> c.setScheme(newScheme));
@@ -137,16 +126,14 @@ public class ServiceConfigurationBuilder {
                 .forEach(c -> c.setInjectionStrategy(injectionStrategy));
     }
 
-    protected void addStore2(String tt, Class simpleTestStoreClass) {
+    protected void addStore(String tt, Class implementingClass) {
         DefaultDataStoreConfiguration dsc = new DefaultDataStoreConfiguration();
         dsc.setName(tt);
-        dsc.setImplementingClass(simpleTestStoreClass);
+        dsc.setImplementingClass(implementingClass);
         dataStoreConfigs.add(dsc);
     }
 
     public void configure() {
-
     }
-
 
 }

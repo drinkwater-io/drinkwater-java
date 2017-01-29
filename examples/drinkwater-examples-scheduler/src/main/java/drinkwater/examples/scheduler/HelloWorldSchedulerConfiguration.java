@@ -1,11 +1,11 @@
 package drinkwater.examples.scheduler;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 
 /**
  * Hello world!
  */
-public class HelloWorldSchedulerConfiguration extends ServiceConfigurationBuilder {
+public class HelloWorldSchedulerConfiguration extends ApplicationBuilder {
     @Override
     public void configure() {
         addService("helloStore", IHelloHolder.class, new HelloHolderImpl());

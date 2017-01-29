@@ -11,4 +11,9 @@ public interface IDataStoreConfiguration {
         return propertyResolver.lookupProperty(propertyType, key);
     }
 
+    default String getProperty(IPropertyResolver propertyResolver, String property) throws Exception{
+        String key = String.format("datastore.%s.%s", getName(), property);
+        return propertyResolver.lookupProperty(key);
+    }
+
 }

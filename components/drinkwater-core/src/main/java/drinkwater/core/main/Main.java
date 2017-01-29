@@ -1,6 +1,6 @@
 package drinkwater.core.main;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 import drinkwater.ServiceRepository;
 import drinkwater.core.DrinkWaterApplication;
 import org.apache.camel.support.ServiceSupport;
@@ -28,23 +28,23 @@ public class Main extends ServiceSupport {
     protected int durationHitExitCode = DEFAULT_EXIT_CODE;
     private DrinkWaterApplication dwApplication;
 
-    public Main(ServiceConfigurationBuilder builder) {
+    public Main(ApplicationBuilder builder) {
         dwApplication = DrinkWaterApplication.create();
         dwApplication.addServiceBuilder(builder);
     }
 
-    public Main(String appName, ServiceConfigurationBuilder builder) {
+    public Main(String appName, ApplicationBuilder builder) {
         dwApplication = DrinkWaterApplication.create(appName);
         dwApplication.addServiceBuilder(builder);
     }
 
-    public Main(String appName, ServiceConfigurationBuilder builder, Class EventLoggerClass) {
+    public Main(String appName, ApplicationBuilder builder, Class EventLoggerClass) {
         dwApplication = DrinkWaterApplication.create(appName, false, true);
         dwApplication.addServiceBuilder(builder);
         dwApplication.setEventLoggerClass(EventLoggerClass);
     }
 
-    public Main(String appName, ServiceConfigurationBuilder builder, Class EventLoggerClass, boolean serviceManagement, boolean useTracing) {
+    public Main(String appName, ApplicationBuilder builder, Class EventLoggerClass, boolean serviceManagement, boolean useTracing) {
         dwApplication = DrinkWaterApplication.create(appName, serviceManagement, useTracing);
         dwApplication.addServiceBuilder(builder);
         dwApplication.setEventLoggerClass(EventLoggerClass);

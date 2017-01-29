@@ -1,8 +1,8 @@
 package test.drinkwater.core.model;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 
-public class ProxyTestConfiguration extends ServiceConfigurationBuilder {
+public class ProxyTestConfiguration extends ApplicationBuilder {
 
     public void configure() {
         addService("proxyService").

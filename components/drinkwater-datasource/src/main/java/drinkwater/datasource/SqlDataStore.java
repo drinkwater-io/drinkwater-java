@@ -1,7 +1,7 @@
 package drinkwater.datasource;
 
 import drinkwater.DatasourceConfiguration;
-import drinkwater.IDataStore2;
+import drinkwater.IDataStore;
 import org.flywaydb.core.Flyway;
 
 import javax.sql.DataSource;
@@ -17,7 +17,7 @@ import java.sql.Statement;
 /**
  * Created by A406775 on 11/01/2017.
  */
-public abstract class SqlDataStore implements IDataStore2 {
+public abstract class SqlDataStore implements IDataStore {
 
     public String user;
     public String password;
@@ -31,27 +31,9 @@ public abstract class SqlDataStore implements IDataStore2 {
     public String schemaLocation;
 
     private DatasourceConfiguration migrationConfiguration;
-
     private DatasourceConfiguration configuration;
-
     private javax.sql.DataSource dataSource;
-
     private javax.sql.DataSource migrationDataSource;
-
-    private String[] schemaLocations;
-
-//    public SqlDataStore(){}
-//
-//    public SqlDataStore(String name,
-//                        DatasourceConfiguration migrationConfiguration,
-//                        DatasourceConfiguration configuration,
-//                        String... schemaLocation) {
-//        // this.name = name;
-//        this.migrationConfiguration = migrationConfiguration;
-//        this.configuration = configuration;
-//
-//        this.schemaLocations = schemaLocation;
-//    }
 
     @Override
     public void configure() throws Exception {
@@ -62,7 +44,6 @@ public abstract class SqlDataStore implements IDataStore2 {
         //  this.name = name;
         this.migrationConfiguration = migrationConfig;
         this.configuration = config;
-        this.schemaLocations = new String[]{ schemaLocation};
     }
 
     protected DatasourceConfiguration buildConfiguration(){
@@ -72,48 +53,25 @@ public abstract class SqlDataStore implements IDataStore2 {
     }
 
     protected DatasourceConfiguration buildMigrationConfiguration(){
+        String migrationUrlToUse = (this.migrationUrl == null)? url: this.migrationUrl;
+        String userToUse = (this.migrationUser == null)? user: this.migrationUser;
+        String passwordToUse = (this.migrationPassword == null)? password: this.migrationPassword;
+        String schemaToUse = (this.migrationSchema == null)? schema: this.migrationSchema;
+
         return new DatasourceConfiguration(
-                migrationUrl, jdbcDriver,
-                migrationUser, migrationPassword, migrationSchema);
+                migrationUrlToUse, jdbcDriver,
+                userToUse, passwordToUse, schemaToUse);
     }
 
     protected String getJdbcDriver(){
         return jdbcDriver;
     }
 
-//    public SqlDataStore(String name, Properties prop, String... schemaLocation) {
-//
-//        String user = prop.getProperty("datastore.user");
-//        String password = prop.getProperty("datastore.password");
-//        String schema = prop.getProperty("datastore.schema");
-//        String url = prop.getProperty("datastore.url");
-//
-//        String migrationUser = prop.getProperty("migration.datastore.user");
-//        String migrationPassword = prop.getProperty("migration.datastore.password");
-//        String migrationSchema = prop.getProperty("migration.datastore.schema");
-//        String migrationUrl = prop.getProperty("migration.datastore.url");
-//
-//
-//        DatasourceConfiguration config = new DatasourceConfiguration(
-//                url, "org.postgresql.Driver",
-//                user, password, schema);
-//
-//        DatasourceConfiguration migrationConfig = new DatasourceConfiguration(
-//                migrationUrl, "org.postgresql.Driver",
-//                migrationUser, migrationPassword, migrationSchema);
-//
-//        //  this.name = name;
-//        this.migrationConfiguration = migrationConfig;
-//        this.configuration = config;
-//        this.schemaLocations = schemaLocation;
-//    }
-
-
     @Override
     public void migrate() {
-        if (schemaLocations != null) {
+        if (schemaLocation != null) {
             Flyway flyway = new Flyway();
-            flyway.setLocations(schemaLocations);
+            flyway.setLocations(schemaLocation);
             flyway.setDataSource(migrationDataSource);
             flyway.migrate();
         }

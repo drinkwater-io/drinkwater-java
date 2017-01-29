@@ -1,10 +1,10 @@
 package examples.drinkwater.drinktracker.asrest;
 
 import baseline.BaseLinefactory;
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 import drinkwater.ServiceScheme;
 
-public class ServiceConfigurationAsRest extends ServiceConfigurationBuilder {
+public class ApplicationAsRest extends ApplicationBuilder {
 
 
     @Override

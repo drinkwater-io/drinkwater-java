@@ -65,7 +65,7 @@ public class PropertiesTest extends HttpUnitTest {
             propertiesApp.start();
 
             String result = httpGetString("http://127.0.0.1:8889/ppa-service/info").result();
-            assertEquals("cascaded keys in application: hello john", result);
+            assertEquals("cascaded keys in application : hello john", result);
 
         }
         finally {

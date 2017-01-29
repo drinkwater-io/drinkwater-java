@@ -1,6 +1,6 @@
 package drinkwater.cdi;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 import drinkwater.core.DrinkWaterApplication;
 
 import javax.enterprise.event.Observes;
@@ -25,10 +25,10 @@ public class DrinkWaterExtension implements Extension {
                 );
 
 
-        for (Bean<?> serviceConfigBean : manager.getBeans(ServiceConfigurationBuilder.class)) {
+        for (Bean<?> serviceConfigBean : manager.getBeans(ApplicationBuilder.class)) {
 
-            ServiceConfigurationBuilder builder = (ServiceConfigurationBuilder) manager.getReference(serviceConfigBean,
-                    ServiceConfigurationBuilder.class,
+            ApplicationBuilder builder = (ApplicationBuilder) manager.getReference(serviceConfigBean,
+                    ApplicationBuilder.class,
                     manager.createCreationalContext(serviceConfigBean));
 
             dwapp.addServiceBuilder(builder);

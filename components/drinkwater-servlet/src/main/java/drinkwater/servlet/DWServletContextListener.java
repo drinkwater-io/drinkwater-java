@@ -1,6 +1,6 @@
 package drinkwater.servlet;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 import drinkwater.core.DrinkWaterApplication;
 import javaslang.Tuple;
 import javaslang.Tuple2;
@@ -39,7 +39,7 @@ public final class DWServletContextListener implements ServletContextListener {
         try {
             boolean useTracing = Boolean.parseBoolean(useTracingParam);
             Class eventLoggerClass = Class.forName(eventLogger);
-            ServiceConfigurationBuilder builder = getServiceConfigurationBuilder(initParams, serviceBuilder);
+            ApplicationBuilder builder = getServiceConfigurationBuilder(initParams, serviceBuilder);
 
             DrinkWaterApplication application =
                     DrinkWaterApplication.create(applicationName, false, useTracing);
@@ -58,8 +58,8 @@ public final class DWServletContextListener implements ServletContextListener {
 
     }
 
-    private static ServiceConfigurationBuilder getServiceConfigurationBuilder(Map<String, Object> initParams, String serviceBuilder) throws InstantiationException, IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
-        ServiceConfigurationBuilder builder = (ServiceConfigurationBuilder)
+    private static ApplicationBuilder getServiceConfigurationBuilder(Map<String, Object> initParams, String serviceBuilder) throws InstantiationException, IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
+        ApplicationBuilder builder = (ApplicationBuilder)
                 Class.forName(serviceBuilder).newInstance();
 
         List<Tuple2<String, Object>> serviceBuilderProperties =

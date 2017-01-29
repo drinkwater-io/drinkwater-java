@@ -1,10 +1,10 @@
 package test.drinkwater.core.model.forStore;
 
-import drinkwater.IDataStore2;
+import drinkwater.IDataStore;
 
 import java.io.IOException;
 
-public class SimpleTestStore implements IDataStore2 {
+public class SimpleTestStore implements IDataStore {
 
     private String user;
 

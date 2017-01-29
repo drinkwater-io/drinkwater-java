@@ -1,10 +1,10 @@
 package test.drinkwater.examples.drinktracker.benchmark;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 import drinkwater.core.DrinkWaterApplication;
-import examples.drinkwater.drinktracker.asbean.ServiceConfigurationAsBeanObject;
-import examples.drinkwater.drinktracker.asbeanclass.ServiceConfigurationAsBeanClass;
-import examples.drinkwater.drinktracker.asrest.ServiceConfigurationAsRest;
+import examples.drinkwater.drinktracker.asbean.ApplicationAsBeanObject;
+import examples.drinkwater.drinktracker.asbeanclass.ApplicationAsBeanClass;
+import examples.drinkwater.drinktracker.asrest.ApplicationAsRest;
 import examples.drinkwater.drinktracker.model.*;
 import org.junit.Assert;
 import org.junit.Test;
@@ -32,11 +32,11 @@ public class SimpleBenchMark {
 //        //without DrinkWater
         timeWithoutDW = benchMarkWithoutDW();
 //        //rest
-        timeAsRest = benchMarkThisConfig(new ServiceConfigurationAsRest());
+        timeAsRest = benchMarkThisConfig(new ApplicationAsRest());
 //        //beanobject
-        timeAsBeanObject = benchMarkThisConfig(new ServiceConfigurationAsBeanObject());
+        timeAsBeanObject = benchMarkThisConfig(new ApplicationAsBeanObject());
 //        //as beanClass
-        timeAsBeanClass = benchMarkThisConfig(new ServiceConfigurationAsBeanClass());
+        timeAsBeanClass = benchMarkThisConfig(new ApplicationAsBeanClass());
 
         printReport(timeWithoutDW, timeAsBeanObject, timeAsBeanClass, timeAsRest);
 
@@ -55,7 +55,7 @@ public class SimpleBenchMark {
         return dowork(accountService, numberService);
     }
 
-    private long benchMarkThisConfig(ServiceConfigurationBuilder builder) throws Exception {
+    private long benchMarkThisConfig(ApplicationBuilder builder) throws Exception {
 
         DrinkWaterApplication app = DrinkWaterApplication.create();
         try {

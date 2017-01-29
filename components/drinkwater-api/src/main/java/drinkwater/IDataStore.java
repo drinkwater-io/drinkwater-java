@@ -11,5 +11,7 @@ public interface IDataStore extends Closeable {
 
     void start() throws  Exception;
 
+    void configure() throws Exception;
+
 
 }

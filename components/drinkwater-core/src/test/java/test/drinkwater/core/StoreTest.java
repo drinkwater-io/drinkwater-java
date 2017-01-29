@@ -2,24 +2,23 @@ package test.drinkwater.core;
 
 import drinkwater.core.DrinkWaterApplication;
 import org.junit.Test;
-import test.drinkwater.core.model.forStore.StoreServiceConfiguration;
+import test.drinkwater.core.model.forStore.ISimpleDataStoreDependentService;
+import test.drinkwater.core.model.forStore.StoreApplication;
 
 import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StoreTest {
 
     @Test
     public void shouldStartSimpleStore() throws IOException {
 
-        DrinkWaterApplication app = DrinkWaterApplication.create("store-test", false);
-        try {
-            app.addServiceBuilder(new StoreServiceConfiguration());
-            app.start();
+        try (DrinkWaterApplication app = DrinkWaterApplication.start("store-test", StoreApplication.class, null, false, false)){
 
-            System.out.println("do something here");
-        }finally {
+            ISimpleDataStoreDependentService s = app.getService("store-dependent-service");
 
-            app.stop();
+            assertThat(s.getStoreInfo()).isEqualTo("test.drinkwater.core.model.forStore.SimpleTestStore");
         }
     }
 }

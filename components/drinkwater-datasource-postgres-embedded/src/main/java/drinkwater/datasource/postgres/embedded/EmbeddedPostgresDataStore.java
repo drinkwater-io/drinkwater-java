@@ -14,24 +14,24 @@ public class EmbeddedPostgresDataStore extends SqlDataStore {
 
     public EmbeddedPostgres pg;
 
-//    public EmbeddedPostgresDataStore(String user, String password, String schema,
-//                                       String... schemaLocation){
-//        super("embedded-postgres-server",
-//                getPostgresConfigWithoutUrl("postgres", "", schema),
-//                getPostgresConfigWithoutUrl(user, password, schema),
-//                schemaLocation);
-//    }
+    public EmbeddedPostgresDataStore(){
+        this.migrationUser = "postgres";
+        this.migrationPassword = "";
+        this.schema = "public";
+    }
 
     private static DatasourceConfiguration getPostgresConfigWithoutUrl(String user, String password, String schema){
         return new DatasourceConfiguration(null, "org.postgresql.Driver", user, password, schema);
     }
 
     protected DatasourceConfiguration buildConfiguration(){
-        return getPostgresConfigWithoutUrl(user, password, schema);
+        String userToUse = (this.user == null)? migrationUser: this.user;
+        String passwordToUse = (this.password == null)? migrationPassword: this.password;
+        return getPostgresConfigWithoutUrl(userToUse, passwordToUse, schema);
     }
 
     protected DatasourceConfiguration buildMigrationConfiguration(){
-        return getPostgresConfigWithoutUrl("postgres", "", schema);
+        return getPostgresConfigWithoutUrl(migrationUser, migrationPassword, schema);
 
     }
 

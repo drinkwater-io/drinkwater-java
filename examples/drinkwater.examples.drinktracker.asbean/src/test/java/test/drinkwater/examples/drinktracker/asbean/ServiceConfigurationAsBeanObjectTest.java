@@ -2,7 +2,7 @@ package test.drinkwater.examples.drinktracker.asbean;
 
 
 import drinkwater.core.DrinkWaterApplication;
-import examples.drinkwater.drinktracker.asbean.ServiceConfigurationAsBeanObject;
+import examples.drinkwater.drinktracker.asbean.ApplicationAsBeanObject;
 import examples.drinkwater.drinktracker.model.Account;
 import examples.drinkwater.drinktracker.model.IAccountService;
 import examples.drinkwater.drinktracker.model.IWaterVolumeFormatter;
@@ -22,7 +22,7 @@ public class ServiceConfigurationAsBeanObjectTest {
     @BeforeClass
     public static void setup() throws Exception {
         app = DrinkWaterApplication.create();
-        app.addServiceBuilder(new ServiceConfigurationAsBeanObject());
+        app.addServiceBuilder(new ApplicationAsBeanObject());
         app.start();
     }
 

@@ -1,16 +1,16 @@
 package test.drinkwater.core.model.forTracing;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 
 /**
  * Created by A406775 on 5/01/2017.
  */
-public class ServiceAConfiguration extends ServiceConfigurationBuilder {
+public class ApplicationA extends ApplicationBuilder {
 
     private boolean useTracing;
     private boolean useTracingOnlyOnEntry;
 
-    public ServiceAConfiguration(boolean useTracing, boolean useTracingOnlyOnEntry) {
+    public ApplicationA(boolean useTracing, boolean useTracingOnlyOnEntry) {
         this.useTracing = useTracing;
         this.useTracingOnlyOnEntry = useTracingOnlyOnEntry;
     }

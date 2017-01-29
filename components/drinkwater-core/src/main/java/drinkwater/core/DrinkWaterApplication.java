@@ -24,7 +24,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -53,8 +52,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     private PropertiesComponent propertiesComponent;
     private List<DrinkWaterApplicationHistory> applicationHistory = List.empty();
-    private java.util.List<IDataStore> dataStores = new ArrayList<>();
-    private List<StoreProxy> dataStores2;
+    private List<StoreProxy> dataStores;
     private ApplicationState state = ApplicationState.Stopped;
     private String name;
     private TracerBean tracer;
@@ -68,7 +66,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     private boolean isTraceMaster = true;
     private Class eventLoggerClass = null;
     //fixme : should support multiple service builder
-    private ServiceConfigurationBuilder serviceBuilders;
+    private ApplicationBuilder serviceBuilders;
     private Properties initialApplicationProperties = new Properties();
 
     private CamelContext applicationLevelContext;
@@ -112,11 +110,16 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     public static DrinkWaterApplication create(String name, Class configurationClass) {
+       return create(name, configurationClass, null, false, false);
+    }
+
+    public static DrinkWaterApplication create(String name, Class configurationClass, Class eventLoggerClass, boolean useServiceManagement, boolean traceMaster) {
         try {
-            DrinkWaterApplication app = new DrinkWaterApplication(name);
+            DrinkWaterApplication app = new DrinkWaterApplication(name,useServiceManagement, traceMaster);
+            app.setEventLoggerClass(eventLoggerClass);
             Constructor ct = configurationClass.getConstructor();
             ct.setAccessible(true);
-            ServiceConfigurationBuilder builder = (ServiceConfigurationBuilder)ct.newInstance();
+            ApplicationBuilder builder = (ApplicationBuilder) ct.newInstance();
             app.addServiceBuilder(builder);
             return app;
         } catch (Exception ex) {
@@ -133,12 +136,20 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     public static DrinkWaterApplication start(Class configurationClass) {
-        DrinkWaterApplication app =  create(null, configurationClass);
+        DrinkWaterApplication app = create(null, configurationClass);
         app.start();
         return app;
     }
 
-
+    public static DrinkWaterApplication start(String name,
+                                              Class configurationClass,
+                                              Class eventLoggerClass,
+                                              boolean useServiceManagement,
+                                              boolean traceMaster) {
+        DrinkWaterApplication app = create(name, configurationClass, eventLoggerClass, useServiceManagement, traceMaster);
+        app.start();
+        return app;
+    }
 
 
     public static RouteBuilder createCoreRoutes(Service managementService, DrinkWaterApplication app) {
@@ -239,7 +250,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         try {
             applicationLevelContext = CamelContextFactory.createCamelContext(this);
-            applicationLevelContext.getShutdownStrategy().setTimeout(1);
+            applicationLevelContext.getShutdownStrategy().setTimeout(1000);
             applicationLevelContext.getShutdownStrategy().setTimeUnit(TimeUnit.NANOSECONDS);
             applicationLevelContext.start();
         } catch (Exception e) {
@@ -263,7 +274,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
         serviceProxies = new HashMap<>();
         services = List.empty();
-        dataStores2 = List.empty();
+        dataStores = List.empty();
         tracer = new TracerBean();
         jvmMetricsBean = new JVMMetricsBean();
         restConfiguration = new RestService();
@@ -273,7 +284,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 //        eventAggregator = new EventAggregator();
     }
 
-    public ServiceConfigurationBuilder configuration() {
+    public ApplicationBuilder configuration() {
         return serviceBuilders;
     }
 
@@ -281,7 +292,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         return tracer;
     }
 
-    public void addServiceBuilder(ServiceConfigurationBuilder builder) {
+    public void addServiceBuilder(ApplicationBuilder builder) {
 
         this.serviceBuilders = builder;
 
@@ -297,9 +308,8 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         if (serviceBuilders != null) {
             serviceBuilders.configure();
-            dataStores = serviceBuilders.getDataStores();
+            List.ofAll(serviceBuilders.getStores()).forEach(this::addStore);
             List.ofAll(serviceBuilders.getConfigurations()).forEach(this::addService);
-            List.ofAll(serviceBuilders.getDataStores2()).forEach(this::addStore);
 
         } else {
             //TODO add explanation how to ad a srvice
@@ -384,10 +394,12 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     }
 
+
+
     private void startDataStores() {
 
         for (IDataStore store :
-                dataStores2) {
+                dataStores) {
 
             try {
                 store.start();
@@ -398,23 +410,13 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         }
 
-        for (IDataStore store :
-                dataStores) {
 
-            try {
-                store.start();
-                store.migrate();
-            } catch (Exception e) {
-                throw new RuntimeException("could not start or migrate datastore", e);
-            }
-
-        }
     }
 
     private void stopDataStores() {
 
         for (IDataStore store :
-                dataStores2) {
+                dataStores) {
 
             try {
                 store.close();
@@ -423,16 +425,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
             }
 
         }
-        for (IDataStore store :
-                dataStores) {
 
-            try {
-                store.close();
-            } catch (Exception e) {
-                throw new RuntimeException("could not close datastore", e);
-            }
-
-        }
     }
 
     private void addService(IServiceConfiguration serviceConfig) {
@@ -443,7 +436,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     private void addStore(IDataStoreConfiguration serviceConfig) {
         StoreProxy s = createStoreFromConfig(serviceConfig);
-        dataStores2 = dataStores2.append(s);
+        dataStores = dataStores.append(s);
         //addProxy(s);
     }
 
@@ -509,6 +502,13 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     @Override
     public <T> T getService(String serviceName) {
         return (T) serviceProxies.get(serviceName);
+    }
+
+
+    //fixme : for now I assume only one store per app....
+    //we could filter on name
+    public <T> T getStore(String name) {
+        return (T) dataStores.get(0).getTarget();
     }
 
     @Override
@@ -601,7 +601,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         this.stop();
 
-        ServiceConfigurationBuilder newBuilder = new ServiceConfigurationBuilder(serviceBuilders.getConfigurations());
+        ApplicationBuilder newBuilder = new ApplicationBuilder(serviceBuilders.getConfigurations());
         IServiceConfiguration config = newBuilder.getConfiguration(serviceName);
         config.setScheme(ServiceScheme.BeanObject);
         config.setInjectionStrategy(InjectionStrategy.None);
@@ -616,7 +616,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         this.stop();
 
-        ServiceConfigurationBuilder newBuilder = new ServiceConfigurationBuilder(serviceBuilders.getConfigurations());
+        ApplicationBuilder newBuilder = new ApplicationBuilder(serviceBuilders.getConfigurations());
         IServiceConfiguration config = newBuilder.getConfiguration(serviceName);
         config.patchWith(patchConfig);
 
@@ -643,7 +643,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         java.util.List<ServiceConfiguration> previousConfig = DrinkWaterApplicationHistory.getConfig(history);
 
-        ServiceConfigurationBuilder newBuilder = new ServiceConfigurationBuilder();
+        ApplicationBuilder newBuilder = new ApplicationBuilder();
         newBuilder.addConfigurations(previousConfig);
 
         this.serviceBuilders = newBuilder;
@@ -672,10 +672,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         initialApplicationProperties.setProperty(property, value);
     }
 
-    //fixme : for now I assume only one store per app....
-    public IDataStore getStore(String name) {
-        return dataStores2.get(0).getTarget();
-    }
 
     @Override
     public Properties getInitialProperties() {

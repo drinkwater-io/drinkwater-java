@@ -1,15 +1,15 @@
 package test.drinkwater.core.model.forTracing;
 
-import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.ApplicationBuilder;
 
 /**
  * Created by A406775 on 5/01/2017.
  */
-public class ServiceBConfiguration extends ServiceConfigurationBuilder {
+public class ApplicationB extends ApplicationBuilder {
 
     private boolean useTracing;
 
-    public ServiceBConfiguration(boolean useTracing) {
+    public ApplicationB(boolean useTracing) {
         this.useTracing = useTracing;
     }
     @Override

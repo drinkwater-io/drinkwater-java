@@ -7,7 +7,7 @@ import drinkwater.ServiceConfiguration;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.examples.multiservice.IServiceA;
 import drinkwater.examples.multiservice.IServiceD;
-import drinkwater.examples.remote.MultiServiceRemoteConfiguration;
+import drinkwater.examples.remote.MultiServiceRemoteApplication;
 import drinkwater.test.HttpUnitTest;
 import org.junit.*;
 
@@ -37,7 +37,7 @@ public class MultiServiceRemoteTest extends HttpUnitTest {
     @BeforeClass
     public static void setup() throws Exception {
         app = DrinkWaterApplication.create("remote-dwapp", false);
-        MultiServiceRemoteConfiguration config = new MultiServiceRemoteConfiguration();
+        MultiServiceRemoteApplication config = new MultiServiceRemoteApplication();
         app.addServiceBuilder(config);
         app.start();
 
