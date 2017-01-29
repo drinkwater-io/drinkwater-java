@@ -36,14 +36,6 @@ public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver
 
     private ServiceState state = ServiceState.NotStarted;
 
-//    public Service(IServiceConfiguration serviceConfiguration,
-//                   ITracer tracer, DrinkWaterApplication dwa) {
-//
-//        //this.camelContext = fromContext;
-//        this(serviceConfiguration, tracer);
-//        this._dwa = dwa;
-//    }
-
     public Service(IServiceConfiguration serviceConfiguration, ITracer tracer, DrinkWaterApplication dwa) {
         this.serviceConfiguration = serviceConfiguration;
         this.camelContext = CamelContextFactory.createCamelContext(dwa, serviceConfiguration);
@@ -134,15 +126,6 @@ public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver
         }
 
     }
-
-//    private RouteBuilder createRouting(){
-//        return new RouteBuilder(){
-//            @Override
-//            public void configure() throws Exception {
-//
-//            }
-//        };
-//    }
 
     private RouteBuilder createServiceTraceRoutes(boolean isTracingEnabled) {
 

@@ -10,8 +10,6 @@ public interface IServiceConfiguration extends IPropertiesAware{
 
     Class getServiceClass();
 
-
-
     Class getTargetBeanClass();
 
     ServiceScheme getScheme();

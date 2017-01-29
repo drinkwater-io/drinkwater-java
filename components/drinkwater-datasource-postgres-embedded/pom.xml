@@ -18,5 +18,11 @@
             <artifactId>otj-pg-embedded</artifactId>
             <version>0.7.1</version>
         </dependency>
+        <dependency>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater-core</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

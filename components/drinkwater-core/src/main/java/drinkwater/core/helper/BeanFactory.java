@@ -29,11 +29,29 @@ public class BeanFactory {
         // create an instance of the bean
         Object beanToUse = service.getTargetBeanClass().newInstance();
 
-        injectFields(beanToUse, app, service, propertyResolver);
+        injectFields(beanToUse, service, propertyResolver);
 
         injectDependencies(app, service, beanToUse);
 
         return beanToUse;
+
+    }
+
+    public static Object createBean(DrinkWaterApplication app,
+                                         IDataStoreConfiguration storeConfig) {
+        try {
+            // create an instance of the bean
+            Object beanToUse = storeConfig.getImplementingClass().newInstance();
+
+            injectFields(beanToUse, app, storeConfig);
+
+            injectDependencies(app, beanToUse);
+
+            return beanToUse;
+        }
+        catch(Exception ex){
+            throw new RuntimeException("could not create object : ", ex);
+        }
 
     }
 
@@ -50,7 +68,7 @@ public class BeanFactory {
                 injectFields(beanToUse, (Map<String, Object>) serviceConfiguration.getTargetBean(), serviceConfiguration);
             } else {
                 //inject fields eventually
-                injectFields(beanToUse, app, serviceConfiguration, propertyResolver);
+                injectFields(beanToUse, serviceConfiguration, propertyResolver);
             }
 
             injectDependencies(app, serviceConfiguration, beanToUse);
@@ -60,7 +78,24 @@ public class BeanFactory {
 
     }
 
-    private static void injectDependencies(ServiceRepository app, IServiceConfiguration config, Object beanToUse) throws IllegalAccessException {
+    private static void injectDependencies(ServiceRepository app,
+                                           Object beanToUse) throws IllegalAccessException {
+
+        //TODO : fix dependency management
+        for (Field f : beanToUse.getClass().getFields()) {
+            Annotation serviceAnnotation = f.getAnnotation(ServiceDependency.class);
+
+            if (serviceAnnotation != null) {
+                Object dependencyBean = app.getService(f.getType());
+                f.setAccessible(true);
+                f.set(beanToUse, dependencyBean);
+            }
+        }
+    }
+
+    private static void injectDependencies(ServiceRepository app,
+                                           IServiceConfiguration config,
+                                           Object beanToUse) throws IllegalAccessException {
 
         //TODO : fix dependency management
         for (Field f : beanToUse.getClass().getFields()) {
@@ -105,11 +140,12 @@ public class BeanFactory {
     }
 
 
-    private static Object injectFields(Object bean, DrinkWaterApplication app, IServiceConfiguration config, IPropertyResolver propertyresolver) throws Exception {
+    private static Object injectFields(Object bean,
+                                       IServiceConfiguration config,
+                                       IPropertyResolver propertyresolver) throws Exception {
 
         if (config.getInjectionStrategy() == InjectionStrategy.Default) {
             for (Field f : bean.getClass().getDeclaredFields()) {
-//                String propertyUri = app.getApplicationName() +"." +  config.getServiceName() + "." + f.getName() + ":undefined";
                 String propertyUri = f.getName() + ":undefined";
                 String value = propertyresolver.lookupProperty(propertyUri);
 
@@ -121,6 +157,24 @@ public class BeanFactory {
                 }
             }
         }
+
+        return bean;
+
+    }
+
+    private static Object injectFields(Object bean,
+                                       IPropertyResolver propertyresolver,
+                                       IDataStoreConfiguration storeConfig) throws Exception {
+
+            for (Field f : bean.getClass().getFields()) {
+                String propertyUri = f.getName() + ":undefined";
+                Object value = storeConfig.getProperty(propertyresolver, f.getType(),propertyUri);
+
+                if (value != null) {
+                    f.setAccessible(true);
+                    f.set(bean, value);
+                }
+            }
 
         return bean;
 

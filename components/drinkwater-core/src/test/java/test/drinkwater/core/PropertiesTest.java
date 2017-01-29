@@ -56,6 +56,42 @@ public class PropertiesTest extends HttpUnitTest {
     }
 
     @Test
+    public void shouldWorkWithPlaceHoldersInApplicationFile() throws Exception {
+
+        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("properties-placeholder-application", false, false);
+        propertiesApp.addServiceBuilder(new PropertiesTestConfiguration("ppa-service",null));
+
+        try {
+            propertiesApp.start();
+
+            String result = httpGetString("http://127.0.0.1:8889/ppa-service/info").result();
+            assertEquals("cascaded keys in application: hello john", result);
+
+        }
+        finally {
+            propertiesApp.stop();
+        }
+    }
+
+    @Test
+    public void shouldWorkWithPlaceHoldersInServiceFile() throws Exception {
+
+        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("PropertiesTest-application", false, false);
+        propertiesApp.addServiceBuilder(new PropertiesTestConfiguration("props-with-placeholders",null));
+
+        try {
+            propertiesApp.start();
+
+            String result = httpGetString("http://127.0.0.1:8889/props-with-placeholders/info").result();
+            assertEquals("cascaded keys : hello cedric", result);
+
+        }
+        finally {
+            propertiesApp.stop();
+        }
+    }
+
+    @Test
     public void shouldWorkWithServicePropertiesFormClassPath() throws Exception {
 
         DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("PropertiesTest-application", false, false);
@@ -97,4 +133,6 @@ public class PropertiesTest extends HttpUnitTest {
             propertiesApp.stop();
         }
     }
+
+
 }

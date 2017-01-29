@@ -14,6 +14,8 @@ public class ServiceConfigurationBuilder {
 
     private java.util.List<IDataStore> dataStores = new ArrayList<>();
 
+    private java.util.List<IDataStoreConfiguration> dataStoreConfigs = new ArrayList<>();
+
     public ServiceConfigurationBuilder() {
     }
 
@@ -36,6 +38,10 @@ public class ServiceConfigurationBuilder {
 
     public java.util.List<IDataStore> getDataStores() {
         return dataStores;
+    }
+
+    public java.util.List<IDataStoreConfiguration> getDataStores2() {
+        return dataStoreConfigs;
     }
 
     public IServiceConfiguration getConfiguration(String serviceName) {
@@ -129,6 +135,13 @@ public class ServiceConfigurationBuilder {
     public void changeInjectionStrategy(InjectionStrategy injectionStrategy) {
         javaslang.collection.List.ofAll(configurations)
                 .forEach(c -> c.setInjectionStrategy(injectionStrategy));
+    }
+
+    protected void addStore2(String tt, Class simpleTestStoreClass) {
+        DefaultDataStoreConfiguration dsc = new DefaultDataStoreConfiguration();
+        dsc.setName(tt);
+        dsc.setImplementingClass(simpleTestStoreClass);
+        dataStoreConfigs.add(dsc);
     }
 
     public void configure() {

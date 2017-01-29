@@ -1,16 +1,14 @@
 package drinkwater.datasource;
 
 import drinkwater.DatasourceConfiguration;
-import drinkwater.IDataStore;
+import drinkwater.IDataStore2;
 import org.flywaydb.core.Flyway;
 
 import javax.sql.DataSource;
-import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
 
 //import org.dbunit.dataset.IDataSet;
 //import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
@@ -19,9 +17,18 @@ import java.util.Properties;
 /**
  * Created by A406775 on 11/01/2017.
  */
-public abstract class SqlDataStore implements IDataStore {
+public abstract class SqlDataStore implements IDataStore2 {
 
-    private final String name;
+    public String user;
+    public String password;
+    public String schema;
+    public String url;
+    public String jdbcDriver;
+    public String migrationUser;
+    public String migrationPassword;
+    public String migrationSchema;
+    public String migrationUrl;
+    public String schemaLocation;
 
     private DatasourceConfiguration migrationConfiguration;
 
@@ -33,43 +40,73 @@ public abstract class SqlDataStore implements IDataStore {
 
     private String[] schemaLocations;
 
-    public SqlDataStore(String name,
-                        DatasourceConfiguration migrationConfiguration,
-                        DatasourceConfiguration configuration,
-                        String... schemaLocation) {
-        this.name = name;
-        this.migrationConfiguration = migrationConfiguration;
-        this.configuration = configuration;
+//    public SqlDataStore(){}
+//
+//    public SqlDataStore(String name,
+//                        DatasourceConfiguration migrationConfiguration,
+//                        DatasourceConfiguration configuration,
+//                        String... schemaLocation) {
+//        // this.name = name;
+//        this.migrationConfiguration = migrationConfiguration;
+//        this.configuration = configuration;
+//
+//        this.schemaLocations = schemaLocation;
+//    }
 
-        this.schemaLocations = schemaLocation;
-    }
+    @Override
+    public void configure() throws Exception {
+        DatasourceConfiguration config = buildConfiguration();
 
-    public SqlDataStore(String name, Properties prop, String... schemaLocation) {
+        DatasourceConfiguration migrationConfig = buildMigrationConfiguration();
 
-        String user = prop.getProperty("datastore.user");
-        String password = prop.getProperty("datastore.password");
-        String schema = prop.getProperty("datastore.schema");
-        String url = prop.getProperty("datastore.url");
-
-        String migrationUser = prop.getProperty("migration.datastore.user");
-        String migrationPassword = prop.getProperty("migration.datastore.password");
-        String migrationSchema = prop.getProperty("migration.datastore.schema");
-        String migrationUrl = prop.getProperty("migration.datastore.url");
-
-
-        DatasourceConfiguration config = new DatasourceConfiguration(
-                url, "org.postgresql.Driver",
-                user, password, schema);
-
-        DatasourceConfiguration migrationConfig = new DatasourceConfiguration(
-                migrationUrl, "org.postgresql.Driver",
-                migrationUser, migrationPassword, migrationSchema);
-
-        this.name = name;
+        //  this.name = name;
         this.migrationConfiguration = migrationConfig;
         this.configuration = config;
-        this.schemaLocations = schemaLocation;
+        this.schemaLocations = new String[]{ schemaLocation};
     }
+
+    protected DatasourceConfiguration buildConfiguration(){
+        return new DatasourceConfiguration(
+                url, jdbcDriver,
+                user, password, schema);
+    }
+
+    protected DatasourceConfiguration buildMigrationConfiguration(){
+        return new DatasourceConfiguration(
+                migrationUrl, jdbcDriver,
+                migrationUser, migrationPassword, migrationSchema);
+    }
+
+    protected String getJdbcDriver(){
+        return jdbcDriver;
+    }
+
+//    public SqlDataStore(String name, Properties prop, String... schemaLocation) {
+//
+//        String user = prop.getProperty("datastore.user");
+//        String password = prop.getProperty("datastore.password");
+//        String schema = prop.getProperty("datastore.schema");
+//        String url = prop.getProperty("datastore.url");
+//
+//        String migrationUser = prop.getProperty("migration.datastore.user");
+//        String migrationPassword = prop.getProperty("migration.datastore.password");
+//        String migrationSchema = prop.getProperty("migration.datastore.schema");
+//        String migrationUrl = prop.getProperty("migration.datastore.url");
+//
+//
+//        DatasourceConfiguration config = new DatasourceConfiguration(
+//                url, "org.postgresql.Driver",
+//                user, password, schema);
+//
+//        DatasourceConfiguration migrationConfig = new DatasourceConfiguration(
+//                migrationUrl, "org.postgresql.Driver",
+//                migrationUser, migrationPassword, migrationSchema);
+//
+//        //  this.name = name;
+//        this.migrationConfiguration = migrationConfig;
+//        this.configuration = config;
+//        this.schemaLocations = schemaLocation;
+//    }
 
 
     @Override
@@ -80,32 +117,6 @@ public abstract class SqlDataStore implements IDataStore {
             flyway.setDataSource(migrationDataSource);
             flyway.migrate();
         }
-    }
-
-//    public void cleanAndInject(String resourceFilePath) throws Exception {
-//        IDataSet ds = readDataSet(resourceFilePath);
-//        cleanlyInsert(ds);
-//    }
-//
-//    private void cleanlyInsert(IDataSet dataSet) throws Exception {
-//        //FIXME this assumes we always use postgres
-//        PostgresDataSourceTester databaseTester = new PostgresDataSourceTester(this.getDataSource());
-//        databaseTester.setSetUpOperation(DatabaseOperation.CLEAN_INSERT);
-//        databaseTester.setDataSet(dataSet);
-//        databaseTester.onSetup();
-//    }
-
-//    private IDataSet readDataSet(String fileName) throws Exception {
-//        return new FlatXmlDataSetBuilder().build(getFullFilepath(fileName));
-//    }
-
-    private File getFullFilepath(String resourceFilePath) throws IOException {
-
-        ClassLoader classLoader = this.getClass().getClassLoader();
-
-        File file = new File(classLoader.getResource(resourceFilePath).getFile());
-
-        return file;
     }
 
     @Override
@@ -137,10 +148,6 @@ public abstract class SqlDataStore implements IDataStore {
         return dataSource;
     }
 
-//    public void setDataSource(DataSource dataSource) {
-//        this.dataSource = dataSource;
-//    }
-
     protected abstract void doClose() throws IOException;
 
     protected abstract void doStart() throws IOException;
@@ -153,17 +160,4 @@ public abstract class SqlDataStore implements IDataStore {
         return configuration;
     }
 
-    //    public DatasourceConfiguration getConfiguration() {
-//        return configuration;
-//    }
-//
-//    public void setConfiguration(DatasourceConfiguration configuration) {
-//        this.configuration = configuration;
-//    }
-//
-//    public void resetConfiguration(DatasourceConfiguration configuration) {
-//        this.dataSource = DataSourceFactory.createDataSource(configuration);
-//
-//        this.configuration = configuration;
-//    }
 }

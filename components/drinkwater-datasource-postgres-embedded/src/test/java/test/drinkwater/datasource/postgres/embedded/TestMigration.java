@@ -1,5 +1,7 @@
 package test.drinkwater.datasource.postgres.embedded;
 
+import drinkwater.ServiceConfigurationBuilder;
+import drinkwater.core.DrinkWaterApplication;
 import drinkwater.datasource.postgres.embedded.EmbeddedPostgresDataStore;
 import org.junit.Test;
 
@@ -14,25 +16,31 @@ import static org.junit.Assert.*;
  */
 public class TestMigration {
 
+
     @Test
     public void shouldApplyMigrations() throws Exception {
 
-        EmbeddedPostgresDataStore store = new EmbeddedPostgresDataStore(
-                "postgres",
-                "",
-                "public",
-                "db/migration");
+        try (DrinkWaterApplication app = DrinkWaterApplication.start(TestMigrationConfiguration.class)) {
 
-        store.start();
-        store.migrate();
-        store.executeNoQuery("INSERT INTO contact(id, first_name, last_name) VALUES (2 , 'Jean-Marc', 'Canon');");
+            EmbeddedPostgresDataStore store = (EmbeddedPostgresDataStore)app.getStore("test");
+            store.executeNoQuery("INSERT INTO contact(id, first_name, last_name) VALUES (2 , 'Jean-Marc', 'Canon');");
 
-        try ( Connection c = store.getConnection()) {
-            Statement s = c.createStatement();
-            ResultSet rs = s.executeQuery("SELECT * from contact");
-            assertTrue(rs.next());
-            assertEquals(2, rs.getInt(1));
-            assertFalse(rs.next());
+            try (Connection c = store.getConnection()) {
+                Statement s = c.createStatement();
+                ResultSet rs = s.executeQuery("SELECT * from contact");
+                assertTrue(rs.next());
+                assertEquals(2, rs.getInt(1));
+                assertFalse(rs.next());
+            }
         }
+    }
+}
+
+class TestMigrationConfiguration extends ServiceConfigurationBuilder {
+
+    public TestMigrationConfiguration(){}
+    @Override
+    public void configure() {
+        addStore2("test", EmbeddedPostgresDataStore.class);
     }
 }

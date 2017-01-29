@@ -45,11 +45,22 @@ public final class MapUtils {
 
         for (Object key : keys
                 ) {
-            Object value = properties.get(key);
-
+            String value = (String)properties.get(key);
+            value = replaceExpression(prefix, (String)key, value);
             answer.put(prefix + "." + key, value);
         }
 
+        return answer;
+    }
+
+    private static String replaceExpression(String prefix, String key, String text){
+        String answer = text;
+        if(text.contains("{{")){
+            String extracted_text = text.substring(text.indexOf("{{"), text.indexOf("}}")+ 2);
+            String replacingText = extracted_text.replace("{{", "");
+            replacingText = "{{"+ prefix + "." +replacingText ;
+            answer = text.replace(extracted_text, replacingText);
+        }
         return answer;
     }
 
