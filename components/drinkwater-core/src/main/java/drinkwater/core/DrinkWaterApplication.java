@@ -333,31 +333,39 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
             throw new RuntimeException("Cannot start " + getApplicationName() + " twice");
         }
 
-        logStartInfo();
+        StopWatch timingWath = new StopWatch();
 
-        startApplicationContext();
+        try {
 
-        cleanBeforeStart();
+            logStartInfo();
 
-        startExternalServices();
+            startApplicationContext();
 
-        cofigureServices();
+            cleanBeforeStart();
 
-        startDataStores();
+            startExternalServices();
 
-        startTracingRoute();
+            cofigureServices();
 
-        for (IDrinkWaterService service : services) {
-            service.start();
+            startDataStores();
+
+            startTracingRoute();
+
+            for (IDrinkWaterService service : services) {
+                service.start();
+            }
+
+            if (useServiceManagement) {
+                createAndStartManagementService();
+            }
+
+            state = ApplicationState.Up;
+        }
+        finally {
+            timingWath.stop();
         }
 
-        if (useServiceManagement) {
-            createAndStartManagementService();
-        }
-
-        logStartedInfo();
-
-        state = ApplicationState.Up;
+        logStartedInfo(timingWath);
     }
 
     public void stop() {
@@ -581,7 +589,8 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         logger.info("-----------------------STARTING " + name + "------------------------------------");
     }
 
-    private void logStartedInfo() {
+    private void logStartedInfo(StopWatch stoppedwatch) {
+        logger.info(String.format("application started in %d ms, drink some water and have a nice journey !!!", stoppedwatch.taken()));
         logger.info("----------------------- " + name + " STARTED------------------------------------");
     }
 

@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import static drinkwater.test.TestHelper.getFileContent;
+import static drinkwater.helper.GeneralUtils.getFileContent;
 import static org.junit.Assert.assertEquals;
 
 public class RestTest extends HttpUnitTest{
@@ -25,7 +25,7 @@ public class RestTest extends HttpUnitTest{
             app.addServiceBuilder(new RestConfiguration());
             app.start();
 
-            String file_to_upload = getFileContent("file_to_upload.txt");
+            String file_to_upload = getFileContent("/file_to_upload.txt");
             InputStream is = new ByteArrayInputStream(file_to_upload.getBytes());
 
             FileReadResult result = httpPostFile("http://127.0.0.1:8889/serviceA/upload", is, FileReadResult.class, null).asObject();
