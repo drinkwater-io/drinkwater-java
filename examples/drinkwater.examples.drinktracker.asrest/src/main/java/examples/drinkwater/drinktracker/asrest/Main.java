@@ -7,8 +7,7 @@ public class Main {
         drinkwater.core.main.Main app = new drinkwater.core.main.Main(
                 "test-rest",
                 new ApplicationAsRest(),
-                ConsoleEventLogger.class,
-                true, true);
+                ConsoleEventLogger.class);
         app.run();
 
     }

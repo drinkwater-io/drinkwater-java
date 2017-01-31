@@ -61,9 +61,10 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     private List<IDrinkWaterService> services;
     private Map<String, Object> serviceProxies;
     private Service managementService;
-    private boolean useServiceManagement = false;
+    //private boolean useServiceManagement = false;
     //    private EventAggregator eventAggregator = new EventAggregator();
-    private boolean isTraceMaster = true;
+    // private boolean isTraceMaster = true;
+    private ApplicationOptions options;
     private Class eventLoggerClass = null;
     //fixme : should support multiple service builder
     private ApplicationBuilder serviceBuilders;
@@ -74,85 +75,92 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     private IBaseEventLogger currentBaseEventLogger;
 
     private DrinkWaterApplication() {
-        this(null);
+        this(null, null);
     }
 
-    private DrinkWaterApplication(String name) {
+    private DrinkWaterApplication(String name, ApplicationOptions applicationOptions) {
         if (name == null) {
             name = "drinkwater";
         }
         this.name = name;
+        this.options = applicationOptions;
+
     }
-
-    private DrinkWaterApplication(String name, boolean useServiceManagement) {
-
-        this(name, useServiceManagement, true);
-    }
-
-
-    private DrinkWaterApplication(String name, boolean useServiceManagement, boolean isTraceMaster) {
-        this(name);
-        this.useServiceManagement = useServiceManagement;
-        this.isTraceMaster = isTraceMaster;
-    }
-
 
     public static DrinkWaterApplication create() {
-        return new DrinkWaterApplication();
+        return create((String)null);
     }
 
     public static DrinkWaterApplication create(String name) {
-        return new DrinkWaterApplication(name);
+        return create(name, null);
     }
 
-    public static DrinkWaterApplication create(Class configurationClass) {
-        return create(null, configurationClass);
+    public static DrinkWaterApplication create(ApplicationOptions options) {
+        return create(null, options);
     }
 
-    public static DrinkWaterApplication create(String name, Class configurationClass) {
-       return create(name, configurationClass, null, false, false);
-    }
-
-    public static DrinkWaterApplication create(String name, Class configurationClass, Class eventLoggerClass, boolean useServiceManagement, boolean traceMaster) {
+    public static DrinkWaterApplication create(String name, ApplicationOptions options){
         try {
-            DrinkWaterApplication app = new DrinkWaterApplication(name,useServiceManagement, traceMaster);
-            app.setEventLoggerClass(eventLoggerClass);
-            Constructor ct = configurationClass.getConstructor();
-            ct.setAccessible(true);
-            ApplicationBuilder builder = (ApplicationBuilder) ct.newInstance();
-            app.addServiceBuilder(builder);
+            DrinkWaterApplication app = new DrinkWaterApplication(name, options);
+            if(options != null) {
+                app.setEventLoggerClass(options.getEventLoggerClass());
+                if (options.getApplicationBuilderClass() != null) {
+                    Constructor ct = options.getApplicationBuilderClass().getConstructor();
+                    ct.setAccessible(true);
+                    ApplicationBuilder builder = (ApplicationBuilder) ct.newInstance();
+                    app.addServiceBuilder(builder);
+                }
+                if (options.isAutoStart()) {
+                    app.start();
+                }
+            }
             return app;
         } catch (Exception ex) {
             throw new RuntimeException("could not create application you should at least declare a default public constructor", ex);
         }
     }
 
-    public static DrinkWaterApplication create(String name, boolean useServiceManagement) {
-        return new DrinkWaterApplication(name, useServiceManagement);
-    }
+//    public static DrinkWaterApplication create(String name, Class configurationClass, Class eventLoggerClass) {
+//
+//    }
 
-    public static DrinkWaterApplication create(String name, boolean useServiceManagement, boolean traceMaster) {
-        return new DrinkWaterApplication(name, useServiceManagement, traceMaster);
-    }
+//    public static DrinkWaterApplication create(String name) {
+//        return new DrinkWaterApplication(name);
+//    }
 
-    public static DrinkWaterApplication start(Class configurationClass) {
-        DrinkWaterApplication app = create(null, configurationClass);
-        app.start();
-        return app;
-    }
+//    public static DrinkWaterApplication create(String name, boolean useServiceManagement, boolean traceMaster) {
+//        return new DrinkWaterApplication(name, useServiceManagement, traceMaster);
+//    }
 
-    public static DrinkWaterApplication start(String name,
-                                              Class configurationClass,
-                                              Class eventLoggerClass,
-                                              boolean useServiceManagement,
-                                              boolean traceMaster) {
-        DrinkWaterApplication app = create(name, configurationClass, eventLoggerClass, useServiceManagement, traceMaster);
-        app.start();
-        return app;
-    }
+//    public static DrinkWaterApplication start(String name, Class configurationClass) {
+//        DrinkWaterApplication app = create(name, configurationClass);
+//        app.start();
+//        return app;
+//    }
+//
+//    public static DrinkWaterApplication start(Class configurationClass) {
+//        DrinkWaterApplication app = create(null, configurationClass);
+//        app.start();
+//        return app;
+//    }
+//
+//    public static DrinkWaterApplication start(Class configurationClass, Class eventLoggerClass) {
+//        DrinkWaterApplication app = create(null, configurationClass, eventLoggerClass);
+//        app.start();
+//        return app;
+//    }
+//
+//    public static DrinkWaterApplication start(String name,
+//                                              Class configurationClass,
+//                                              Class eventLoggerClass){
+//        DrinkWaterApplication app = create(name, configurationClass, eventLoggerClass);
+////        , useServiceManagement, traceMaster);
+//        app.start();
+//        return app;
+//    }
 
 
-    public static RouteBuilder createCoreRoutes(Service managementService, DrinkWaterApplication app) {
+    private static RouteBuilder createCoreRoutes(Service managementService, DrinkWaterApplication app) {
         return new RouteBuilder() {
 
             @Override
@@ -215,9 +223,18 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         };
     }
 
+    private ApplicationOptions getOptions() {
+        if(this.options == null){
+            this.options = ApplicationOptions.from(this);
+        }
+
+        return options;
+    }
+
+
     public synchronized void startTracingRoute() {
         try {
-            if (isTraceMaster) {
+            if (getOptions().isUseTracing()) {
 
                 //get logger class
                 Class loggerImplementationClass = eventLoggerClass == null ? JavaLoggingEventLogger.class : eventLoggerClass;
@@ -355,7 +372,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
                 service.start();
             }
 
-            if (useServiceManagement) {
+            if (getOptions().isUseServiceManagement()) {
                 createAndStartManagementService();
             }
 
@@ -386,7 +403,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
             stopExternalServices();
 
-            if (useServiceManagement) {
+            if (getOptions().isUseServiceManagement()) {
                 stopManagementService();
             }
 

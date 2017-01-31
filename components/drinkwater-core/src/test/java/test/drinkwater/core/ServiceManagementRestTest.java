@@ -8,6 +8,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import test.drinkwater.core.model.TestConfiguration;
 
+import static drinkwater.ApplicationOptionsBuilder.options;
+
 /**
  * Created by A406775 on 2/01/2017.
  */
@@ -19,9 +21,8 @@ public class ServiceManagementRestTest extends HttpUnitTest {
 
     @BeforeClass
     public static void start() {
-        app = DrinkWaterApplication.create("core-test", true);
-        app.addServiceBuilder(new TestConfiguration());
-        app.start();
+        app = DrinkWaterApplication.create("core-test",
+                options().withServicemanagement().use(TestConfiguration.class).autoStart());
     }
 
     @AfterClass

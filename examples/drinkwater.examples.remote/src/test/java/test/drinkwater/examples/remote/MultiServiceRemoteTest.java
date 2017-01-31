@@ -2,6 +2,7 @@ package test.drinkwater.examples.remote;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import drinkwater.ApplicationOptionsBuilder;
 import drinkwater.IServiceConfiguration;
 import drinkwater.ServiceConfiguration;
 import drinkwater.core.DrinkWaterApplication;
@@ -36,10 +37,11 @@ public class MultiServiceRemoteTest extends HttpUnitTest {
 
     @BeforeClass
     public static void setup() throws Exception {
-        app = DrinkWaterApplication.create("remote-dwapp", false);
-        MultiServiceRemoteApplication config = new MultiServiceRemoteApplication();
-        app.addServiceBuilder(config);
-        app.start();
+        app = DrinkWaterApplication
+                .create("remote-dwapp",
+                        ApplicationOptionsBuilder.options()
+                .use(MultiServiceRemoteApplication.class)
+                .autoStart());
 
     }
 

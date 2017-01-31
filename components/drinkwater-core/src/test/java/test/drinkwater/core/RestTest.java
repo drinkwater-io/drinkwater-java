@@ -12,18 +12,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import static drinkwater.ApplicationOptionsBuilder.options;
 import static drinkwater.helper.GeneralUtils.getFileContent;
 import static org.junit.Assert.assertEquals;
 
-public class RestTest extends HttpUnitTest{
+public class RestTest extends HttpUnitTest {
 
     @Test
     public void testUploadFile() throws IOException {
 
-        DrinkWaterApplication app = DrinkWaterApplication.create("rest-test", false);
-        try {
-            app.addServiceBuilder(new RestConfiguration());
-            app.start();
+        try (DrinkWaterApplication app = DrinkWaterApplication.create(
+                options().autoStart().use(RestConfiguration.class))) {
 
             String file_to_upload = getFileContent("/file_to_upload.txt");
             InputStream is = new ByteArrayInputStream(file_to_upload.getBytes());
@@ -31,36 +30,28 @@ public class RestTest extends HttpUnitTest{
             FileReadResult result = httpPostFile("http://127.0.0.1:8889/serviceA/upload", is, FileReadResult.class, null).asObject();
 
             assertEquals("hello world uploaded", result.getContent());
-        }finally {
-
-            app.stop();
         }
     }
 
     @Test
     public void testParameterAsMap() throws Exception {
 
-        DrinkWaterApplication app = DrinkWaterApplication.create("rest-test", false);
-        try{
-        app.addServiceBuilder(new RestConfiguration());
-        app.start();
+        try (DrinkWaterApplication app = DrinkWaterApplication.create(options().autoStart().use(RestConfiguration.class))) {
 
-        //create a map serialize and encode it
-        java.util.Map<String, String> mapelements = new java.util.HashMap<String, String>();
-        mapelements.put("myKey", "myValue");
-        mapelements.put("mynumber", "1");
-        CustomJacksonObjectMapper mapper = new CustomJacksonObjectMapper();
-        String s = mapper.writeValueAsString(mapelements);
-        s = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.toString());
+            //create a map serialize and encode it
+            java.util.Map<String, String> mapelements = new java.util.HashMap<String, String>();
+            mapelements.put("myKey", "myValue");
+            mapelements.put("mynumber", "1");
+            CustomJacksonObjectMapper mapper = new CustomJacksonObjectMapper();
+            String s = mapper.writeValueAsString(mapelements);
+            s = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.toString());
 
-        //pass it as a json object
-        String result = httpGetString("http://127.0.0.1:8889/serviceA/methodWithMap?paramAsMap=" + s+ "&another_param=someOtherParamValue").result();
+            //pass it as a json object
+            String result = httpGetString("http://127.0.0.1:8889/serviceA/methodWithMap?paramAsMap=" + s + "&another_param=someOtherParamValue").result();
 
-        //assert
-        assertEquals("paramAsMap=[(myKey:myValue)(mynumber:1)] - another_param=someOtherParamValue", result);
+            //assert
+            assertEquals("paramAsMap=[(myKey:myValue)(mynumber:1)] - another_param=someOtherParamValue", result);
 
-        }finally {
-            app.stop();
         }
     }
 }

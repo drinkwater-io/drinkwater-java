@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
+import static drinkwater.ApplicationOptionsBuilder.options;
 import static org.junit.Assert.*;
 
 /**
@@ -20,7 +21,7 @@ public class TestMigration {
     @Test
     public void shouldApplyMigrations() throws Exception {
 
-        try (DrinkWaterApplication app = DrinkWaterApplication.start(TestMigrationConfiguration.class)) {
+        try (DrinkWaterApplication app = DrinkWaterApplication.create(options().use(TestMigrationConfiguration.class).autoStart())) {
 
             EmbeddedPostgresDataStore store = app.getStore("test");
             store.executeNoQuery("INSERT INTO contact(id, first_name, last_name) VALUES (2 , 'Jean-Marc', 'Canon');");

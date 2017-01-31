@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 
+import static drinkwater.ApplicationOptionsBuilder.tracedApplication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
@@ -35,13 +36,13 @@ public class TracingTest extends HttpUnitTest {
     @Test
     public void testTracing() throws Exception {
 
-        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-C", false, false);
+        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-C");
         app_C.addServiceBuilder(new ApplicationC(true));
 
-        DrinkWaterApplication app_B = DrinkWaterApplication.create("application-B", false, false);
+        DrinkWaterApplication app_B = DrinkWaterApplication.create("application-B");
         app_B.addServiceBuilder(new ApplicationB(true));
 
-        DrinkWaterApplication app_A = DrinkWaterApplication.create("application-A", false, true);
+        DrinkWaterApplication app_A = DrinkWaterApplication.create("application-A", tracedApplication());
         app_A.addServiceBuilder(new ApplicationA(true, false));
         app_A.setEventLoggerClass(MockEventLogger.class);
 
@@ -75,13 +76,13 @@ public class TracingTest extends HttpUnitTest {
 
         File createdFolder = folder.newFolder("tracingFolder");
 
-        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-c", false, false);
+        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-c");
         app_C.addServiceBuilder(new ApplicationC(false));
 
-        DrinkWaterApplication app_B = DrinkWaterApplication.create("application-b", false, false);
+        DrinkWaterApplication app_B = DrinkWaterApplication.create("application-b");
         app_B.addServiceBuilder(new ApplicationB(false));
 
-        DrinkWaterApplication app_A = DrinkWaterApplication.create("application-a", false, true);
+        DrinkWaterApplication app_A = DrinkWaterApplication.create("application-a", tracedApplication());
         app_A.setEventLoggerClass(FileEventLogger.class);
         app_A.addServiceBuilder(new ApplicationA(false, true));
         app_A.addProperty("eventLogger.folder", createdFolder.getAbsolutePath());
@@ -112,7 +113,7 @@ public class TracingTest extends HttpUnitTest {
     @Test
     public void testTracingWithCustomLogger() throws Exception {
 
-        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-C-custom-logger", false, true);
+        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-C-custom-logger", tracedApplication());
         app_C.addServiceBuilder(new ApplicationC(true));
         app_C.setEventLoggerClass(CustomTraceClass.class);
         CustomTraceClass.called = 0;
@@ -138,7 +139,7 @@ public class TracingTest extends HttpUnitTest {
     @Test
     public void testTracingWithException() throws Exception {
 
-        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-withException", false, true);
+        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-withException", tracedApplication());
         app_C.addServiceBuilder(new ApplicationC(true));
         app_C.setEventLoggerClass(MockEventLogger.class);
 

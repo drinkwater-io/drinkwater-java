@@ -22,7 +22,7 @@ public class PropertiesTest extends HttpUnitTest {
     @Test
     public void shouldWorkWithDefaultProperties() throws Exception {
 
-        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("properties-application", false, false);
+        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("properties-application");
         propertiesApp.addServiceBuilder(new PropertiesTestConfiguration("test-without-properties", null));
 
         try {
@@ -40,7 +40,7 @@ public class PropertiesTest extends HttpUnitTest {
     @Test
     public void shouldWorkWithApplicationPropertiesFormClassPath() throws Exception {
 
-        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("PropertiesTest-application", false, false);
+        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("PropertiesTest-application");
         propertiesApp.addServiceBuilder(new PropertiesTestConfiguration("test-with-application-properties",null));
 
         try {
@@ -58,7 +58,7 @@ public class PropertiesTest extends HttpUnitTest {
     @Test
     public void shouldWorkWithPlaceHoldersInApplicationFile() throws Exception {
 
-        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("properties-placeholder-application", false, false);
+        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("properties-placeholder-application");
         propertiesApp.addServiceBuilder(new PropertiesTestConfiguration("ppa-service",null));
 
         try {
@@ -76,7 +76,7 @@ public class PropertiesTest extends HttpUnitTest {
     @Test
     public void shouldWorkWithPlaceHoldersInServiceFile() throws Exception {
 
-        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("PropertiesTest-application", false, false);
+        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("PropertiesTest-application");
         propertiesApp.addServiceBuilder(new PropertiesTestConfiguration("props-with-placeholders",null));
 
         try {
@@ -94,7 +94,7 @@ public class PropertiesTest extends HttpUnitTest {
     @Test
     public void shouldWorkWithServicePropertiesFormClassPath() throws Exception {
 
-        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("PropertiesTest-application", false, false);
+        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("PropertiesTest-application");
         propertiesApp.addServiceBuilder(new PropertiesTestConfiguration());
 
         try {
@@ -119,7 +119,7 @@ public class PropertiesTest extends HttpUnitTest {
                 "info=info from external properties file".getBytes(),
                 StandardOpenOption.APPEND);
 
-        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("PropertiesTest-application", false, false);
+        DrinkWaterApplication propertiesApp = DrinkWaterApplication.create("PropertiesTest-application");
         propertiesApp.addServiceBuilder(new PropertiesTestConfiguration("test-external-properties", propertiesFile.getPath()));
 
         try {

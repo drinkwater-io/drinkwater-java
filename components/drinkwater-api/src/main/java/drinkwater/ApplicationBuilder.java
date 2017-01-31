@@ -8,7 +8,7 @@ import java.util.ArrayList;
 /**
  * Created by A406775 on 29/12/2016.
  */
-public class ApplicationBuilder {
+public class ApplicationBuilder implements IApplicationBuilder {
 
     private java.util.List<ServiceConfiguration> configurations = new ArrayList<>();
 

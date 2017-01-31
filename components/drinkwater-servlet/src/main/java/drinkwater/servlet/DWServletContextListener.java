@@ -1,6 +1,7 @@
 package drinkwater.servlet;
 
 import drinkwater.ApplicationBuilder;
+import drinkwater.ApplicationOptions;
 import drinkwater.core.DrinkWaterApplication;
 import javaslang.Tuple;
 import javaslang.Tuple2;
@@ -12,6 +13,8 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.logging.Logger;
+
+import static drinkwater.ApplicationOptionsBuilder.options;
 
 /**
  * Created by A406775 on 30/12/2016.
@@ -41,14 +44,20 @@ public final class DWServletContextListener implements ServletContextListener {
             Class eventLoggerClass = Class.forName(eventLogger);
             ApplicationBuilder builder = getServiceConfigurationBuilder(initParams, serviceBuilder);
 
+//            DrinkWaterApplication application =
+//                    DrinkWaterApplication.create(applicationName, false, useTracing);
+            ApplicationOptions options =  options();
+            options.setUseTracing(useTracing);
+            options.use(eventLoggerClass);
+
             DrinkWaterApplication application =
-                    DrinkWaterApplication.create(applicationName, false, useTracing);
+                    DrinkWaterApplication.create(applicationName, options);
 
             instance = application;
             drinkWaterApplication = application;
 
             application.addServiceBuilder(builder);
-            application.setEventLoggerClass(eventLoggerClass);
+//            application.setEventLoggerClass(eventLoggerClass);
             application.start();
 
         } catch (Exception ex) {

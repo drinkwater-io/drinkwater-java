@@ -7,6 +7,7 @@ import test.drinkwater.core.model.forStore.StoreApplication;
 
 import java.io.IOException;
 
+import static drinkwater.ApplicationOptionsBuilder.options;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class StoreTest {
@@ -14,7 +15,10 @@ public class StoreTest {
     @Test
     public void shouldStartSimpleStore() throws IOException {
 
-        try (DrinkWaterApplication app = DrinkWaterApplication.start("store-test", StoreApplication.class, null, false, false)){
+        try (DrinkWaterApplication app =
+                     DrinkWaterApplication
+                             .create("store-test", options().use(StoreApplication.class)
+                             .autoStart())){
 
             ISimpleDataStoreDependentService s = app.getService("store-dependent-service");
 

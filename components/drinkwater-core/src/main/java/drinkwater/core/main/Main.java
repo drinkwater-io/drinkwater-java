@@ -39,16 +39,16 @@ public class Main extends ServiceSupport {
     }
 
     public Main(String appName, ApplicationBuilder builder, Class EventLoggerClass) {
-        dwApplication = DrinkWaterApplication.create(appName, false, true);
+        dwApplication = DrinkWaterApplication.create(appName);
         dwApplication.addServiceBuilder(builder);
         dwApplication.setEventLoggerClass(EventLoggerClass);
     }
 
-    public Main(String appName, ApplicationBuilder builder, Class EventLoggerClass, boolean serviceManagement, boolean useTracing) {
-        dwApplication = DrinkWaterApplication.create(appName, serviceManagement, useTracing);
-        dwApplication.addServiceBuilder(builder);
-        dwApplication.setEventLoggerClass(EventLoggerClass);
-    }
+//    public Main(String appName, ApplicationBuilder builder, Class EventLoggerClass) {
+//        dwApplication = DrinkWaterApplication.create(appName);
+//        dwApplication.addServiceBuilder(builder);
+//        dwApplication.setEventLoggerClass(EventLoggerClass);
+//    }
 
     public ServiceRepository getDrinkWaterApplication() {
         return dwApplication;

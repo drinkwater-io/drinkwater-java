@@ -7,6 +7,9 @@ import test.drinkwater.core.model.ITestService;
 import test.drinkwater.core.model.TestConfiguration;
 import test.drinkwater.core.model.TestServiceImpl;
 
+import java.io.IOException;
+
+import static drinkwater.ApplicationOptionsBuilder.options;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -16,40 +19,40 @@ import static org.junit.Assert.assertTrue;
 public class DrinkWaterApplicationHistoryTest {
 
     @Test
-    public void shouldTakeSnapShotsAndRetainHistory() {
-        DrinkWaterApplication app = DrinkWaterApplication.create("core-test", false);
-        app.addServiceBuilder(new TestConfiguration());
-        app.start();
+    public void shouldTakeSnapShotsAndRetainHistory() throws IOException {
 
-        DrinkWaterApplicationHistory history = app.takeSnapShot();
-        assertTrue(app.history().size() == 1);
-        history = app.takeSnapShot();
-        assertTrue(app.history().size() == 2);
+        try (DrinkWaterApplication app = DrinkWaterApplication.create("core-test", options()
+                .use(TestConfiguration.class)
+                .autoStart())) {
 
-        app.stop();
+            DrinkWaterApplicationHistory history = app.takeSnapShot();
+            assertTrue(app.history().size() == 1);
+            history = app.takeSnapShot();
+            assertTrue(app.history().size() == 2);
+        }
     }
 
     @Test
-    public void shouldRevertToPreviousState() {
-        DrinkWaterApplication app = DrinkWaterApplication.create("core-test", false);
-        app.addServiceBuilder(new TestConfiguration());
-        app.start();
+    public void shouldRevertToPreviousState() throws IOException {
+        try (DrinkWaterApplication app = DrinkWaterApplication.create("core-test", options()
+                .use(TestConfiguration.class)
+                .autoStart())) {
 
-        ITestService testService = app.getService("test");
-        assertEquals("test info", testService.getInfo());
+            ITestService testService = app.getService("test");
+            assertEquals("test info", testService.getInfo());
 
-        app.takeSnapShot();
+            app.takeSnapShot();
 
-        //change the service
-        app.patchService("test", new TestServiceImpl("new Info"));
-        testService = app.getService("test");
-        assertEquals("new Info", testService.getInfo());
+            //change the service
+            app.patchService("test", new TestServiceImpl("new Info"));
+            testService = app.getService("test");
+            assertEquals("new Info", testService.getInfo());
 
-        //revert to last config
-        app.revertState();
-        testService = app.getService("test");
-        assertEquals("test info", testService.getInfo());
+            //revert to last config
+            app.revertState();
+            testService = app.getService("test");
+            assertEquals("test info", testService.getInfo());
 
-        app.stop();
+        }
     }
 }
