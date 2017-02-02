@@ -4,9 +4,9 @@
     <parent>
         <artifactId>examples</artifactId>
         <groupId>io.drinkwater</groupId>
-        <version>0.0.5</version>
+        <version>0.0.4-SNAPSHOT</version>
     </parent>
-    <artifactId>drinkwater.examples.drinktracker.asbeanclass</artifactId>
+    <artifactId>drinkwater.examples.drinktracker.asbean</artifactId>
     <dependencies>
         <dependency>
             <groupId>io.drinkwater</groupId>

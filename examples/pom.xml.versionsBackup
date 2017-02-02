@@ -20,21 +20,19 @@
     <parent>
         <artifactId>drinkwater</artifactId>
         <groupId>io.drinkwater</groupId>
-        <version>0.0.5</version>
+        <version>0.0.4-SNAPSHOT</version>
     </parent>
-    <artifactId>components</artifactId>
+    <artifactId>examples</artifactId>
     <packaging>pom</packaging>
     <modules>
-    
-    <module>drinkwater-servlet</module>
-        <module>drinkwater-core</module>
-        <module>drinkwater-test</module>
-        <module>drinkwater-cdi</module>
-        <module>drinkwater-rest</module>
-        <module>drinkwater-helper</module>
-        <module>drinkwater-api</module>
-        <module>drinkwater-datasource</module>
-        <module>drinkwater-datasource-postgres</module>
-        <module>drinkwater-datasource-postgres-embedded</module>
+        <module>drinkwater.examples.drinktracker</module>
+        <module>drinkwater.examples.drinktracker.asbean</module>
+        <module>drinkwater.examples.drinktracker.asbeanclass</module>
+        <module>drinkwater.examples.drinktracker.asrest</module>
+        <module>drinkwater.examples.drinktracker.benchmark</module>
+        <module>drinkwater.examples.multiservice</module>
+        <module>drinkwater.examples.multiservice.boot</module>
+        <module>drinkwater.examples.remote</module>
+        <module>drinkwater-examples-scheduler</module>
     </modules>
 </project>

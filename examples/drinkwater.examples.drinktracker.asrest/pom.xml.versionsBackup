@@ -4,10 +4,15 @@
     <parent>
         <artifactId>examples</artifactId>
         <groupId>io.drinkwater</groupId>
-        <version>0.0.5</version>
+        <version>0.0.4-SNAPSHOT</version>
     </parent>
-    <artifactId>drinkwater.examples.drinktracker.asbeanclass</artifactId>
+    <artifactId>drinkwater.examples.drinktracker.asrest</artifactId>
     <dependencies>
+        <dependency>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater-rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>

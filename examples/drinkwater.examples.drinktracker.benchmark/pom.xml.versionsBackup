@@ -4,24 +4,38 @@
     <parent>
         <artifactId>examples</artifactId>
         <groupId>io.drinkwater</groupId>
-        <version>0.0.5</version>
+        <version>0.0.4-SNAPSHOT</version>
     </parent>
-    <artifactId>drinkwater.examples.drinktracker.asbeanclass</artifactId>
+    <artifactId>drinkwater.examples.drinktracker.benchmark</artifactId>
     <dependencies>
+        <dependency>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater.examples.drinktracker.asbeanclass</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater.examples.drinktracker.asrest</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.drinkwater</groupId>
-            <artifactId>drinkwater.examples.drinktracker</artifactId>
-            <version>${project.version}</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
-            <artifactId>drinkwater-test</artifactId>
+            <artifactId>drinkwater.examples.drinktracker.asbean</artifactId>
             <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
