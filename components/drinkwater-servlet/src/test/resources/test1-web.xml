@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
-<!DOCTYPE web-app
+<!DOCTYPE web-propertyResolver
         PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
         "http://java.sun.com/dtd/web-app_2_3.dtd">
 
-<web-app>
+<web-propertyResolver>
 
     <!-- the test parameter is only to be used for unit testing -->
     <!-- you should not use this option for production usage -->
@@ -44,5 +44,5 @@
         <listener-class>drinkwater.servlet.DWServletContextListener</listener-class>
     </listener>
 
-</web-app>
+</web-propertyResolver>
         <!-- END SNIPPET: web -->

@@ -22,6 +22,9 @@ public class RoutingApplicationFromConfigFile extends ApplicationBuilder {
 
         }
 
+        addService("default_service", ITestRouting.class, TestRoutingImpl.class)
+                .asRest();
+
         IRoutingBuilder routing = addService("frontService", ITestRouting.class, TestRoutingImpl.class)
                 .useTracing(true).asRouteur()
                 .useHeader("ROUTINGHEADER");
@@ -30,5 +33,7 @@ public class RoutingApplicationFromConfigFile extends ApplicationBuilder {
                 ) {
             routing.route(serviceName, "service" + serviceName);
         }
+
+        routing.route("default", "default_service");
     }
 }

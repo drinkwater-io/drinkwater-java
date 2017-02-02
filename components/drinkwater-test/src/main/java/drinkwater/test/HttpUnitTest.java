@@ -14,6 +14,10 @@ public class HttpUnitTest {
         return new HttpTestRequest(HttpMethod.GET, request, null, HttpTestRequest.ResponseType.Object, objectType, headers);
     }
 
+    public static HttpTestRequest httpOptions(String request, Map<String, String> headers) {
+        return new HttpTestRequest(HttpMethod.OPTIONS, request, null, HttpTestRequest.ResponseType.String, null, headers);
+    }
+
     public static HttpTestRequest httpGet(String request) {
         return new HttpTestRequest(HttpMethod.GET, request, null, HttpTestRequest.ResponseType.Json);
     }

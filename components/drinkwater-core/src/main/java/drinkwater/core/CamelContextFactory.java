@@ -46,7 +46,7 @@ public class CamelContextFactory {
         return ctx;
     }
 
-    public static void initProperties(CamelContext context,
+    private static void initProperties(CamelContext context,
                                       IPropertiesAware applicationPropertiesAware,
                                       IPropertiesAware servicePropertiesAware) {
 

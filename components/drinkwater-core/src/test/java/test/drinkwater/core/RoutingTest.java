@@ -46,6 +46,15 @@ public class RoutingTest extends HttpUnitTest {
             result = httpGetString(frontHost, headers).result();
             assertEquals("propertyFromB", result);
 
+            //Route to B again
+            result = httpGetString(frontHost).result();
+            assertEquals("propertyFromdefault", result);
+
+            //Route to B again
+            headers.replace("ROUTINGHEADER", "B");
+            result = httpOptions(frontHost, headers).result();
+            assertEquals("OK", result);
+
         }
     }
 

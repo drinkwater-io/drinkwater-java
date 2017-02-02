@@ -18,7 +18,7 @@ public class ConsoleEventLogger implements IBaseEventLogger {
         } catch (Exception e) {
         }
 
-        System.out.println(event.getName() + " : " + event.getCorrelationId() + " -> " + event.getTime() + "  -  " + event.getDescription());
+        System.out.println(event.toString());
     }
 
 }

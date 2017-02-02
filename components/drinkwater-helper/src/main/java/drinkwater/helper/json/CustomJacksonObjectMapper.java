@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-//import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
  * Created by A406775 on 3/01/2017.
@@ -13,7 +13,7 @@ public class CustomJacksonObjectMapper extends ObjectMapper {
 
     public CustomJacksonObjectMapper() {
         //TODo fix this issue on deprecetion
-        //this.registerModule(new JSR310Module());
+        this.registerModule(new JavaTimeModule());
         this.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         this.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         this.enable(SerializationFeature.INDENT_OUTPUT);

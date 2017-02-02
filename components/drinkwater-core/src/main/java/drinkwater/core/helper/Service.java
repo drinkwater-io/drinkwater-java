@@ -5,6 +5,10 @@ import drinkwater.*;
 import drinkwater.core.CamelContextFactory;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.internal.RouteBuilders;
+import drinkwater.core.security.SimpleTokenProvider;
+import drinkwater.core.security.SimpleTokenValidation;
+import drinkwater.security.Credentials;
+import drinkwater.security.IAuthenticationService;
 import drinkwater.trace.*;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
@@ -12,9 +16,14 @@ import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static drinkwater.DrinkWaterConstants.*;
+import static drinkwater.DrinkWaterPropertyConstants.Authenticate_Enabled;
+import static drinkwater.DrinkWaterPropertyConstants.Authentication_Token_Encryption_Key;
+import static drinkwater.DrinkWaterPropertyConstants.Authentication_Token_Provider;
 
 /**
  * Created by A406775 on 29/12/2016.
@@ -41,6 +50,27 @@ public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver
         this.camelContext = CamelContextFactory.createCamelContext(dwa, serviceConfiguration);
         this.tracer = tracer;
         this._dwa = dwa;
+        this.addAuthenticationIfEnabled();
+    }
+
+    private void addAuthenticationIfEnabled()  {
+        try {
+            Boolean authEnabled = Boolean.parseBoolean(this.lookupProperty(Authenticate_Enabled));
+
+            if (authEnabled) {
+
+                String secret = this.safeLookupProperty(String.class, Authentication_Token_Encryption_Key, null);
+
+                SimpleTokenValidation tokenProvider = new SimpleTokenValidation(secret);
+
+                CamelContextFactory.registerBean(this.getCamelContext(),
+                        Authentication_Token_Provider,
+                        tokenProvider);
+            }
+        }
+        catch(Exception ex){
+            throw new RuntimeException("could not ad authentication", ex);
+        }
     }
 
     private static String directRouteFor(Class eventClass) {
@@ -84,6 +114,16 @@ public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver
     public Object lookupProperty(Class resultType, String uri)throws Exception{
             String value = lookupProperty(uri);
             return this.camelContext.getTypeConverter().convertTo(resultType, value);
+    }
+
+    @Override
+    public <T> T safeLookupProperty(Class<T> resultType, String uri, T defaultIfUnsafe) {
+        try {
+            T result = (T)lookupProperty(resultType, uri);
+            return result;
+        } catch (Exception e) {
+            return defaultIfUnsafe;
+        }
     }
 
     @Override

@@ -1,13 +1,12 @@
 package drinkwater.rest;
 
 import com.mashape.unirest.http.HttpMethod;
-import drinkwater.IDrinkWaterService;
-import drinkwater.IPropertyResolver;
-import drinkwater.IServiceConfiguration;
-import drinkwater.ITracer;
+import drinkwater.*;
 import drinkwater.helper.json.CustomJacksonObjectMapper;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.fileupload.FileUploadProcessor;
+import drinkwater.rest.security.SecurityProcessor;
+import drinkwater.security.UnauthorizedException;
 import drinkwater.trace.Operation;
 import javaslang.Tuple;
 import javaslang.Tuple2;
@@ -109,17 +108,6 @@ public class RestHelper {
 
     }
 
-    private static void mapOptionsForCors(RouteBuilder builder, String context) {
-//
-//        builder.rest("/*")
-//                .verb("OPTIONS", "").route()
-//                .setHeader("Access-Control-Allow-Origin", constant("*"))
-//                .setHeader("Access-Control-Allow-Methods", constant("*"))
-//                .setHeader("Access-Control-Allow-Headers", constant("*"))
-//                .setHeader("Allow", constant("*"));
-
-    }
-
 
     public static String formatMethod(Method m) {
         return m.getDeclaringClass().getSimpleName() + "." + m.getName();
@@ -134,13 +122,34 @@ public class RestHelper {
         return propertiesResolver.lookupProperty(portKey);
     }
 
+    private static String sinkPort(IPropertyResolver propertiesResolver) throws Exception {
+        String portKey = RestService.REST_SINK_PORT_KEY + ":8890";
+        return propertiesResolver.lookupProperty(portKey);
+    }
+
     private static String context(IPropertyResolver propertiesResolver, IServiceConfiguration config) throws Exception {
         return propertiesResolver.lookupProperty(RestService.REST_CONTEXT_KEY + ":" + config.getServiceName());
     }
 
+
+
     public static String endpointFrom(IPropertyResolver propertiesResolver, IServiceConfiguration config) throws Exception {
-        String serviceHost = "http://" + host(propertiesResolver) + ":" + port(propertiesResolver) + "/" + context(propertiesResolver, config);
+
+        String serviceHost = "";
+            serviceHost = "http://" + host(propertiesResolver) + ":" + port(propertiesResolver) + "/" + context(propertiesResolver, config);
         return serviceHost;
+
+    }
+
+
+    public static String getAllowedCorsheaders(IPropertyResolver propertiesResolver){
+        String genericHeaders = " Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers, Authorization, x-filename";
+        String additionalHeaders = propertiesResolver.safeLookupProperty(String.class,  RestService.CORS_CONTEXT_KEY,"");
+        additionalHeaders = (additionalHeaders.isEmpty() ? "" : "," + additionalHeaders);
+
+        String allowedHeadersList = genericHeaders + additionalHeaders;
+
+        return allowedHeadersList;
 
     }
 
@@ -157,36 +166,30 @@ public class RestHelper {
 
             RestPropertyDefinition corsAllowedHeaders = new RestPropertyDefinition();
             corsAllowedHeaders.setKey("Access-Control-Allow-Headers");
-            corsAllowedHeaders.setValue("origin, content-type, accept, authorization, x-filename, ngba_origin,ngba_user, Content-Disposition");
-
-//            cres.getHeaders().add("Access-Control-Allow-Origin", "*");
-//            cres.getHeaders().add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization, x-filename, icc-origin, icc-endpoint, icc-repository, Content-Disposition");
-//            cres.getHeaders().add("Access-Control-Expose-Headers", "x-filename");
-//            cres.getHeaders().add("Access-Control-Allow-Credentials", "true");
-//            cres.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
-//            cres.getHeaders().add("Access-Control-Max-Age", "1209600");
+            corsAllowedHeaders.setValue(getAllowedCorsheaders(propertiesResolver));
 
             // builder.getContext().getDataFormats();
-            RestConfigurationDefinition restConfig = builder.restConfiguration().component("jetty")
-                    .enableCORS(true)
-                    .scheme("http")
-                    .host(host(propertiesResolver))
-                    .port(port(propertiesResolver))
-                    .contextPath(context(propertiesResolver, config.getConfiguration()))
-                    .bindingMode(RestBindingMode.json)
-                    .jsonDataFormat("json-drinkwater");
+            RestConfigurationDefinition restConfig =
+                    builder.restConfiguration()
+                            .component("jetty")
+                            .enableCORS(true)
+                            .scheme("http")
+                            .host(host(propertiesResolver))
+                            .port(port(propertiesResolver))
+                            .contextPath(context(propertiesResolver, config.getConfiguration()))
+                            .bindingMode(RestBindingMode.json)
+                            .jsonDataFormat("json-drinkwater");
 
             restConfig.setCorsHeaders(singletonList(corsAllowedHeaders));
-
-            mapOptionsForCors(builder, context(propertiesResolver, config.getConfiguration()) );
 
         } catch (Exception ex) {
             throw new RuntimeException("could not configure the rest service correctly", ex);
         }
 
-        javaslang.collection.List.of(ReflectHelper.getPublicDeclaredMethods(bean.getClass()))
+        javaslang.collection
+                .List.of(ReflectHelper.getPublicDeclaredMethods(bean.getClass()))
                 .map(method -> buildRestRoute(builder, method, config.getTracer()))
-                .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2));
+                .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2, propertiesResolver));
     }
 
 
@@ -288,7 +291,11 @@ public class RestHelper {
 
     }
 
-    private static RouteDefinition routeToBeanMethod(RestDefinition restDefinition, Object bean, Method method) {
+    private static RouteDefinition routeToBeanMethod(
+            RestDefinition restDefinition,
+            Object bean,
+            Method method,
+            IPropertyResolver propertyResolver) {
         String camelMethod = camelMethodBuilder(method);
 
         RouteDefinition routeDefinition = restDefinition.route()
@@ -296,11 +303,22 @@ public class RestHelper {
                 .constant(Operation.of(method))
                 .to(ROUTE_serverReceivedEvent);
 
+        if(propertyResolver.safeLookupProperty(Boolean.class,
+                DrinkWaterPropertyConstants.Authenticate_Enabled,
+                true)){
+            routeDefinition.process(new SecurityProcessor());
+        }
+
+        routeDefinition.onException(UnauthorizedException.class)
+                .handled(true)
+                .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(401))
+                .setBody().constant("Unauthorized");
 
         routeDefinition.setHeader("Access-Control-Allow-Headers", constant("*"));
         routeDefinition.setHeader("Access-Control-Allow-Origin", constant("*"));
 
         routeDefinition.onException(Exception.class).to(ROUTE_exceptionEvent);
+
 
         //TODO create own process
         if (isMultipartBody(method)) {

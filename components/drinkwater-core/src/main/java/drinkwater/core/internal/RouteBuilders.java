@@ -9,6 +9,7 @@ import drinkwater.core.helper.Service;
 import drinkwater.rest.RestHelper;
 import drinkwater.trace.Operation;
 import javaslang.collection.List;
+import org.apache.camel.Exchange;
 import org.apache.camel.RoutesBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.ChoiceDefinition;
@@ -109,6 +110,7 @@ public class RouteBuilders {
     }
 
 
+    //TODO configure request headera nd response size
     public static RouteBuilder mapRoutingRoutes(ServiceRepository app, Service service) {
 
         return new RouteBuilder() {
@@ -119,9 +121,15 @@ public class RouteBuilders {
 
                 RouteDefinition frontRoute = from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true&optionsEnabled=true");
 
-                frontRoute = enableCorsOnRoute(frontRoute);
+                from("direct:SINK_OK_ENDPOINT").transform().constant("OK");
+
+                frontRoute = enableCorsOnRoute(frontRoute, service);
+
 
                 ChoiceDefinition choice = frontRoute.choice();
+
+                choice.when(header(Exchange.HTTP_METHOD)
+                        .isEqualTo("OPTIONS")).to("direct:SINK_OK_ENDPOINT").endChoice();
 
                 //TODO : fix the way to get the target host
                 service.getConfiguration().getRoutingMap().forEach(
@@ -129,8 +137,16 @@ public class RouteBuilders {
 
                             IServiceConfiguration s = app.getServiceDefinition(val);
 
-                            choice.when(header(service.getConfiguration().getRoutingHeader()).isEqualTo(key))
-                                    .setHeader(BeanOperationName).method(ExtractHttpMethodFromExchange.class).id("setOperationNameInHeader")
+                            ChoiceDefinition remapChoice = null;
+
+                            if(!"default".equalsIgnoreCase(key)){
+                                remapChoice =  choice.when(header(service.getConfiguration().getRoutingHeader()).contains(key));
+                            }
+                            else{
+                                remapChoice =  choice.otherwise();
+                            }
+
+                            remapChoice.setHeader(BeanOperationName).method(ExtractHttpMethodFromExchange.class).id("setOperationNameInHeader")
                                     .to(ROUTE_serverReceivedEvent).id("trace-received")
                                     .to("jetty:" + s.getServiceHost() + "?bridgeEndpoint=true&throwExceptionOnFailure=true")
                                     .to(ROUTE_serverSentEvent).id("trace-sent");
@@ -143,11 +159,13 @@ public class RouteBuilders {
         };
     }
 
-    private static RouteDefinition enableCorsOnRoute(RouteDefinition route) {
+    private static RouteDefinition enableCorsOnRoute(RouteDefinition route, Service service) {
+
+        String allowedHeaders = RestHelper.getAllowedCorsheaders(service);
         return route
                 .setHeader("Access-Control-Allow-Origin", constant("*"))
                 .setHeader("Access-Control-Allow-Methods", constant("GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH"))
-                .setHeader("Access-Control-Allow-Headers", constant("Origin, Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers,ngba_origin,ngba_user"))
+                .setHeader("Access-Control-Allow-Headers", constant(allowedHeaders))
                 .setHeader("Allow", constant("GET, OPTIONS, POST, PATCH"));
 
     }

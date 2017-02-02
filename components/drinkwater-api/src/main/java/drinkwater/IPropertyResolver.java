@@ -9,4 +9,6 @@ public interface IPropertyResolver {
 
     Object lookupProperty(Class resultType, String uri) throws Exception;
 
+    <T> T safeLookupProperty(Class<T> resultType, String uri, T defaultIfUnsafe);
+
 }

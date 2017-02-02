@@ -10,7 +10,7 @@ public class MockEventLogger implements IBaseEventLogger {
     private List<BaseEvent> events = new ArrayList<>();
 
     @Override
-    public synchronized void logEvent(BaseEvent event) {
+    public void logEvent(BaseEvent event) {
         events.add(event);
     }
 

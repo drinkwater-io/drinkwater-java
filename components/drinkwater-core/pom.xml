@@ -68,6 +68,11 @@
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jasypt</artifactId>
+            <version>2.18.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
             <artifactId>camel-jetty</artifactId>
             <version>2.18.1</version>
         </dependency>

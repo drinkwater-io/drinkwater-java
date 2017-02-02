@@ -32,7 +32,7 @@ public class GeneralUtils {
     }
 
     public static String toJsonString(Object obj) throws IOException {
-        CustomJacksonObjectMapper mapper = new CustomJacksonObjectMapper();
+        CustomJacksonObjectMapper mapper = new CustomJacksonObjectMapper(false);
         return mapper.writeValueAsString(obj);
     }
 

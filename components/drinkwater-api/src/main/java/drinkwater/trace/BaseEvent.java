@@ -62,6 +62,7 @@ public class BaseEvent {
 
     @Override
     public String toString() {
-        return time + "---" + correlationId + "---" + applicationName + "." + serviceName + "\t - " + name + "---" + description;
+
+        return time + " - " + correlationId + " | " + applicationName + "." + serviceName + "\t - " + name + " | " + description;
     }
 }

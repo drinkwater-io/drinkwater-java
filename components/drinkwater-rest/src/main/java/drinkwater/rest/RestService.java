@@ -12,6 +12,8 @@ public class RestService {
     public static final String REST_HOST_KEY = "drinkwater.rest.host";
     public static final String REST_PORT_KEY = "drinkwater.rest.port";
     public static final String REST_CONTEXT_KEY = "drinkwater.rest.contextpath";
+    public static final String CORS_CONTEXT_KEY = "cors.Access-Control-Allow-Headers";
+    public static final String REST_SINK_PORT_KEY = "routing.sink.port";
 
 
     public void start() {

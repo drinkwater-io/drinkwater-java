@@ -52,7 +52,23 @@ public class HttpTestRequest {
         Unirest.setTimeouts(connectionTimeOut, disabledSocketTimeOut);
 
         try {
-            if (method == HttpMethod.GET) {
+            if (method == HttpMethod.OPTIONS) {
+                HttpRequestWithBody optionsRequest = Unirest.options(request);
+
+                if (headers != null) {
+                    headers.forEach((key, value) -> optionsRequest.header(key, value));
+                }
+
+                if (responseType == ResponseType.Json) {
+                    jsonResponse = optionsRequest.asJson();
+                } else if (responseType == ResponseType.Object) {
+                    objectResponse = optionsRequest.asObject(objectType);
+                } else {
+                    optionsRequest.header("accept", "text/plain");
+                    stringResponse = optionsRequest.asString();
+                }
+
+            }else  if (method == HttpMethod.GET) {
                 GetRequest getrequest = Unirest.get(request);
 
                 if (headers != null) {

@@ -7,10 +7,12 @@ import drinkwater.core.helper.StoreProxy;
 import drinkwater.core.internal.*;
 import drinkwater.core.reflect.BeanClassInvocationHandler;
 import drinkwater.core.reflect.BeanInvocationHandler;
+import drinkwater.core.security.SimpleTokenProvider;
 import drinkwater.helper.GeneralUtils;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.RestInvocationHandler;
 import drinkwater.rest.RestService;
+import drinkwater.security.ITokenProvider;
 import drinkwater.trace.JavaLoggingEventLogger;
 import javaslang.collection.List;
 import org.apache.camel.CamelContext;
@@ -31,6 +33,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static drinkwater.DrinkWaterPropertyConstants.*;
+
 //import javax.enterprise.inject.Vetoed;
 
 /**
@@ -41,7 +45,9 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     public static final String DW_STATICHANDLER = "dw-static-management-handler";
     public static final String DW_STATIC_WWW_HANDLER = "dw-static-www-handler";
+
     private static Logger logger = Logger.getLogger(DrinkWaterApplication.class.getName());
+
 
     static {
         //FIXME manage the logging system
@@ -61,9 +67,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     private List<IDrinkWaterService> services;
     private Map<String, Object> serviceProxies;
     private Service managementService;
-    //private boolean useServiceManagement = false;
-    //    private EventAggregator eventAggregator = new EventAggregator();
-    // private boolean isTraceMaster = true;
+    private Service tokenService;
     private ApplicationOptions options;
     private Class eventLoggerClass = null;
     //fixme : should support multiple service builder
@@ -88,7 +92,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     public static DrinkWaterApplication create() {
-        return create((String)null);
+        return create((String) null);
     }
 
     public static DrinkWaterApplication create(String name) {
@@ -99,10 +103,10 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         return create(null, options);
     }
 
-    public static DrinkWaterApplication create(String name, ApplicationOptions options){
+    public static DrinkWaterApplication create(String name, ApplicationOptions options) {
         try {
             DrinkWaterApplication app = new DrinkWaterApplication(name, options);
-            if(options != null) {
+            if (options != null) {
                 app.setEventLoggerClass(options.getEventLoggerClass());
                 if (options.getApplicationBuilderClass() != null) {
                     Constructor ct = options.getApplicationBuilderClass().getConstructor();
@@ -120,83 +124,93 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
     }
 
-//    public static DrinkWaterApplication create(String name, Class configurationClass, Class eventLoggerClass) {
-//
-//    }
 
-//    public static DrinkWaterApplication create(String name) {
-//        return new DrinkWaterApplication(name);
-//    }
+    private void startTokenServiceIfEnabled() {
+        if (this.safeLookupProperty(Boolean.class, Authentication_token_service_enabled, false)) {
 
-//    public static DrinkWaterApplication create(String name, boolean useServiceManagement, boolean traceMaster) {
-//        return new DrinkWaterApplication(name, useServiceManagement, traceMaster);
-//    }
+            ServiceConfiguration config =
+                    (ServiceConfiguration) new ServiceConfiguration()
+                            .forService(ITokenProvider.class)
+                            .useBeanClass(SimpleTokenProvider.class)
+                            .addInitialProperty(Authentication_token_service_enabled, false)
+                            .name("auth")
+                            .asRest();
 
-//    public static DrinkWaterApplication start(String name, Class configurationClass) {
-//        DrinkWaterApplication app = create(name, configurationClass);
-//        app.start();
-//        return app;
-//    }
-//
-//    public static DrinkWaterApplication start(Class configurationClass) {
-//        DrinkWaterApplication app = create(null, configurationClass);
-//        app.start();
-//        return app;
-//    }
-//
-//    public static DrinkWaterApplication start(Class configurationClass, Class eventLoggerClass) {
-//        DrinkWaterApplication app = create(null, configurationClass, eventLoggerClass);
-//        app.start();
-//        return app;
-//    }
-//
-//    public static DrinkWaterApplication start(String name,
-//                                              Class configurationClass,
-//                                              Class eventLoggerClass){
-//        DrinkWaterApplication app = create(name, configurationClass, eventLoggerClass);
-////        , useServiceManagement, traceMaster);
-//        app.start();
-//        return app;
-//    }
+            tokenService = createServiceFromConfig(config, tracer);
+
+            tokenService.start();
+
+        }
+    }
+
+    private void stopTokenServiceIfEnabled() {
+        if (tokenService != null) {
+            tokenService.stop();
+        }
+    }
 
 
-    private static RouteBuilder createCoreRoutes(Service managementService, DrinkWaterApplication app) {
-        return new RouteBuilder() {
+    private static void addWWWIfEnabled(DrinkWaterApplication app) throws Exception {
+        Boolean serveStaticWWW = Boolean.parseBoolean(app.lookupProperty(WWW_Enabled));
 
-            @Override
-            public void configure() throws Exception {
+        if (serveStaticWWW) {
+            RouteBuilder WWWRouteBuilder = new RouteBuilder() {
 
-                String managementHost = app.lookupProperty("management.host:0.0.0.0");
-                String managementPort = app.lookupProperty("management.port:9000");
-                String managementHostAndPort = managementHost + ":" + managementPort;
+                @Override
+                public void configure() throws Exception {
 
-                from(String.format(
-                        "jetty:http://%s?handlers=%s", managementHostAndPort, DW_STATICHANDLER))
-                        .to("mock:empty?retainFirst=1");
 
-                logger.info("management web page can be found here : http://" + managementHostAndPort);
+                    CamelContextFactory.registerBean(app.applicationLevelContext, DW_STATIC_WWW_HANDLER, getWWWResourceHandler());
 
-                Boolean serveStaticWWW = Boolean.parseBoolean(app.lookupProperty("www.enabled:false"));
-
-                if (serveStaticWWW) {
-                    String wwwHost = app.lookupProperty("www.host:0.0.0.0");
-                    String wwwPort = app.lookupProperty("www.port:8080");
-                    String wwwHostAndPort = wwwHost + ":" + wwwPort;
+                    String wwwHost = app.lookupProperty(WWW_Host);
+                    String wwwPort = app.lookupProperty(WWW_Port);
+                    String wwwRoot = app.lookupProperty(WWW_Root);
+                    String wwwHostAndPort = wwwHost + ":" + wwwPort + "/" + wwwRoot;
 
                     from(String.format(
                             "jetty:http://%s?handlers=%s", wwwHostAndPort, DW_STATIC_WWW_HANDLER))
                             .to("mock:empty?retainFirst=1");
 
                     logger.info("static files served from : http://" + wwwHostAndPort);
+
+
+                }
+            };
+            app.applicationLevelContext.addRoutes(WWWRouteBuilder);
+        }
+    }
+
+    private static void addManagementWebApplication(DrinkWaterApplication app) throws Exception {
+        if (app.options.isUseServiceManagement()) {
+            RouteBuilder ManagementWebApplicationRouteBuilder = new RouteBuilder() {
+
+                @Override
+                public void configure() throws Exception {
+
+
+                    CamelContextFactory.registerBean(app.applicationLevelContext,
+                            DW_STATICHANDLER,
+                            getManagementResourceHandler());
+
+                    String managementHost = app.lookupProperty(Management_Host);
+                    String managementPort = app.lookupProperty(Management_Port);
+                    String managementHostAndPort = managementHost + ":" + managementPort;
+
+                    from(String.format(
+                            "jetty:http://%s?handlers=%s", managementHostAndPort, DW_STATICHANDLER))
+                            .to("mock:empty?retainFirst=1");
+
+                    logger.info("management web page can be found here : http://" + managementHostAndPort);
+
+                    from(String.format(
+                            "jetty:http://%s/stopApplication?httpMethodRestrict=POST", managementHost))
+                            .bean(new ShutDownDrinkWaterBean(app)).id("app_shutdown");
                 }
 
-                from(String.format(
-                        "jetty:http://%s/stopApplication?httpMethodRestrict=POST", managementHost))
-                        .bean(new ShutDownDrinkWaterBean(app)).id("app_shutdown");
 
-
-            }
-        };
+            };
+            app.applicationLevelContext.addRoutes(ManagementWebApplicationRouteBuilder);
+        }
     }
 
     private static ResourceHandler getManagementResourceHandler() {
@@ -224,7 +238,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     private ApplicationOptions getOptions() {
-        if(this.options == null){
+        if (this.options == null) {
             this.options = ApplicationOptions.from(this);
         }
 
@@ -270,6 +284,9 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
             applicationLevelContext.getShutdownStrategy().setTimeout(1000);
             applicationLevelContext.getShutdownStrategy().setTimeUnit(TimeUnit.NANOSECONDS);
             applicationLevelContext.start();
+
+            addWWWIfEnabled(this);
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -368,6 +385,9 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
             startTracingRoute();
 
+            startTokenServiceIfEnabled();
+
+
             for (IDrinkWaterService service : services) {
                 service.start();
             }
@@ -377,8 +397,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
             }
 
             state = ApplicationState.Up;
-        }
-        finally {
+        } finally {
             timingWath.stop();
         }
 
@@ -407,6 +426,8 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
                 stopManagementService();
             }
 
+            stopTokenServiceIfEnabled();
+
             stopDataStores();
 
             stopApplicationContext();
@@ -418,7 +439,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
 
     }
-
 
 
     private void startDataStores() {
@@ -578,12 +598,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
             managementService = createServiceFromConfig(config, tracer);
 
-            CamelContextFactory.registerBean(applicationLevelContext, DW_STATICHANDLER, getManagementResourceHandler());
-            CamelContextFactory.registerBean(applicationLevelContext, DW_STATIC_WWW_HANDLER, getWWWResourceHandler());
-
-
-            applicationLevelContext.addRoutes(createCoreRoutes(managementService, this));
-
+            addManagementWebApplication(this);
 
             managementService.start();
 
@@ -754,6 +769,15 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         return this.applicationLevelContext.getTypeConverter().convertTo(resultType, value);
     }
 
+    @Override
+    public <T> T safeLookupProperty(Class<T> resultType, String uri, T defaultIfUnsafe) {
+        try {
+            T result = (T) lookupProperty(resultType, uri);
+            return result;
+        } catch (Exception e) {
+            return defaultIfUnsafe;
+        }
+    }
 
     public PropertiesComponent getPropertiesComponent() {
         if (propertiesComponent == null) {
