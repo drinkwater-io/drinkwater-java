@@ -18,4 +18,5 @@ coverage/i
 /frontend/ui/nbproject/private/
 start-env.bat
 *.releaseBackup
+*.versionsBackup
 release.properties
