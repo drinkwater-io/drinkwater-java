@@ -25,6 +25,7 @@
     <artifactId>examples</artifactId>
     <packaging>pom</packaging>
     <modules>
+    <module>drinkwater.examples.getstarted</module>
         <module>drinkwater.examples.drinktracker</module>
         <module>drinkwater.examples.drinktracker.asbean</module>
         <module>drinkwater.examples.drinktracker.asbeanclass</module>
