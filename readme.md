@@ -1,4 +1,6 @@
-#DrinkWater
+[![Build Status](https://travis-ci.org/drinkwater-io/drinkwater-java.svg?branch=master)](https://travis-ci.org/drinkwater-io/drinkwater-java)
+
+#DrinkWater 
 
 layer on top of camel to create and manage (micro)services easily
 
