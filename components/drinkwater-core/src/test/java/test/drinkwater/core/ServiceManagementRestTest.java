@@ -27,19 +27,15 @@ public class ServiceManagementRestTest extends HttpUnitTest {
 
     @AfterClass
     public static void stop() {
-        app.stop();
+        if(app != null) {
+            app.stop();
+        }
     }
 
     @Test
     public void checkTestServiceEndpoint() throws UnirestException {
         httpGetString(DEFAULT_REST_HOST_AND_PORT + "/test/info").expectsBody("test info");
 
-//        MetricRegistry registry = app.getTracer().getMetrics();
-//
-//        Map<String, Metric> metrics = registry.getMetrics();
-//
-//        assertNotNull(metrics.get("TestServiceImpl.getInfo"));
-//        assertTrue(metrics.get("TestServiceImpl.getInfo") instanceof Timer);
     }
 
 

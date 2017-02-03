@@ -182,34 +182,43 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     private static void addManagementWebApplication(DrinkWaterApplication app) throws Exception {
         if (app.options.isUseServiceManagement()) {
+
             RouteBuilder ManagementWebApplicationRouteBuilder = new RouteBuilder() {
 
                 @Override
                 public void configure() throws Exception {
 
+                    String managementHostAndPort = "notInitialized";
 
-                    CamelContextFactory.registerBean(app.applicationLevelContext,
-                            DW_STATICHANDLER,
-                            getManagementResourceHandler());
+                    try {
+                        CamelContextFactory.registerBean(app.applicationLevelContext,
+                                DW_STATICHANDLER,
+                                getManagementResourceHandler());
 
-                    String managementHost = app.lookupProperty(Management_Host);
-                    String managementPort = app.lookupProperty(Management_Port);
-                    String managementHostAndPort = managementHost + ":" + managementPort;
+                        String managementHost = app.lookupProperty(Management_Host);
+                        String managementPort = app.lookupProperty(Management_Port);
+                        managementHostAndPort = managementHost + ":" + managementPort;
 
-                    from(String.format(
-                            "jetty:http://%s?handlers=%s", managementHostAndPort, DW_STATICHANDLER))
-                            .to("mock:empty?retainFirst=1");
+                        from(String.format(
+                                "jetty:http://%s?handlers=%s", managementHostAndPort, DW_STATICHANDLER))
+                                .to("mock:empty?retainFirst=1");
 
-                    logger.info("management web page can be found here : http://" + managementHostAndPort);
+                        logger.info("management web page can be found here : http://" + managementHostAndPort);
 
-                    from(String.format(
-                            "jetty:http://%s/stopApplication?httpMethodRestrict=POST", managementHost))
-                            .bean(new ShutDownDrinkWaterBean(app)).id("app_shutdown");
+                        from(String.format(
+                                "jetty:http://%s/stopApplication?httpMethodRestrict=POST", managementHostAndPort))
+                                .bean(new ShutDownDrinkWaterBean(app)).id("app_shutdown");
+                    } catch (Exception ex) {
+                        String message = "could not start management web application on : " + managementHostAndPort;
+                        logger.severe(message);
+                        throw new Exception(message, ex);
+                    }
                 }
 
 
             };
             app.applicationLevelContext.addRoutes(ManagementWebApplicationRouteBuilder);
+
         }
     }
 
