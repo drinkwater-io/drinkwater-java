@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static drinkwater.ApplicationOptionsBuilder.tracedApplication;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,6 +100,9 @@ public class TracingTest extends HttpUnitTest {
             Thread.sleep(500); //let it
             //check created file
             List<String> expectedLines = Files.readAllLines(Paths.get(createdFolder.listFiles()[0].toURI()));
+
+            System.out.println(expectedLines.stream().collect(Collectors.joining(System.lineSeparator())));
+
             assertEquals(2, expectedLines.size());
 
         }finally {

@@ -79,7 +79,7 @@ public abstract class AbstractEventLogger implements IBaseEventLogger {
 
         String line_sep = System.getProperty("line.separator");
         str = str.trim().replaceAll(line_sep, "");
-        str = str.trim().replaceAll("\n", "");
+        str = str.trim().replaceAll(System.lineSeparator(), "");
 
         return str;
     }

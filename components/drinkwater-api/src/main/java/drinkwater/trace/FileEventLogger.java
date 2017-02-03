@@ -43,7 +43,7 @@ public class FileEventLogger extends AbstractEventLogger {
 
     public synchronized void writeToFile(BaseEvent event) {
         try {
-            String serializedEvent = serializeEvent(event) + System.getProperty("line.separator");
+            String serializedEvent = serializeEvent(event) + System.lineSeparator();
             Files.write(getFilePath(), serializedEvent.getBytes(), StandardOpenOption.APPEND, StandardOpenOption.SYNC);
         } catch (Exception e) {
             throw new RuntimeException(e);
