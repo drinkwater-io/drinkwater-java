@@ -20,7 +20,7 @@
     <parent>
         <artifactId>drinkwater</artifactId>
         <groupId>io.drinkwater</groupId>
-        <version>0.0.7</version>
+        <version>0.0.8-SNAPSHOT</version>
     </parent>
     <artifactId>examples</artifactId>
     <packaging>pom</packaging>
