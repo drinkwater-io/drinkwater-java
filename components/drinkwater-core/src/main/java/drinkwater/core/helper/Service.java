@@ -1,14 +1,14 @@
 package drinkwater.core.helper;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import drinkwater.*;
+import drinkwater.IServiceConfiguration;
+import drinkwater.ITracer;
+import drinkwater.ServiceScheme;
+import drinkwater.ServiceState;
 import drinkwater.core.CamelContextFactory;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.internal.RouteBuilders;
-import drinkwater.core.security.SimpleTokenProvider;
 import drinkwater.core.security.SimpleTokenValidation;
-import drinkwater.security.Credentials;
-import drinkwater.security.IAuthenticationService;
 import drinkwater.trace.*;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
@@ -16,19 +16,15 @@ import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 import static drinkwater.DrinkWaterConstants.*;
-import static drinkwater.DrinkWaterPropertyConstants.Authenticate_Enabled;
-import static drinkwater.DrinkWaterPropertyConstants.Authentication_Token_Encryption_Key;
-import static drinkwater.DrinkWaterPropertyConstants.Authentication_Token_Provider;
+import static drinkwater.DrinkWaterPropertyConstants.*;
 
 /**
  * Created by A406775 on 29/12/2016.
  */
-public class Service implements drinkwater.IDrinkWaterService, IPropertyResolver {
+public class Service implements drinkwater.IDrinkWaterService {
 
     @JsonIgnore
     DrinkWaterApplication _dwa;

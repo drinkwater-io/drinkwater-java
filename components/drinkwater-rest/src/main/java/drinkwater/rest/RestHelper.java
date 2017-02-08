@@ -311,6 +311,7 @@ public class RestHelper {
 
         routeDefinition.onException(UnauthorizedException.class)
                 .handled(true)
+                .setHeader("WWW-Authenticate").constant("TOKEN")
                 .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(401))
                 .setBody().constant("Unauthorized");
 

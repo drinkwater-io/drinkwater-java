@@ -1,12 +1,14 @@
 package drinkwater.core.internal;
 
-import drinkwater.IServiceConfiguration;
+import drinkwater.IDrinkWaterService;
 import drinkwater.ServiceRepository;
+import drinkwater.ServiceScheme;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.helper.BeanFactory;
 import drinkwater.core.helper.ExtractHttpMethodFromExchange;
 import drinkwater.core.helper.Service;
 import drinkwater.rest.RestHelper;
+import drinkwater.security.UnauthorizedException;
 import drinkwater.trace.Operation;
 import javaslang.collection.List;
 import org.apache.camel.Exchange;
@@ -54,28 +56,36 @@ public class RouteBuilders {
             @Override
             public void configure() throws Exception {
 
-                String enpoint = "quartz2://" + groupName + "/" +
-                        service.getConfiguration().getServiceName() + "?fireNow=true";
+                boolean jobActive = service.safeLookupProperty(Boolean.class, "job.activated" ,true);
 
-                Object bean = BeanFactory.createBean(app, service.getConfiguration(), service);
+                if(jobActive) {
 
-                String cronExpression = service.getConfiguration().getCronExpression();
+                    Object bean = BeanFactory.createBean(app, service.getConfiguration(), service);
 
-                cronExpression =
-                        service.lookupProperty(service.getConfiguration().getCronExpression() + ":" + cronExpression);
+                    String cronExpression = service.getConfiguration().getCronExpression();
+                    long interval = service.getConfiguration().getRepeatInterval();
 
-                if (cronExpression == null) {
-                    cronExpression = cronExpression.replaceAll(" ", "+");
-                    enpoint += "&cron=" + cronExpression;
+                    cronExpression =
+                            service.lookupProperty(service.getConfiguration().getCronExpression() + ":" + cronExpression);
 
-                } else {
-                    enpoint += "&trigger.repeatInterval=" + service.getConfiguration().getRepeatInterval();
+                    interval = service.safeLookupProperty(Long.class, "job.interval", interval);
+
+                    String enpoint = "quartz2://" + groupName + "/" +
+                            service.getConfiguration().getServiceName() + "?fireNow=true";
+
+                    if (cronExpression == null) {
+                        cronExpression = cronExpression.replaceAll(" ", "+");
+                        enpoint += "&cron=" + cronExpression;
+
+                    } else {
+                        enpoint += "&trigger.repeatInterval=" + interval;
+                    }
+
+                    //camel needs + instead of white space
+
+                    //TODO : check correctness of expression see camel doc here the job must have only one method !!!!
+                    from(enpoint).bean(bean);
                 }
-
-                //camel needs + instead of white space
-
-                //TODO : check correctness of expression see camel doc here the job must have only one method !!!!
-                from(enpoint).bean(bean);
 
             }
         };
@@ -111,7 +121,7 @@ public class RouteBuilders {
 
 
     //TODO configure request headera nd response size
-    public static RouteBuilder mapRoutingRoutes(ServiceRepository app, Service service) {
+    public static RouteBuilder mapRoutingRoutes(DrinkWaterApplication app, Service service) {
 
         return new RouteBuilder() {
             @Override
@@ -125,6 +135,12 @@ public class RouteBuilders {
 
                 frontRoute = enableCorsOnRoute(frontRoute, service);
 
+                frontRoute.onException(UnauthorizedException.class)
+                        .handled(true)
+                        .setHeader("WWW-Authenticate").constant("TOKEN")
+                        .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(401))
+                        .setBody().constant("Unauthorized");
+
 
                 ChoiceDefinition choice = frontRoute.choice();
 
@@ -135,21 +151,35 @@ public class RouteBuilders {
                 service.getConfiguration().getRoutingMap().forEach(
                         (key, val) -> {
 
-                            IServiceConfiguration s = app.getServiceDefinition(val);
+                            // IServiceConfiguration s = app.getServiceDefinition(val);
+                            IDrinkWaterService serviceTemp = app.getDrinkWaterService(val);
+
+                            //Issue #8
+                            //TODO better correction needed.
+                            String serviceHost = serviceTemp.getConfiguration().getServiceHost();
+                            if (serviceTemp.getConfiguration().getScheme() == ServiceScheme.Routeur) {
+                                try {
+                                    serviceHost = endpointFrom(serviceTemp, serviceTemp.getConfiguration());
+                                } catch (Exception e) {
+                                    throw new RuntimeException();
+                                }
+                            }
 
                             ChoiceDefinition remapChoice = null;
 
-                            if(!"default".equalsIgnoreCase(key)){
-                                remapChoice =  choice.when(header(service.getConfiguration().getRoutingHeader()).contains(key));
-                            }
-                            else{
-                                remapChoice =  choice.otherwise();
+                            if (!"default".equalsIgnoreCase(key)) {
+                                remapChoice = choice.when(header(service.getConfiguration().getRoutingHeader()).contains(key));
+                            } else {
+                                remapChoice = choice.otherwise();
                             }
 
                             remapChoice.setHeader(BeanOperationName).method(ExtractHttpMethodFromExchange.class).id("setOperationNameInHeader")
                                     .to(ROUTE_serverReceivedEvent).id("trace-received")
-                                    .to("jetty:" + s.getServiceHost() + "?bridgeEndpoint=true&throwExceptionOnFailure=true")
+                                    .to("jetty:" + serviceHost + "?bridgeEndpoint=true&throwExceptionOnFailure=true")
+                                    //TODO overall Exception handling for each routes
                                     .to(ROUTE_serverSentEvent).id("trace-sent");
+
+
 
                         }
 

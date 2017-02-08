@@ -1,13 +1,13 @@
 package test.drinkwater.core;
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.helper.GeneralUtils;
 import drinkwater.core.security.SimpleToken;
+import drinkwater.helper.GeneralUtils;
 import drinkwater.security.Credentials;
 import drinkwater.test.HttpUnitTest;
 import drinkwater.trace.ConsoleEventLogger;
-import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.junit.Test;
+import test.drinkwater.core.model.forSecurity.ADSecurityTest;
 import test.drinkwater.core.model.forSecurity.SecurityTestConfiguration;
 import test.drinkwater.core.model.forSecurity.TokenProviderConfiguration;
 
@@ -90,5 +90,27 @@ public class SecurityTest extends HttpUnitTest {
         properties.put("roles", "HEARTH_PROTECTOR,GLOGOTH_KILLER");
 
         return  SimpleToken.createFakeToken("secret", validity, properties);
+    }
+
+   // @Test
+    public void shouldCreateNewTokenFromAD() throws Exception {
+        try (DrinkWaterApplication app =
+                     DrinkWaterApplication.create("security-ad-test",
+                             options()
+                                     .useTracing()
+                                     .use(ADSecurityTest.class)
+                                     .use(ConsoleEventLogger.class)
+                                     .autoStart())) {
+            String result = "";
+
+            Credentials credentials = new Credentials("xxx","xx");
+            String body = GeneralUtils.toJsonString(credentials);
+
+            result = httpPostRequestString("http://localhost:8889/auth/token", body)
+                    .expectsStatus(200)
+                    .result();
+
+            assertThat(result).isNotNull();
+        }
     }
 }

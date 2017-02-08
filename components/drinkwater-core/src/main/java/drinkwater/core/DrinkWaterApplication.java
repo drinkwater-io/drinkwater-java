@@ -565,13 +565,19 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         return (T) dataStores.get(0).getTarget();
     }
 
-    @Override
     public IServiceConfiguration getServiceDefinition(String serviceName) {
         return
                 services.filter(s -> s.getConfiguration().getServiceName().equals(serviceName))
                         .map(s -> s.getConfiguration())
                         .get();
     }
+
+    public IDrinkWaterService getDrinkWaterService(String serviceName) {
+        return
+                services.filter(s -> s.getConfiguration().getServiceName().equals(serviceName))
+                        .get();
+    }
+
 
     private void startExternalServices() {
         restConfiguration.start();

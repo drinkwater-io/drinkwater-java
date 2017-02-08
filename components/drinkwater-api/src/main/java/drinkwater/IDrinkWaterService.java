@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 /**
  * Created by A406775 on 2/01/2017.
  */
-public interface IDrinkWaterService {
+public interface IDrinkWaterService extends IPropertyResolver {
 
     ITracer getTracer();
 

@@ -46,14 +46,32 @@ public class RoutingTest extends HttpUnitTest {
             result = httpGetString(frontHost, headers).result();
             assertEquals("propertyFromB", result);
 
-            //Route to B again
+            //Route with no headers => default
             result = httpGetString(frontHost).result();
             assertEquals("propertyFromdefault", result);
 
-            //Route to B again
+            //Route to B again with Options
             headers.replace("ROUTINGHEADER", "B");
             result = httpOptions(frontHost, headers).result();
             assertEquals("OK", result);
+
+            //Route to SubRouting to Y
+            headers.replace("ROUTINGHEADER", "sub");
+            headers.put("SUBROUTINGHEADER", "Y");
+            result = httpGetString(frontHost, headers).result();
+            assertEquals("propertyFromY", result);
+
+            //Route to SubRouting to X
+            headers.replace("ROUTINGHEADER", "sub");
+            headers.replace("SUBROUTINGHEADER", "X");
+            result = httpGetString(frontHost, headers).result();
+            assertEquals("propertyFromX", result);
+
+            //Route to SubRouting to default
+            headers.replace("ROUTINGHEADER", "sub");
+            headers.remove("SUBROUTINGHEADER");
+            result = httpGetString(frontHost, headers).result();
+            assertEquals("propertyFromdefault", result);
 
         }
     }

@@ -7,11 +7,12 @@
         <version>0.0.8-SNAPSHOT</version>
     </parent>
     <artifactId>drinkwater.examples.getstarted</artifactId>
-    <dependencies><dependency>
+    <dependencies>
+        <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
             <version>${project.version}</version>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-test</artifactId>
