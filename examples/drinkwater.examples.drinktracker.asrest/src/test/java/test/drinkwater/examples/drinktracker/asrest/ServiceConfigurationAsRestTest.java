@@ -12,6 +12,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static drinkwater.ApplicationOptionsBuilder.options;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -24,9 +25,7 @@ public class ServiceConfigurationAsRestTest extends HttpUnitTest {
 
     @BeforeClass
     public static void setup() throws Exception {
-        app = DrinkWaterApplication.create();
-        app.addServiceBuilder(new ApplicationAsRest());
-        app.start();
+        app = DrinkWaterApplication.create(options().use(ApplicationAsRest.class).autoStart());
     }
 
     @AfterClass

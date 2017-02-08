@@ -1,7 +1,9 @@
 package drinkwater.examples.multiservice.boot;
 
 
-import drinkwater.core.main.Main;
+import drinkwater.core.main.Drinkwater;
+
+import static drinkwater.ApplicationOptionsBuilder.options;
 
 /**
  * Hello world!
@@ -10,8 +12,6 @@ import drinkwater.core.main.Main;
 public class App 
 {
     public static void main( String[] args ) throws Exception {
-        System.out.println( "Starting multi service sample" );
-        Main main = new Main("multiservice", new MultiServiceApplication());
-        main.run();
+        Drinkwater.run("multiservice", options().use(MultiServiceApplication.class));
     }
 }

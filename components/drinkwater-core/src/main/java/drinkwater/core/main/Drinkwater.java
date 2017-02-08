@@ -1,7 +1,6 @@
 package drinkwater.core.main;
 
-import drinkwater.ApplicationBuilder;
-import drinkwater.ServiceRepository;
+import drinkwater.ApplicationOptions;
 import drinkwater.core.DrinkWaterApplication;
 import org.apache.camel.support.ServiceSupport;
 import org.slf4j.Logger;
@@ -12,11 +11,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static drinkwater.ApplicationOptionsBuilder.options;
+
 /**
  * Created by A406775 on 2/01/2017.
  */
-public class Main extends ServiceSupport {
-    protected static final Logger LOG = LoggerFactory.getLogger(Main.class.getName());
+public class Drinkwater extends ServiceSupport {
+    protected static final Logger LOG = LoggerFactory.getLogger(Drinkwater.class.getName());
     protected static final int UNINITIALIZED_EXIT_CODE = Integer.MIN_VALUE;
     protected static final int DEFAULT_EXIT_CODE = 0;
     protected final CountDownLatch latch = new CountDownLatch(1);
@@ -29,34 +30,27 @@ public class Main extends ServiceSupport {
     protected int durationHitExitCode = DEFAULT_EXIT_CODE;
     private DrinkWaterApplication dwApplication;
 
-    public Main(ApplicationBuilder builder) {
-        dwApplication = DrinkWaterApplication.create();
-        dwApplication.addServiceBuilder(builder);
+    private Drinkwater(ApplicationOptions options){
+        dwApplication = DrinkWaterApplication.create(options);
     }
 
-    public Main(String appName, ApplicationBuilder builder) {
-        dwApplication = DrinkWaterApplication.create(appName);
-        dwApplication.addServiceBuilder(builder);
+    private Drinkwater(String name, ApplicationOptions options){
+        dwApplication = DrinkWaterApplication.create(name, options);
     }
 
-    public Main(String appName, ApplicationBuilder builder, Class EventLoggerClass) {
-        dwApplication = DrinkWaterApplication.create(appName);
-        dwApplication.addServiceBuilder(builder);
-        dwApplication.setEventLoggerClass(EventLoggerClass);
+    public static void run(String name, ApplicationOptions options) throws Exception {
+        new Drinkwater(name, options).run();
     }
 
-//    public Main(String appName, ApplicationBuilder builder, Class EventLoggerClass) {
-//        dwApplication = DrinkWaterApplication.create(appName);
-//        dwApplication.addServiceBuilder(builder);
-//        dwApplication.setEventLoggerClass(EventLoggerClass);
-//    }
-
-    public ServiceRepository getDrinkWaterApplication() {
-        return dwApplication;
-
+    public static void run(ApplicationOptions options) throws Exception {
+        new Drinkwater(options).run();
     }
 
-    public void run() throws Exception {
+    public static void run(Class applicationBuilderClass) throws Exception {
+        new Drinkwater(options().use(applicationBuilderClass)).run();
+    }
+
+    private void run() throws Exception {
         if (!completed.get()) {
             internalBeforeStart();
             // if we have an issue starting then propagate the exception to caller
@@ -159,10 +153,10 @@ public class Main extends ServiceSupport {
      * A class for intercepting the hang up signal and do a graceful shutdown of the Camel.
      */
     private static final class HangupInterceptor extends Thread {
-        final Main mainInstance;
+        final Drinkwater mainInstance;
         Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-        HangupInterceptor(Main main) {
+        HangupInterceptor(Drinkwater main) {
             mainInstance = main;
         }
 

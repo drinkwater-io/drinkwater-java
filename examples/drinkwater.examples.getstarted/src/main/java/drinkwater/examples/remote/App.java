@@ -1,14 +1,14 @@
 package drinkwater.examples.remote;
 
 import drinkwater.ApplicationBuilder;
-import drinkwater.core.main.Main;
+import drinkwater.core.main.Drinkwater;
 
 /**
  * Hello world!
  */
 public class App extends ApplicationBuilder{
     public static void main(String[] args) throws Exception {
-        new Main(new App()).run();
+        Drinkwater.run(App.class);
     }
 
     @Override
