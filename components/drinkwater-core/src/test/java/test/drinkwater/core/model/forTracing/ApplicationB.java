@@ -8,12 +8,15 @@ import drinkwater.ApplicationBuilder;
 public class ApplicationB extends ApplicationBuilder {
 
     private boolean useTracing;
+    private boolean applicationTracing;
 
-    public ApplicationB(boolean useTracing) {
+    public ApplicationB(boolean applicationTracing, boolean useTracing) {
         this.useTracing = useTracing;
+        this.applicationTracing = applicationTracing;
     }
     @Override
     public void configure() {
+        useTracing(applicationTracing);
 
         addService("serviceC", IServiceC.class).addInitialProperty("drinkwater.rest.port", 9999)
                 .useTracing(useTracing)

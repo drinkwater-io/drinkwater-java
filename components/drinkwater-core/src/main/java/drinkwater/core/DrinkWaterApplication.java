@@ -63,7 +63,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     private ApplicationOptions options;
     private Class eventLoggerClass = null;
     //fixme : should support multiple service builder
-    private ApplicationBuilder serviceBuilders;
+    private ApplicationBuilder applicationBuilder;
     private Properties initialApplicationProperties = new Properties();
 
     private CamelContext applicationLevelContext;
@@ -99,7 +99,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         try {
             DrinkWaterApplication app = new DrinkWaterApplication(name, options);
             if (options != null) {
-                app.setEventLoggerClass(options.getEventLoggerClass());
                 if (options.getApplicationBuilderClass() != null) {
                     Constructor ct = options.getApplicationBuilderClass().getConstructor();
                     ct.setAccessible(true);
@@ -172,8 +171,18 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
     }
 
+    private boolean isUseServiceManagement(){
+        boolean fromAppBuilder = applicationBuilder.isUseServiceManagement();
+        return safeLookupProperty(Boolean.class, "useServiceManagement", fromAppBuilder);
+    }
+
+    private boolean isUseTracing(){
+        boolean fromAppBuilder = applicationBuilder.isUseTracing();
+        return safeLookupProperty(Boolean.class, "useTracing", fromAppBuilder);
+    }
+
     private static void addManagementWebApplication(DrinkWaterApplication app) throws Exception {
-        if (app.options.isUseServiceManagement()) {
+        if (app.isUseServiceManagement()) {
 
             RouteBuilder ManagementWebApplicationRouteBuilder = new RouteBuilder() {
 
@@ -232,29 +241,24 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
             @Override
             public void configure() throws Exception {
 
-                from("vm:trace").bean(logger, "logEvent(${body})");
+                    from("vm:trace").bean(logger, "logEvent(${body})");
 
             }
         };
     }
 
     private ApplicationOptions getOptions() {
-        if (this.options == null) {
-            this.options = ApplicationOptions.from(this);
-        }
-
-        return options;
+       return new ApplicationOptions();
     }
 
 
     public synchronized void startTracingRoute() {
         try {
-            if (getOptions().isUseTracing()) {
+            if (isUseTracing()) {
 
                 //get logger class
                 Class loggerImplementationClass = eventLoggerClass == null ? JavaLoggingEventLogger.class : eventLoggerClass;
                 ServiceConfiguration traceBeanConfig = new ServiceConfiguration();
-//                traceBeanConfig.setServiceName(this.getName() + "." + loggerImplementationClass.getSimpleName());
                 traceBeanConfig.setServiceName("eventLogger");
                 traceBeanConfig.setServiceClass(IBaseEventLogger.class);
                 traceBeanConfig.setTargetBeanClass(loggerImplementationClass);
@@ -320,7 +324,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     public ApplicationBuilder configuration() {
-        return serviceBuilders;
+        return applicationBuilder;
     }
 
     public TracerBean getTracer() {
@@ -329,7 +333,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     public void addServiceBuilder(ApplicationBuilder builder) {
 
-        this.serviceBuilders = builder;
+        this.applicationBuilder = builder;
 
 //        builder.configure();
 //
@@ -338,13 +342,11 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
 
     private void cofigureServices() {
-        //initialize stores
 
-
-        if (serviceBuilders != null) {
-            serviceBuilders.configure();
-            List.ofAll(serviceBuilders.getStores()).forEach(this::addStore);
-            List.ofAll(serviceBuilders.getConfigurations()).forEach(this::addService);
+        if (applicationBuilder != null) {
+//            applicationBuilder.configure();
+            List.ofAll(applicationBuilder.getStores()).forEach(this::addStore);
+            List.ofAll(applicationBuilder.getConfigurations()).forEach(this::addService);
 
         } else {
             //TODO add explanation how to ad a srvice
@@ -373,6 +375,11 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         try {
 
             logStartInfo();
+            if (applicationBuilder != null) {
+                applicationBuilder.configure();
+            }
+
+            this.eventLoggerClass = applicationBuilder.getEventLoggerClass();
 
             startApplicationContext();
 
@@ -393,7 +400,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
                 service.start();
             }
 
-            if (getOptions().isUseServiceManagement()) {
+            if (isUseServiceManagement()) {
                 createAndStartManagementService();
             }
 
@@ -423,7 +430,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
             stopExternalServices();
 
-            if (getOptions().isUseServiceManagement()) {
+            if (isUseServiceManagement()) {
                 stopManagementService();
             }
 
@@ -649,13 +656,13 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         this.stop();
 
-        ApplicationBuilder newBuilder = new ApplicationBuilder(serviceBuilders.getConfigurations());
+        ApplicationBuilder newBuilder = new ApplicationBuilder(applicationBuilder.getConfigurations());
         IServiceConfiguration config = newBuilder.getConfiguration(serviceName);
         config.setScheme(ServiceScheme.BeanObject);
         config.setInjectionStrategy(InjectionStrategy.None);
         config.setTargetBean(beanObject);
 
-        this.serviceBuilders = newBuilder;
+        this.applicationBuilder = newBuilder;
 
         this.start();
     }
@@ -664,11 +671,11 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         this.stop();
 
-        ApplicationBuilder newBuilder = new ApplicationBuilder(serviceBuilders.getConfigurations());
+        ApplicationBuilder newBuilder = new ApplicationBuilder(applicationBuilder.getConfigurations());
         IServiceConfiguration config = newBuilder.getConfiguration(serviceName);
         config.patchWith(patchConfig);
 
-        this.serviceBuilders = newBuilder;
+        this.applicationBuilder = newBuilder;
 
         this.start();
     }
@@ -694,7 +701,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         ApplicationBuilder newBuilder = new ApplicationBuilder();
         newBuilder.addConfigurations(previousConfig);
 
-        this.serviceBuilders = newBuilder;
+        this.applicationBuilder = newBuilder;
 
         start();
     }
@@ -712,9 +719,9 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 //        return eventAggregator;
 //    }
 
-    public void setEventLoggerClass(Class eventLoggerClass) {
-        this.eventLoggerClass = eventLoggerClass;
-    }
+//    public void setEventLoggerClass(Class eventLoggerClass) {
+//        this.eventLoggerClass = eventLoggerClass;
+//    }
 
     public void addProperty(String property, String value) {
         initialApplicationProperties.setProperty(property, value);

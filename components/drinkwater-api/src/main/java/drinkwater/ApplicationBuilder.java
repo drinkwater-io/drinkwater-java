@@ -10,6 +10,14 @@ import java.util.ArrayList;
  */
 public class ApplicationBuilder implements IApplicationBuilder {
 
+    private String applicationName;
+
+    private boolean useTracing;
+
+    private boolean useServiceManagement;
+
+    private Class eventLoggerClass;
+
     private java.util.List<ServiceConfiguration> configurations = new ArrayList<>();
 
     private java.util.List<IDataStoreConfiguration> dataStoreConfigs = new ArrayList<>();
@@ -131,6 +139,38 @@ public class ApplicationBuilder implements IApplicationBuilder {
         dsc.setName(tt);
         dsc.setImplementingClass(implementingClass);
         dataStoreConfigs.add(dsc);
+    }
+
+    public Class getEventLoggerClass() {
+        return eventLoggerClass;
+    }
+
+    public void useEventLogger(Class eventLoggerClass) {
+        this.eventLoggerClass = eventLoggerClass;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    public boolean isUseTracing() {
+        return useTracing;
+    }
+
+    public void useTracing(boolean useTracing) {
+        this.useTracing = useTracing;
+    }
+
+    public boolean isUseServiceManagement() {
+        return useServiceManagement;
+    }
+
+    public void setUseServiceManagement(boolean useServiceManagement) {
+        this.useServiceManagement = useServiceManagement;
     }
 
     public void configure() {

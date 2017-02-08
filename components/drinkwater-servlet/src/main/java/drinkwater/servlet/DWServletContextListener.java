@@ -1,7 +1,6 @@
 package drinkwater.servlet;
 
 import drinkwater.ApplicationBuilder;
-import drinkwater.ApplicationOptions;
 import drinkwater.core.DrinkWaterApplication;
 import javaslang.Tuple;
 import javaslang.Tuple2;
@@ -14,8 +13,6 @@ import javax.servlet.ServletContextListener;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import static drinkwater.ApplicationOptionsBuilder.options;
 
 /**
  * Created by A406775 on 30/12/2016.
@@ -35,30 +32,18 @@ public final class DWServletContextListener implements ServletContextListener {
 
         Map<String, Object> initParams = extractInitParameters(servletContextEvent);
 
-        String serviceBuilder = (String) initParams.get("serviceBuilder");
-        String eventLogger = (String) initParams.get("eventLogger");
-        String useTracingParam = (String) initParams.get("useTracing");
-        String applicationName = (String) initParams.get("applicationName");
+        String serviceBuilder = (String) initParams.get("applicationBuilder");
 
         try {
-            boolean useTracing = Boolean.parseBoolean(useTracingParam);
-            Class eventLoggerClass = Class.forName(eventLogger);
             ApplicationBuilder builder = getServiceConfigurationBuilder(initParams, serviceBuilder);
 
-//            DrinkWaterApplication application =
-//                    DrinkWaterApplication.create(applicationName, false, useTracing);
-            ApplicationOptions options =  options();
-            options.setUseTracing(useTracing);
-            options.use(eventLoggerClass);
-
             DrinkWaterApplication application =
-                    DrinkWaterApplication.create(applicationName, options);
+                    DrinkWaterApplication.create();
 
             instance = application;
             drinkWaterApplication = application;
 
             application.addServiceBuilder(builder);
-//            application.setEventLoggerClass(eventLoggerClass);
             application.start();
 
         } catch (Exception ex) {
@@ -74,8 +59,8 @@ public final class DWServletContextListener implements ServletContextListener {
 
         List<Tuple2<String, Object>> serviceBuilderProperties =
                 List.ofAll(initParams.keySet())
-                        .filter(k -> k.startsWith("serviceBuilder."))
-                        .map(k -> Tuple.of(k.replace("serviceBuilder.", ""), initParams.get(k)))
+                        .filter(k -> k.startsWith("applicationBuilder."))
+                        .map(k -> Tuple.of(k.replace("applicationBuilder.", ""), initParams.get(k)))
                         .toList();
 
         //TODO use different kind of injection here ? with  annotation or injectionstrategy

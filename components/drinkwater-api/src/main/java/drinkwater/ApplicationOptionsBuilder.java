@@ -2,10 +2,7 @@ package drinkwater;
 
 public interface ApplicationOptionsBuilder {
     static ApplicationOptions options(){
-        return new ApplicationOptions(false, false);
+        return new ApplicationOptions();
     }
 
-    static ApplicationOptions tracedApplication(){
-        return options().useTracing();
-    }
 }

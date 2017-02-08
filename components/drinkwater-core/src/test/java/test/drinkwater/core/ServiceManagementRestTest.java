@@ -16,13 +16,13 @@ import static drinkwater.ApplicationOptionsBuilder.options;
 public class ServiceManagementRestTest extends HttpUnitTest {
 
     static DrinkWaterApplication app;
-    private static String MANAGEMENT_API_ENDPOINT = "http://localhost:8889/core-test";
+    private static String MANAGEMENT_API_ENDPOINT = "http://localhost:8889/service-management";
     private static String DEFAULT_REST_HOST_AND_PORT = "http://localhost:8889";
 
     @BeforeClass
     public static void start() {
-        app = DrinkWaterApplication.create("core-test",
-                options().withServicemanagement().use(TestConfiguration.class).autoStart());
+        app = DrinkWaterApplication.create("service-management",
+                options().use(TestConfiguration.class).autoStart());
     }
 
     @AfterClass

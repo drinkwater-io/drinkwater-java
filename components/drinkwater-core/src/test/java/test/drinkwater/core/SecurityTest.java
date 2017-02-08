@@ -5,7 +5,6 @@ import drinkwater.core.security.SimpleToken;
 import drinkwater.helper.GeneralUtils;
 import drinkwater.security.Credentials;
 import drinkwater.test.HttpUnitTest;
-import drinkwater.trace.ConsoleEventLogger;
 import org.junit.Test;
 import test.drinkwater.core.model.forSecurity.ADSecurityTest;
 import test.drinkwater.core.model.forSecurity.SecurityTestConfiguration;
@@ -24,9 +23,7 @@ public class SecurityTest extends HttpUnitTest {
         try (DrinkWaterApplication app =
                      DrinkWaterApplication.create("security-test",
                              options()
-                                     .useTracing()
                                      .use(SecurityTestConfiguration.class)
-                                     .use(ConsoleEventLogger.class)
                                      .autoStart())) {
             String result = "";
 
@@ -59,9 +56,7 @@ public class SecurityTest extends HttpUnitTest {
         try (DrinkWaterApplication app =
                      DrinkWaterApplication.create("security-test",
                              options()
-                                     .useTracing()
                                      .use(TokenProviderConfiguration.class)
-                                     .use(ConsoleEventLogger.class)
                                      .autoStart())) {
             String result = "";
 
@@ -97,9 +92,7 @@ public class SecurityTest extends HttpUnitTest {
         try (DrinkWaterApplication app =
                      DrinkWaterApplication.create("security-ad-test",
                              options()
-                                     .useTracing()
                                      .use(ADSecurityTest.class)
-                                     .use(ConsoleEventLogger.class)
                                      .autoStart())) {
             String result = "";
 

@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static drinkwater.ApplicationOptionsBuilder.options;
-import static drinkwater.ApplicationOptionsBuilder.tracedApplication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 
@@ -39,14 +38,13 @@ public class TracingTest extends HttpUnitTest {
     public void testTracing() throws Exception {
 
         DrinkWaterApplication app_C = DrinkWaterApplication.create("application-C");
-        app_C.addServiceBuilder(new ApplicationC(true));
+        app_C.addServiceBuilder(new ApplicationC(false,true, null));
 
         DrinkWaterApplication app_B = DrinkWaterApplication.create("application-B");
-        app_B.addServiceBuilder(new ApplicationB(true));
+        app_B.addServiceBuilder(new ApplicationB(false,true));
 
-        DrinkWaterApplication app_A = DrinkWaterApplication.create("application-A", tracedApplication());
-        app_A.addServiceBuilder(new ApplicationA(true, false));
-        app_A.setEventLoggerClass(MockEventLogger.class);
+        DrinkWaterApplication app_A = DrinkWaterApplication.create("application-A");
+        app_A.addServiceBuilder(new ApplicationA(true, true, false, MockEventLogger.class));
 
         try {
             app_A.start();
@@ -85,14 +83,13 @@ public class TracingTest extends HttpUnitTest {
         File createdFolder = folder.newFolder("tracingFolder");
 
         DrinkWaterApplication app_C = DrinkWaterApplication.create("application-c");
-        app_C.addServiceBuilder(new ApplicationC(false));
+        app_C.addServiceBuilder(new ApplicationC(false,false, null));
 
         DrinkWaterApplication app_B = DrinkWaterApplication.create("application-b");
-        app_B.addServiceBuilder(new ApplicationB(false));
+        app_B.addServiceBuilder(new ApplicationB(false,false));
 
-        DrinkWaterApplication app_A = DrinkWaterApplication.create("application-a", tracedApplication());
-        app_A.setEventLoggerClass(FileEventLogger.class);
-        app_A.addServiceBuilder(new ApplicationA(false, true));
+        DrinkWaterApplication app_A = DrinkWaterApplication.create("application-a");
+        app_A.addServiceBuilder(new ApplicationA(true,true, true, FileEventLogger.class));
         app_A.addProperty("eventLogger.folder", createdFolder.getAbsolutePath());
 
         try {
@@ -120,33 +117,32 @@ public class TracingTest extends HttpUnitTest {
     @Test
     public void testTracingWithCustomLogger() throws Exception {
 
-        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-C-custom-logger", tracedApplication());
-        app_C.addServiceBuilder(new ApplicationC(true));
-        app_C.setEventLoggerClass(CustomTraceClass.class);
-        CustomTraceClass.called = 0;
+        DrinkWaterApplication app = DrinkWaterApplication.create("application-C-custom-logger");
+        app.addServiceBuilder(new ApplicationC(true,true, CustomTraceClass.class));
 
-        app_C.start();
 
         try {
+            app.start();
             String result = httpGetString("http://127.0.0.1:9999/serviceC/DataFromC").result();
 
             assertEquals("data from c", result);
 
-            Thread.sleep(500);
+            Thread.sleep(600);
 
-            assertEquals(CustomTraceClass.called, 2);
+            CustomTraceClass eventLogger = (CustomTraceClass)app.getCurrentBaseEventLogger();
+
+            assertEquals(2, eventLogger.called);
         } finally {
 
-            app_C.stop();
+            app.stop();
         }
     }
 
     @Test
     public void testTracingWithException() throws Exception {
 
-        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-withException", tracedApplication());
-        app_C.addServiceBuilder(new ApplicationC(true));
-        app_C.setEventLoggerClass(MockEventLogger.class);
+        DrinkWaterApplication app_C = DrinkWaterApplication.create("application-withException");
+        app_C.addServiceBuilder(new ApplicationC(true,true, MockEventLogger.class));
 
         app_C.start();
 
@@ -172,7 +168,6 @@ public class TracingTest extends HttpUnitTest {
 
         try (DrinkWaterApplication app = DrinkWaterApplication.create(
                 options()
-                        .use(MockEventLogger.class)
                         .use(TestConfiguration.class)
                         .autoStart())) {
 

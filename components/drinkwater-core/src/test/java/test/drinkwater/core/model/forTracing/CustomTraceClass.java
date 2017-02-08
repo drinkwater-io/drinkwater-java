@@ -9,7 +9,7 @@ public class CustomTraceClass implements IBaseEventLogger {
     @ServiceDependency
     public IServiceC serviceC;
 
-    public static int called;
+    public int called;
     @Override
     public void logEvent(BaseEvent event) {
         if(serviceC == null){
@@ -17,4 +17,5 @@ public class CustomTraceClass implements IBaseEventLogger {
         }
         called++;
     }
+
 }

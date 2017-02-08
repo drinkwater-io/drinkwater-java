@@ -6,7 +6,7 @@ import drinkwater.trace.MockEventLogger;
 import org.junit.Test;
 import test.drinkwater.core.model.ProxyTestConfiguration;
 
-import static drinkwater.ApplicationOptionsBuilder.tracedApplication;
+import static drinkwater.ApplicationOptionsBuilder.options;
 import static org.junit.Assert.assertEquals;
 
 public class ProxyTest extends HttpUnitTest {
@@ -15,10 +15,8 @@ public class ProxyTest extends HttpUnitTest {
     public void shouldProxySimpleService() throws Exception {
 
         try (DrinkWaterApplication proxyApp =
-                     DrinkWaterApplication.create("proxy-application",
-                             tracedApplication()
+                     DrinkWaterApplication.create("proxy-application",options()
                                      .use(ProxyTestConfiguration.class)
-                                     .use(MockEventLogger.class)
                                      .autoStart())) {
 
             String result = httpGetString("http://127.0.0.1:7777/icc/info").result();

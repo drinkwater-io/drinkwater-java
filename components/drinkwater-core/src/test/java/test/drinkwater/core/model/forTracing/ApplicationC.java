@@ -7,14 +7,20 @@ import drinkwater.ApplicationBuilder;
  */
 public class ApplicationC extends ApplicationBuilder {
 
+    private boolean applicationTracing;
     private boolean useTracing;
+    private Class eventLoggerClass;
 
-    public ApplicationC(boolean useTracing) {
+    public ApplicationC(boolean applicationTracing, boolean useTracing, Class eventLoggerClass) {
         this.useTracing = useTracing;
+        this.eventLoggerClass = eventLoggerClass;
+        this.applicationTracing = applicationTracing;
     }
 
     @Override
     public void configure() {
+        useTracing(applicationTracing);
+        useEventLogger(eventLoggerClass);
         addService("serviceC", IServiceC.class, new ServiceCImpl())
                 .addInitialProperty("drinkwater.rest.port", 9999)
                 .useTracing(useTracing)

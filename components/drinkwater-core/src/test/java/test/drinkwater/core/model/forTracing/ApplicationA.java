@@ -7,16 +7,24 @@ import drinkwater.ApplicationBuilder;
  */
 public class ApplicationA extends ApplicationBuilder {
 
+    private boolean applicationTracing;
     private boolean useTracing;
     private boolean useTracingOnlyOnEntry;
+    private Class eventLoggerClass;
 
-    public ApplicationA(boolean useTracing, boolean useTracingOnlyOnEntry) {
+    public ApplicationA(boolean applicationTracing, boolean useTracing, boolean useTracingOnlyOnEntry, Class eventLoggerClass) {
         this.useTracing = useTracing;
         this.useTracingOnlyOnEntry = useTracingOnlyOnEntry;
+        this.eventLoggerClass = eventLoggerClass;
+        this.applicationTracing = applicationTracing;
     }
 
     @Override
     public void configure() {
+
+        useEventLogger(eventLoggerClass);
+        useTracing(applicationTracing);
+
         boolean traced = useTracing;
         boolean traceb = useTracing;
         boolean tracea = useTracing;
@@ -32,5 +40,7 @@ public class ApplicationA extends ApplicationBuilder {
                 .useTracing(traceb).asRemote();
         addService("serviceA", IServiceA.class, new ServiceAImpl(), "serviceD", "serviceB")
                 .useTracing(tracea).addInitialProperty("drinkwater.rest.port", 7777).asRest();
+
+
     }
 }
