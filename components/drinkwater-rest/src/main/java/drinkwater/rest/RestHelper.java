@@ -7,14 +7,13 @@ import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.fileupload.FileUploadProcessor;
 import drinkwater.rest.security.SecurityProcessor;
 import drinkwater.security.UnauthorizedException;
-import drinkwater.trace.Operation;
 import javaslang.Tuple;
 import javaslang.Tuple2;
 import javaslang.collection.List;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.RouteDefinition;
+import org.apache.camel.model.ProcessorDefinition;
 import org.apache.camel.model.rest.RestBindingMode;
 import org.apache.camel.model.rest.RestConfigurationDefinition;
 import org.apache.camel.model.rest.RestDefinition;
@@ -25,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import static drinkwater.DrinkWaterConstants.*;
+import static drinkwater.common.tracing.TraceRouteBuilder.*;
 import static drinkwater.helper.StringUtils.startsWithOneOf;
 import static java.util.Collections.singletonList;
 import static org.apache.camel.builder.Builder.constant;
@@ -153,19 +152,18 @@ public class RestHelper {
     }
 
     public static void buildRestRoutes(RouteBuilder builder, Object bean,
-                                       IPropertyResolver propertiesResolver,
-                                       IDrinkWaterService config) {
+                                       IDrinkWaterService drinkWaterService) {
 
         //check this for cors problems
         //http://camel.465427.n5.nabble.com/Workaround-with-REST-DSL-to-avoid-HTTP-method-not-allowed-405-td5771508.html
         try {
 
-            String serviceHost = endpointFrom(propertiesResolver, config.getConfiguration());
-            config.getConfiguration().setServiceHost(serviceHost);
+            String serviceHost = endpointFrom(drinkWaterService, drinkWaterService.getConfiguration());
+            drinkWaterService.getConfiguration().setServiceHost(serviceHost);
 
             RestPropertyDefinition corsAllowedHeaders = new RestPropertyDefinition();
             corsAllowedHeaders.setKey("Access-Control-Allow-Headers");
-            corsAllowedHeaders.setValue(getAllowedCorsheaders(propertiesResolver));
+            corsAllowedHeaders.setValue(getAllowedCorsheaders(drinkWaterService));
 
             // builder.getContext().getDataFormats();
             RestConfigurationDefinition restConfig =
@@ -173,9 +171,9 @@ public class RestHelper {
                             .component("jetty")
                             .enableCORS(true)
                             .scheme("http")
-                            .host(host(propertiesResolver))
-                            .port(port(propertiesResolver))
-                            .contextPath(context(propertiesResolver, config.getConfiguration()))
+                            .host(host(drinkWaterService))
+                            .port(port(drinkWaterService))
+                            .contextPath(context(drinkWaterService, drinkWaterService.getConfiguration()))
                             .bindingMode(RestBindingMode.json)
                             .jsonDataFormat("json-drinkwater");
 
@@ -187,8 +185,8 @@ public class RestHelper {
 
         javaslang.collection
                 .List.of(ReflectHelper.getPublicDeclaredMethods(bean.getClass()))
-                .map(method -> buildRestRoute(builder, method, config.getTracer()))
-                .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2, propertiesResolver));
+                .map(method -> buildRestRoute(builder, method, drinkWaterService.getTracer()))
+                .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2, drinkWaterService));
     }
 
 
@@ -290,19 +288,17 @@ public class RestHelper {
 
     }
 
-    private static RouteDefinition routeToBeanMethod(
+    private static ProcessorDefinition routeToBeanMethod(
             RestDefinition restDefinition,
             Object bean,
             Method method,
-            IPropertyResolver propertyResolver) {
+            IDrinkWaterService iDrinkWaterService) {
         String camelMethod = camelMethodBuilder(method);
 
-        RouteDefinition routeDefinition = restDefinition.route()
-                .setHeader(BeanOperationName)
-                .constant(Operation.of(method))
-                .to(ROUTE_serverReceivedEvent);
+        ProcessorDefinition routeDefinition =
+                addServerReceivedTracing(iDrinkWaterService, restDefinition.route(), method);
 
-        if(propertyResolver.safeLookupProperty(Boolean.class,
+        if(iDrinkWaterService.safeLookupProperty(Boolean.class,
                 DrinkWaterPropertyConstants.Authenticate_Enabled,
                 true)){
             routeDefinition.process(new SecurityProcessor());
@@ -317,7 +313,7 @@ public class RestHelper {
         routeDefinition.setHeader("Access-Control-Allow-Headers", constant("*"));
         routeDefinition.setHeader("Access-Control-Allow-Origin", constant("*"));
 
-        routeDefinition.onException(Exception.class).to(ROUTE_exceptionEvent);
+        addExceptionTracing(iDrinkWaterService, Exception.class, routeDefinition);
 
 
         //TODO create own process
@@ -338,8 +334,7 @@ public class RestHelper {
             });
         }
 
-
-        return routeDefinition.to(ROUTE_serverSentEvent);
+        return addServerSentTracing(iDrinkWaterService, routeDefinition);
     }
 
     private static boolean hasObjectReturnType(Method method) {

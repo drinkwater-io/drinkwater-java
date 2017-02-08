@@ -2,13 +2,13 @@ package test.drinkwater.core;
 
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.test.HttpUnitTest;
-import drinkwater.trace.FileEventLogger;
-import drinkwater.trace.MockEventLogger;
+import drinkwater.trace.*;
 import org.junit.FixMethodOrder;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runners.MethodSorters;
+import test.drinkwater.core.model.TestConfiguration;
 import test.drinkwater.core.model.forTracing.ApplicationA;
 import test.drinkwater.core.model.forTracing.ApplicationB;
 import test.drinkwater.core.model.forTracing.ApplicationC;
@@ -21,6 +21,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static drinkwater.ApplicationOptionsBuilder.options;
 import static drinkwater.ApplicationOptionsBuilder.tracedApplication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -58,10 +59,16 @@ public class TracingTest extends HttpUnitTest {
 
             Thread.sleep(1000);
 
-            MockEventLogger aggregator = (MockEventLogger)app_A.getCurrentBaseEventLogger();
+            MockEventLogger aggregator = (MockEventLogger) app_A.getCurrentBaseEventLogger();
 
-
-            assertEquals(12, aggregator.getEvents().size());
+            assertThat(aggregator.count()).isEqualTo(12);
+            assertThat(aggregator.getEventsOfType(ServerReceivedEvent.class).size()).isEqualTo(3);
+            assertThat(aggregator.getEventsOfType(ServerSentEvent.class).size()).isEqualTo(3);
+            assertThat(aggregator.getEventsOfType(ClientSentEvent.class).size()).isEqualTo(2);
+            assertThat(aggregator.getEventsOfType(ClientReceivedEvent.class).size()).isEqualTo(2);
+            assertThat(aggregator.getEventsOfType(MethodInvocationEndEvent.class).size()).isEqualTo(1);
+            assertThat(aggregator.getEventsOfType(MethodInvocationStartEvent.class).size()).isEqualTo(1);
+            assertThat(aggregator.getEventsOfType(ExceptionEvent.class).size()).isEqualTo(0);
 
         } finally {
             app_A.stop();
@@ -103,15 +110,11 @@ public class TracingTest extends HttpUnitTest {
 
             System.out.println(expectedLines.stream().collect(Collectors.joining(System.lineSeparator())));
 
-            //assertEquals(2, expectedLines.size());
-
-        }finally {
+        } finally {
             app_A.stop();
             app_B.stop();
             app_C.stop();
         }
-
-
     }
 
     @Test
@@ -136,8 +139,6 @@ public class TracingTest extends HttpUnitTest {
 
             app_C.stop();
         }
-
-
     }
 
     @Test
@@ -156,11 +157,31 @@ public class TracingTest extends HttpUnitTest {
 
             Thread.sleep(600);
 
-            assertThat(logger.getEvents().size()).isEqualTo(2);
+            assertThat(logger.count()).isEqualTo(2);
+            assertThat(logger.containsAnyEventOfType(ExceptionEvent.class)).isTrue();
+            assertThat(logger.containsAnyEventOfType(ServerReceivedEvent.class)).isTrue();
+            assertThat(logger.containsAnyEventOfType(ServerSentEvent.class)).isFalse();
         } finally {
 
             app_C.stop();
         }
+    }
 
+    @Test
+    public void shouldNotTraceByDefault() throws Exception {
+
+        try (DrinkWaterApplication app = DrinkWaterApplication.create(
+                options()
+                        .use(MockEventLogger.class)
+                        .use(TestConfiguration.class)
+                        .autoStart())) {
+
+            MockEventLogger logger = (MockEventLogger) app.getCurrentBaseEventLogger();
+
+            String result = httpGetString("http://127.0.0.1:8889/test/info").result();
+
+            assertThat(logger).isNull();
+            assertThat(result).isEqualTo("test info");
+        }
     }
 }

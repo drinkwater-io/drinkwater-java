@@ -5,7 +5,6 @@ import drinkwater.ServiceRepository;
 import drinkwater.ServiceScheme;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.helper.BeanFactory;
-import drinkwater.core.helper.ExtractHttpMethodFromExchange;
 import drinkwater.core.helper.Service;
 import drinkwater.rest.RestHelper;
 import drinkwater.security.UnauthorizedException;
@@ -22,7 +21,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 
-import static drinkwater.DrinkWaterConstants.*;
+import static drinkwater.common.tracing.TraceRouteBuilder.*;
 import static drinkwater.rest.RestHelper.endpointFrom;
 import static org.apache.camel.builder.Builder.constant;
 
@@ -105,16 +104,15 @@ public class RouteBuilders {
                     throw new RuntimeException("could not find proxy and destination endpoint from config");
                 }
 
-                onException(Exception.class).to(ROUTE_exceptionEvent);
+
+                addExceptionTracing(service, Exception.class, this);
 
                 RouteDefinition choice =
-                        from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true").id("front-proxy-received-" + service.getConfiguration().getServiceName())
-                                .setHeader(BeanOperationName).method(ExtractHttpMethodFromExchange.class).id("setOperationNameInHeader")
-                                .to(ROUTE_serverReceivedEvent).id("trace-received")
-                                .to("jetty:" + destinationEndpoint + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=true")
-                                .id("front-proxy-reply-" + service.getConfiguration().getServiceName())
-                                .to(ROUTE_serverSentEvent).id("trace-sent");
+                        from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true");
 
+                choice = addServerReceivedTracing(service, choice);
+                choice = choice.to("jetty:" + destinationEndpoint + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=true");
+                addServerSentTracing(service, choice);
             }
         };
     }
@@ -173,14 +171,9 @@ public class RouteBuilders {
                                 remapChoice = choice.otherwise();
                             }
 
-                            remapChoice.setHeader(BeanOperationName).method(ExtractHttpMethodFromExchange.class).id("setOperationNameInHeader")
-                                    .to(ROUTE_serverReceivedEvent).id("trace-received")
-                                    .to("jetty:" + serviceHost + "?bridgeEndpoint=true&throwExceptionOnFailure=true")
-                                    //TODO overall Exception handling for each routes
-                                    .to(ROUTE_serverSentEvent).id("trace-sent");
-
-
-
+                            remapChoice = addServerReceivedTracing(service, remapChoice);
+                            remapChoice.to("jetty:" + serviceHost + "?bridgeEndpoint=true&throwExceptionOnFailure=true");
+                            addServerSentTracing(service, remapChoice);
                         }
 
                 );
@@ -208,7 +201,7 @@ public class RouteBuilders {
 
                 Object bean = BeanFactory.createBean(app, service.getConfiguration(), service);
 
-                RestHelper.buildRestRoutes(this, bean, service, service);
+                RestHelper.buildRestRoutes(this, bean, service);
 
             }
         };
@@ -228,11 +221,11 @@ public class RouteBuilders {
 
                 for (Method m : methods) {
                     if (Modifier.isPublic(m.getModifiers())) {
-                        from("direct:" + formatBeanMethodRoute(m))
-                                .setHeader(BeanOperationName).constant(Operation.of(m))
-                                .wireTap(ROUTE_MethodInvokedStartEvent).end()
-                                .bean(beanToUse, formatBeanEndpointRoute(m), true)
-                                .to(ROUTE_MethodInvokedEndEvent);
+                        RouteDefinition def = from("direct:" + formatBeanMethodRoute(m));
+                        def = addMethodInvokedStartTrace(service, def, Operation.of(m));
+                        def.bean(beanToUse, formatBeanEndpointRoute(m), true);
+                        addMethodInvokedEndTrace(service, def);
+
                     }
                 }
             }

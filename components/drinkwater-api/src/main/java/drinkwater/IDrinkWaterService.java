@@ -9,7 +9,7 @@ public interface IDrinkWaterService extends IPropertyResolver {
 
     ITracer getTracer();
 
-    Boolean sendEvent(Class eventClass, Method method, Object body);
+    void sendEvent(Class eventClass, Method method, Object body);
 
     IServiceConfiguration getConfiguration();
 
@@ -18,5 +18,7 @@ public interface IDrinkWaterService extends IPropertyResolver {
     void stop();
 
     ServiceState getState();
+
+    String getApplicationName();
 
 }

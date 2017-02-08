@@ -1,4 +1,4 @@
-package drinkwater.core.helper;
+package drinkwater.common.tracing;
 
 import drinkwater.trace.Operation;
 import org.apache.camel.Exchange;

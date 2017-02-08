@@ -5,11 +5,13 @@ import drinkwater.IServiceConfiguration;
 import drinkwater.ITracer;
 import drinkwater.ServiceScheme;
 import drinkwater.ServiceState;
+import drinkwater.common.tracing.TraceRouteBuilder;
 import drinkwater.core.CamelContextFactory;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.internal.RouteBuilders;
 import drinkwater.core.security.SimpleTokenValidation;
-import drinkwater.trace.*;
+import drinkwater.trace.ClientReceivedEvent;
+import drinkwater.trace.ClientSentEvent;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.properties.PropertiesComponent;
@@ -19,8 +21,9 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
-import static drinkwater.DrinkWaterConstants.*;
 import static drinkwater.DrinkWaterPropertyConstants.*;
+import static drinkwater.common.tracing.TraceRouteBuilder.addClientReceivedTracing;
+import static drinkwater.common.tracing.TraceRouteBuilder.addClientSentTracing;
 
 /**
  * Created by A406775 on 29/12/2016.
@@ -70,18 +73,6 @@ public class Service implements drinkwater.IDrinkWaterService {
         }
     }
 
-    private static String directRouteFor(Class eventClass) {
-        if (eventClass.getName().equals(ClientReceivedEvent.class.getName())) {
-            return ROUTE_clientReceivedEvent;
-        } else if (eventClass.getName().equals(ClientSentEvent.class.getName())) {
-            return ROUTE_clientSentEvent;
-        } else if (eventClass.getName().equals(ServerSentEvent.class.getName())) {
-            return ROUTE_serverSentEvent;
-        } else if (eventClass.getName().equals(ServerReceivedEvent.class.getName())) {
-            return ROUTE_serverReceivedEvent;
-        }
-        throw new RuntimeException("Event currently not coded");
-    }
 
     public CamelContext getCamelContext() {
         return camelContext;
@@ -175,11 +166,19 @@ public class Service implements drinkwater.IDrinkWaterService {
     }
 
     @Override
-    public Boolean sendEvent(Class eventClass, Method method, Object body) {
-        this.camelContext.createProducerTemplate()
-                .sendBodyAndHeader(directRouteFor(eventClass), body,
-                        BeanOperationName, Operation.of(method));
-        return true;
+    public String getApplicationName() {
+        return _dwa.getApplicationName();
+    }
+
+    @Override
+    public void sendEvent(Class eventClass, Method method, Object body) {
+        if (eventClass.getName().equals(ClientReceivedEvent.class.getName())) {
+            addClientReceivedTracing(this.camelContext, this, method, body);
+        } else if (eventClass.getName().equals(ClientSentEvent.class.getName())) {
+            addClientSentTracing(this.camelContext, this, method, body);
+        }else {
+            throw new RuntimeException("Event currently not coded");
+        }
     }
 
     @Override
