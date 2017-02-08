@@ -52,6 +52,7 @@
         <maven-compiler-plugin-version>3.5.1</maven-compiler-plugin-version>
         <junit.version>4.12</junit.version>
         <slf4j.version>1.7.21</slf4j.version>
+        <camel.version>2.18.1</camel.version>
     </properties>
     <dependencies>
         <dependency>
