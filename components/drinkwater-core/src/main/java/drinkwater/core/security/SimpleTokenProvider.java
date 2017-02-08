@@ -2,19 +2,19 @@ package drinkwater.core.security;
 
 import drinkwater.ServiceDependency;
 import drinkwater.helper.GeneralUtils;
-import drinkwater.rest.Path;
 import drinkwater.security.Credentials;
 import drinkwater.security.IAuthenticationService;
 import drinkwater.security.ITokenProvider;
 import drinkwater.security.UnauthorizedException;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class SimpleTokenProvider implements ITokenProvider {
 
-    private Logger logger = Logger.getLogger(SimpleTokenProvider.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(SimpleTokenProvider.class);
 
     private StandardPBEStringEncryptor textEncryptor;
 
@@ -55,7 +55,7 @@ public class SimpleTokenProvider implements ITokenProvider {
             return encryptedToken;
         }
         catch(Exception ex){
-            logger.severe("UnauthorizedException throwed : " + ex.getMessage());
+            logger.error("UnauthorizedException throwed : " + ex.getMessage());
             throw new UnauthorizedException(ex);
         }
     }

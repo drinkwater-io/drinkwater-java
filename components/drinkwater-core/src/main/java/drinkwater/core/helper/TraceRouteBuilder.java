@@ -5,16 +5,17 @@ import drinkwater.IBaseEventLogger;
 import drinkwater.trace.*;
 import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
-import java.util.logging.Logger;
 
 import static drinkwater.DrinkWaterConstants.*;
 
 public class TraceRouteBuilder extends RouteBuilder {
 
     @JsonIgnore
-    private Logger logger = Logger.getLogger(this.getClass().getName());
+    private static Logger logger = LoggerFactory.getLogger(TraceRouteBuilder.class);
 
     private Service service;
 
@@ -31,7 +32,7 @@ public class TraceRouteBuilder extends RouteBuilder {
         IBaseEventLogger emptyLogger = new IBaseEventLogger() {
             @Override
             public void logEvent(BaseEvent event) {
-                logger.finer(event.toString());
+                logger.debug(event.toString());
             }
         };
 

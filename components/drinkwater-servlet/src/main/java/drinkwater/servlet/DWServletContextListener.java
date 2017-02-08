@@ -6,13 +6,14 @@ import drinkwater.core.DrinkWaterApplication;
 import javaslang.Tuple;
 import javaslang.Tuple2;
 import javaslang.collection.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import static drinkwater.ApplicationOptionsBuilder.options;
 
@@ -21,7 +22,7 @@ import static drinkwater.ApplicationOptionsBuilder.options;
  */
 public final class DWServletContextListener implements ServletContextListener {
 
-    private Logger logger = Logger.getLogger(this.getClass().getName());
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public static DrinkWaterApplication instance;
 
@@ -61,7 +62,7 @@ public final class DWServletContextListener implements ServletContextListener {
             application.start();
 
         } catch (Exception ex) {
-            logger.severe("COULD NOT START DrinkWater APPLICATION " + ex.getMessage());
+            logger.error("COULD NOT START DrinkWater APPLICATION " + ex.getMessage());
             throw new RuntimeException(ex);
         }
 

@@ -1,16 +1,14 @@
 package drinkwater.core.security;
 
-import drinkwater.IPropertyResolver;
 import drinkwater.helper.GeneralUtils;
-import drinkwater.security.IAuthenticationService;
 import drinkwater.security.ITokenValidation;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleTokenValidation implements ITokenValidation {
 
-    private Logger logger = Logger.getLogger(SimpleTokenValidation.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(SimpleTokenValidation.class);
 
     private StandardPBEStringEncryptor textEncryptor;
 
@@ -39,7 +37,7 @@ public class SimpleTokenValidation implements ITokenValidation {
             return token.isValid();
         }
         catch(Exception ex){
-            logger.severe("could not decrypt given token : " + serializedToken);
+            logger.error("could not decrypt given token : " + serializedToken);
             return false;
         }
     }

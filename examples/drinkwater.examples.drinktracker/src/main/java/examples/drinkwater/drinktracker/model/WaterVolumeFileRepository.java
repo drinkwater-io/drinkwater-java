@@ -1,5 +1,8 @@
 package examples.drinkwater.drinktracker.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -7,7 +10,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * Created by A406775 on 27/12/2016.
@@ -15,7 +17,7 @@ import java.util.logging.Logger;
 public class WaterVolumeFileRepository implements IWaterVolumeRepository {
 
     public String directory;
-    Logger logger = Logger.getLogger(WaterVolumeFileRepository.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(WaterVolumeFileRepository.class);
 
     public WaterVolumeFileRepository() {
     }
@@ -57,7 +59,7 @@ public class WaterVolumeFileRepository implements IWaterVolumeRepository {
                     Files.readAllLines(Paths.get(directory, createPath(account.getAcountId())), Charset.defaultCharset());
 
         } catch (IOException e) {
-            logger.warning("error while getting volume from repository : " + e.getMessage());
+            logger.warn("error while getting volume from repository : " + e.getMessage());
         }
         return lines;
 

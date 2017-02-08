@@ -4,18 +4,19 @@ import drinkwater.ApplicationBuilder;
 import drinkwater.ServiceRepository;
 import drinkwater.core.DrinkWaterApplication;
 import org.apache.camel.support.ServiceSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
 /**
  * Created by A406775 on 2/01/2017.
  */
 public class Main extends ServiceSupport {
-    protected static final Logger LOG = Logger.getLogger(Main.class.getName());
+    protected static final Logger LOG = LoggerFactory.getLogger(Main.class.getName());
     protected static final int UNINITIALIZED_EXIT_CODE = Integer.MIN_VALUE;
     protected static final int DEFAULT_EXIT_CODE = 0;
     protected final CountDownLatch latch = new CountDownLatch(1);
@@ -68,7 +69,7 @@ public class Main extends ServiceSupport {
                 afterStop();
             } catch (Exception e) {
                 // however while running then just log errors
-                LOG.severe("Failed: " + e.getMessage());
+                LOG.error("Failed: " + e.getMessage());
             }
         }
     }
@@ -159,7 +160,7 @@ public class Main extends ServiceSupport {
      */
     private static final class HangupInterceptor extends Thread {
         final Main mainInstance;
-        Logger log = Logger.getLogger(this.getClass().getName());
+        Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
         HangupInterceptor(Main main) {
             mainInstance = main;
@@ -171,7 +172,7 @@ public class Main extends ServiceSupport {
             try {
                 mainInstance.stop();
             } catch (Exception ex) {
-                log.severe("Error during stopping the main instance." + ex.getMessage());
+                log.error("Error during stopping the main instance." + ex.getMessage());
             }
         }
     }

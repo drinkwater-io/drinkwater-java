@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import static drinkwater.DrinkWaterConstants.*;
 import static drinkwater.helper.StringUtils.startsWithOneOf;
@@ -36,7 +35,7 @@ import static org.apache.camel.builder.Builder.constant;
  */
 public class RestHelper {
 
-    private static Logger logger = Logger.getLogger(RestHelper.class.getName());
+
 
     private static Map<HttpMethod, String[]> prefixesMap = new HashMap<>();
 

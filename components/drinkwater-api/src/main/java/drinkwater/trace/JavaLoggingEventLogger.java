@@ -1,16 +1,17 @@
 package drinkwater.trace;
 
 import drinkwater.IBaseEventLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.logging.Logger;
 
 /**
  * Created by A406775 on 6/01/2017.
  */
 public class JavaLoggingEventLogger implements IBaseEventLogger {
 
-    private Logger logger = Logger.getLogger(JavaLoggingEventLogger.class.getName());
+    private static Logger logger = LoggerFactory.getLogger(JavaLoggingEventLogger.class);
 
     @Override
     public void logEvent(BaseEvent event) {

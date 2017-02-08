@@ -3,20 +3,20 @@ package drinkwater.core.security;
 import com.sun.jndi.ldap.LdapCtxFactory;
 import drinkwater.security.Credentials;
 import drinkwater.security.IAuthenticationService;
-import drinkwater.security.UnauthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.*;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static javax.naming.directory.SearchControls.SUBTREE_SCOPE;
 
 public class ActiveDirectoryAuthenticationService implements IAuthenticationService {
 
-    private Logger logger = Logger.getLogger(this.getClass().getName());
+    private static Logger logger = LoggerFactory.getLogger(ActiveDirectoryAuthenticationService.class);
 
     public String domainName;
 
@@ -70,7 +70,7 @@ public class ActiveDirectoryAuthenticationService implements IAuthenticationServ
 
         } catch (Exception a) {
 
-            logger.severe("authentication exception " + a.getMessage());
+            logger.error("authentication exception " + a.getMessage());
             return null;
         }
 

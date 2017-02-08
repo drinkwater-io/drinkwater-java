@@ -21,19 +21,20 @@ import drinkwater.core.DrinkWaterApplication;
 import org.apache.camel.support.ServiceSupport;
 import org.apache.deltaspike.cdise.api.CdiContainer;
 import org.apache.deltaspike.cdise.api.CdiContainerLoader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.inject.spi.BeanManager;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
 /**
  * Base class for main implementations to allow starting up a JVM with Camel embedded.
  */
 public class Main extends ServiceSupport {
-    protected static final Logger LOG = Logger.getLogger(Main.class.getName());
+    private static org.slf4j.Logger LOG = LoggerFactory.getLogger(Main.class);
     protected static final int UNINITIALIZED_EXIT_CODE = Integer.MIN_VALUE;
     protected static final int DEFAULT_EXIT_CODE = 0;
 //    protected final List<Option> options = new ArrayList<Option>();
@@ -79,7 +80,7 @@ public class Main extends ServiceSupport {
                 afterStop();
             } catch (Exception e) {
                 // however while running then just log errors
-                LOG.severe("Failed: " + e.getMessage());
+                LOG.error("Failed: " + e.getMessage());
             }
         }
     }
@@ -276,7 +277,7 @@ public class Main extends ServiceSupport {
      */
     private static final class HangupInterceptor extends Thread {
         final Main mainInstance;
-        Logger log = Logger.getLogger(this.getClass().getName());
+        Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
         HangupInterceptor(Main main) {
             mainInstance = main;
@@ -288,7 +289,7 @@ public class Main extends ServiceSupport {
             try {
                 mainInstance.stop();
             } catch (Exception ex) {
-                log.severe("Error during stopping the main instance." + ex.getMessage());
+                log.error("Error during stopping the main instance." + ex.getMessage());
             }
         }
     }

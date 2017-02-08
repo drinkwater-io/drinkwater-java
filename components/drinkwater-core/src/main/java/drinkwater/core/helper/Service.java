@@ -14,9 +14,10 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
-import java.util.logging.Logger;
 
 import static drinkwater.DrinkWaterConstants.*;
 import static drinkwater.DrinkWaterPropertyConstants.*;
@@ -33,7 +34,7 @@ public class Service implements drinkwater.IDrinkWaterService {
     @JsonIgnore
     PropertiesComponent propertiesComponent;
     @JsonIgnore
-    private Logger logger = Logger.getLogger(this.getClass().getName());
+    private static Logger logger = LoggerFactory.getLogger(Service.class);
     @JsonIgnore
     private ITracer tracer;
 

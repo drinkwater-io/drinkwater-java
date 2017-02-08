@@ -21,6 +21,8 @@ import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.util.StopWatch;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -30,8 +32,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import static drinkwater.DrinkWaterPropertyConstants.*;
 
@@ -46,15 +46,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     public static final String DW_STATICHANDLER = "dw-static-management-handler";
     public static final String DW_STATIC_WWW_HANDLER = "dw-static-www-handler";
 
-    private static Logger logger = Logger.getLogger(DrinkWaterApplication.class.getName());
-
-
-    static {
-        //FIXME manage the logging system
-        java.util.logging.Logger topLogger = java.util.logging.Logger.getLogger("");
-        topLogger.setLevel(Level.INFO);
-        System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "info");
-    }
+    private static Logger logger = LoggerFactory.getLogger(DrinkWaterApplication.class);
 
     private PropertiesComponent propertiesComponent;
     private List<DrinkWaterApplicationHistory> applicationHistory = List.empty();
@@ -210,7 +202,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
                                 .bean(new ShutDownDrinkWaterBean(app)).id("app_shutdown");
                     } catch (Exception ex) {
                         String message = "could not start management web application on : " + managementHostAndPort;
-                        logger.severe(message);
+                        logger.error(message);
                         throw new Exception(message, ex);
                     }
                 }
@@ -356,7 +348,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         } else {
             //TODO add explanation how to ad a srvice
-            logger.warning("no service builder initialized, add at leas one service");
+            logger.warn("no service builder initialized, add at leas one service");
         }
 
     }
