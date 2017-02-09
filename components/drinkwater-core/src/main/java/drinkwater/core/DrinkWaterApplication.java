@@ -632,8 +632,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     private void logStartInfo() {
-        logger.info("");
-        logger.info("-----------------------STARTING " + name + "------------------------------------");
+        logger.info(DrinkWaterLogo.asAscii());
     }
 
     private void logStartedInfo(StopWatch stoppedwatch) {

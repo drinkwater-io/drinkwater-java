@@ -3,6 +3,7 @@ package drinkwater.datasource;
 import drinkwater.IDataStore;
 import org.flywaydb.core.Flyway;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class GenericSqlDataStore implements IDataStore {
+
     public String schemaLocation;
 
     protected javax.sql.DataSource dataSource;
@@ -29,7 +31,17 @@ public abstract class GenericSqlDataStore implements IDataStore {
         }
     }
 
+    public String getSchemaLocation() {
+        return schemaLocation;
+    }
 
+    public DataSource getDataSource() {
+        return dataSource;
+    }
+
+    public DataSource getMigrationDataSource() {
+        return migrationDataSource;
+    }
 
     public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
