@@ -53,6 +53,7 @@
         <junit.version>4.12</junit.version>
         <slf4j.version>1.7.21</slf4j.version>
         <camel.version>2.18.1</camel.version>
+        <opentable.version>0.7.1</opentable.version>
     </properties>
     <dependencies>
         <dependency>

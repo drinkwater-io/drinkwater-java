@@ -4,6 +4,7 @@ package drinkwater;
  * Created by A406775 on 11/01/2017.
  */
 public class DatasourceConfiguration {
+
     private String url;
 
     private String driverClassname;
@@ -57,7 +58,5 @@ public class DatasourceConfiguration {
     public String getSchema() {
         return schema;
     }
-
-
 
 }
