@@ -91,7 +91,7 @@ public class BeanFactory {
         //TODO : fix dependency management here we assume one store
         for (Field f : beanToUse.getClass().getDeclaredFields()) {
 
-            if(f.getType().isAssignableFrom(IDataStore.class)){
+            if(IDataStore.class.isAssignableFrom(f.getType())){
                 f.setAccessible(true);
                 f.set(beanToUse, app.getStore(""));
             }

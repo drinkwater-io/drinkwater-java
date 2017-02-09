@@ -111,7 +111,9 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
             }
             return app;
         } catch (Exception ex) {
-            throw new RuntimeException("could not create application you should at least declare a default public constructor", ex);
+            throw new RuntimeException(
+                    "could not create application you should at" +
+                            "least declare a default public constructor", ex);
         }
     }
 
@@ -286,8 +288,8 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         try {
             applicationLevelContext = CamelContextFactory.createCamelContext(this);
-            applicationLevelContext.getShutdownStrategy().setTimeout(1000);
-            applicationLevelContext.getShutdownStrategy().setTimeUnit(TimeUnit.NANOSECONDS);
+            applicationLevelContext.getShutdownStrategy().setTimeout(3);
+            applicationLevelContext.getShutdownStrategy().setTimeUnit(TimeUnit.SECONDS);
             applicationLevelContext.start();
 
             addWWWIfEnabled(this);
@@ -413,14 +415,13 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     public void stop() {
+        if (isStopped()) {
+            logger.info(String.format("application %s was already stopped ", name));
+            return;
+        }
 
         StopWatch timingWath = new StopWatch();
         try {
-
-
-            if (isStopped()) {
-                return;
-            }
 
             logStopingInfo();
 
