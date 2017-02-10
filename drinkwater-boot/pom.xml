@@ -4,7 +4,7 @@
     <parent>
         <artifactId>drinkwater</artifactId>
         <groupId>io.drinkwater</groupId>
-        <version>0.0.9-SNAPSHOT</version>
+        <version>0.0.9</version>
     </parent>
     <artifactId>drinkwater-boot</artifactId>
     <packaging>jar</packaging>
@@ -71,7 +71,7 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-cdi</artifactId>
-            <version>0.0.9-SNAPSHOT</version>
+            <version>0.0.9</version>
         </dependency>
         <!--delta spike core-->
         <dependency>
