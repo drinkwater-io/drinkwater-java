@@ -1,10 +1,6 @@
 package drinkwater.servlet;
 
-import drinkwater.ApplicationBuilder;
 import drinkwater.core.DrinkWaterApplication;
-import javaslang.Tuple;
-import javaslang.Tuple2;
-import javaslang.collection.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,10 +10,12 @@ import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static drinkwater.ApplicationOptionsBuilder.options;
+
 /**
  * Created by A406775 on 30/12/2016.
  */
-public final class DWServletContextListener implements ServletContextListener {
+public final class DrinkWaterServletContextListener implements ServletContextListener {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -28,22 +26,18 @@ public final class DWServletContextListener implements ServletContextListener {
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        logger.info("bok !.... Initializing DrinkWaterApplication through servlet startup");
-
         Map<String, Object> initParams = extractInitParameters(servletContextEvent);
 
-        String serviceBuilder = (String) initParams.get("applicationBuilder");
-
         try {
-            ApplicationBuilder builder = getServiceConfigurationBuilder(initParams, serviceBuilder);
+            String serviceBuilder = (String) initParams.get("drinkwater.applicationBuilder");
+            String applicationName = (String) initParams.get("drinkwater.applicationName");
 
             DrinkWaterApplication application =
-                    DrinkWaterApplication.create();
+                    DrinkWaterApplication.create(applicationName, options().use(Class.forName(serviceBuilder)));
 
             instance = application;
             drinkWaterApplication = application;
 
-            application.addServiceBuilder(builder);
             application.start();
 
         } catch (Exception ex) {
@@ -51,25 +45,6 @@ public final class DWServletContextListener implements ServletContextListener {
             throw new RuntimeException(ex);
         }
 
-    }
-
-    private static ApplicationBuilder getServiceConfigurationBuilder(Map<String, Object> initParams, String serviceBuilder) throws InstantiationException, IllegalAccessException, ClassNotFoundException, NoSuchFieldException {
-        ApplicationBuilder builder = (ApplicationBuilder)
-                Class.forName(serviceBuilder).newInstance();
-
-        List<Tuple2<String, Object>> serviceBuilderProperties =
-                List.ofAll(initParams.keySet())
-                        .filter(k -> k.startsWith("applicationBuilder."))
-                        .map(k -> Tuple.of(k.replace("applicationBuilder.", ""), initParams.get(k)))
-                        .toList();
-
-        //TODO use different kind of injection here ? with  annotation or injectionstrategy
-        for (Tuple2<String, Object> tuple :
-                serviceBuilderProperties) {
-            builder.getClass().getField(tuple._1)
-                    .set(builder, tuple._2);
-        }
-        return builder;
     }
 
     @Override

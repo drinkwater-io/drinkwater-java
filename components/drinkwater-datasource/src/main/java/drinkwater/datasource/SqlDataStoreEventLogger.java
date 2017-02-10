@@ -32,7 +32,7 @@ public class SqlDataStoreEventLogger extends AbstractEventLogger {
 
     private Logger logger = LoggerFactory.getLogger(SqlDataStoreEventLogger.class);
 
-    public JndiSqlDataStore store;
+    public GenericSqlDataStore store;
 
     public String tableName;
 

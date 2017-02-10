@@ -1,7 +1,7 @@
 package test.drinkwater.servlet;
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.servlet.DWServletContextListener;
+import drinkwater.servlet.DrinkWaterServletContextListener;
 import drinkwater.test.ServletUnitTest;
 import drinkwater.trace.MockEventLogger;
 import org.junit.Test;
@@ -9,7 +9,7 @@ import org.junit.Test;
 import static drinkwater.test.HttpUnitTest.httpGetString;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SimpleTest extends ServletUnitTest {
+public class SimpleServletTest extends ServletUnitTest {
 
     protected String getConfiguration() {
         return "/test1-web.xml";
@@ -25,12 +25,17 @@ public class SimpleTest extends ServletUnitTest {
 
         Thread.sleep(100);
 
+        //check access to properties
+        String fromProps = application.safeLookupProperty(String.class, "hello", "nodefault");
+        assertThat(fromProps).isEqualTo("world");
+
+        //check logs
         MockEventLogger logger = (MockEventLogger) application.getCurrentBaseEventLogger();
         assertThat(logger.getEvents().size()).isEqualTo(2);
 
     }
 
     public DrinkWaterApplication getDrinkWaterApplication() {
-        return DWServletContextListener.instance;
+        return DrinkWaterServletContextListener.instance;
     }
 }

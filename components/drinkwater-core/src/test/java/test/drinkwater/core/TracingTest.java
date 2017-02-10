@@ -55,7 +55,9 @@ public class TracingTest extends HttpUnitTest {
 
             assertEquals("data from A - data from B - data from c /computed in D/ ", result);
 
-            Thread.sleep(1000);
+            app_A.stop();
+            app_B.stop();
+            app_C.stop();
 
             MockEventLogger aggregator = (MockEventLogger) app_A.getCurrentBaseEventLogger();
 
@@ -101,7 +103,9 @@ public class TracingTest extends HttpUnitTest {
 
             assertEquals("data from A - data from B - data from c /computed in D/ ", result);
 
-            Thread.sleep(500); //let it
+            app_A.stop();
+            app_B.stop();
+            app_C.stop();
             //check created file
             List<String> expectedLines = Files.readAllLines(Paths.get(createdFolder.listFiles()[0].toURI()));
 
@@ -127,7 +131,7 @@ public class TracingTest extends HttpUnitTest {
 
             assertEquals("data from c", result);
 
-            Thread.sleep(600);
+            app.stop();
 
             CustomTraceClass eventLogger = (CustomTraceClass)app.getCurrentBaseEventLogger();
 
@@ -151,7 +155,7 @@ public class TracingTest extends HttpUnitTest {
 
             MockEventLogger logger = (MockEventLogger) app_C.getCurrentBaseEventLogger();
 
-            Thread.sleep(600);
+            app_C.stop();
 
             assertThat(logger.count()).isEqualTo(2);
             assertThat(logger.containsAnyEventOfType(ExceptionEvent.class)).isTrue();

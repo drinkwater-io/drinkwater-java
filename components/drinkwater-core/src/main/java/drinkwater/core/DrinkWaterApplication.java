@@ -43,6 +43,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     public static final String DW_STATICHANDLER = "dw-static-management-handler";
     public static final String DW_STATIC_WWW_HANDLER = "dw-static-www-handler";
+    public static boolean SHOW_BANNER = true;
 
     private static Logger logger = LoggerFactory.getLogger(DrinkWaterApplication.class);
 
@@ -630,7 +631,11 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     private void logStartInfo() {
-        logger.info(DrinkWaterLogo.asAscii());
+        if (SHOW_BANNER) {
+            logger.info(DrinkWaterLogo.asAscii());
+        } else {
+            logger.info(String.format("----------------------- STARTING %s ------------------------------------", name));
+        }
     }
 
     private void logStartedInfo(StopWatch stoppedwatch) {
@@ -641,15 +646,15 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
                 .iterator();
         logger.info("configured services :");
         services.forEachRemaining(s -> logger.info("  > " + s));
-        logger.info(String.format("-----------------------application %s STARTED in %d ms, have a nice day------------------------------------", name, stoppedwatch.taken()));
+        logger.info(String.format("----------------------- application %s STARTED in %d ms, have a nice day ------------------------------------", name, stoppedwatch.taken()));
     }
 
     private void logStopingInfo() {
-        logger.info("-----------------------STOPPING " + name + "------------------------------------");
+        logger.info("----------------------- STOPPING " + name + " ------------------------------------");
     }
 
     private void logStoppedInfo(StopWatch stoppedwatch) {
-        logger.info(String.format("-----------------------application %s STOPPED in %d ms, have a nice day------------------------------------", name, stoppedwatch.taken()));
+        logger.info(String.format("----------------------- application %s STOPPED in %d ms, have a nice day ------------------------------------", name, stoppedwatch.taken()));
     }
 
     //fixme : it should be possible to restart only some services...
@@ -737,15 +742,21 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     @Override
     public String[] getPropertiesLocations() {
 
-        String generalClassPathLocation = "classpath:drinkwater-application.properties";
-        String classPathLocation = "classpath:" + getApplicationName() + ".properties";
-        String fileLocation = "file:" +
-                Paths.get(GeneralUtils.getJarFolderPath(this.getClass()).toString(),
-                        getApplicationName() + ".properties");
+        ArrayList<String> properties = new ArrayList<>();
+        //default file from classpath
+        properties.add(0, "classpath:drinkwater-application.properties");
+        properties.add(1, "classpath:" + getApplicationName() + ".properties");
 
-        String[] defaultLocations = new String[]{generalClassPathLocation, classPathLocation, fileLocation};
+        try {
+            //default file from file
+            properties.add(2, "file:" +
+                    Paths.get(GeneralUtils.getJarFolderPath(this.getClass()).toString(),
+                            getApplicationName() + ".properties"));
+        } catch (Exception ex) {
+            logger.warn("could not load properties for  application " + getApplicationName() + " from file Location");
+        }
 
-        return defaultLocations;
+        return properties.toArray(new String[0]);
     }
 
     @Override
@@ -801,8 +812,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
         return propertiesComponent;
     }
-
-
 
 
 }

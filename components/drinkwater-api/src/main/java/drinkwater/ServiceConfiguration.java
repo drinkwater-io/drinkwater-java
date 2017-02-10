@@ -3,12 +3,16 @@ package drinkwater;
 
 import drinkwater.helper.GeneralUtils;
 import drinkwater.helper.MapUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Paths;
 import java.util.*;
 
 
 public class ServiceConfiguration implements IServiceConfiguration, IServiceBuilder, IMockBuilder, IRoutingBuilder {
+
+    private static Logger logger = LoggerFactory.getLogger(ServiceConfiguration.class);
 
     private String serviceName;
 
@@ -234,10 +238,16 @@ public class ServiceConfiguration implements IServiceConfiguration, IServiceBuil
 
         //default file from classpath
         properties.add(0, "classpath:" + getServiceName() + ".properties");
-        //default file from file
-        properties.add(1,"file:" +
-                Paths.get( GeneralUtils.getJarFolderPath(this.getClass()).toString() ,
-                        getServiceName() + ".properties"));
+
+        try {
+            //default file from file
+            properties.add(1,"file:" +
+                    Paths.get( GeneralUtils.getJarFolderPath(this.getClass()).toString() ,
+                            getServiceName() + ".properties"));
+        }
+        catch(Exception ex){
+            logger.warn("could not load properties for  service"+ getServiceName() + " from file Location");
+        }
 
         return properties.toArray(new String[0]);
     }
