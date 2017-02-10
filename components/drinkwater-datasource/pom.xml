@@ -27,6 +27,7 @@
             <groupId>com.opentable.components</groupId>
             <artifactId>otj-pg-embedded</artifactId>
             <version>${opentable.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
