@@ -4,7 +4,7 @@
     <parent>
         <artifactId>examples</artifactId>
         <groupId>io.drinkwater</groupId>
-        <version>0.0.8</version>
+        <version>0.0.9-SNAPSHOT</version>
     </parent>
     <artifactId>drinkwater.examples.drinktracker.benchmark</artifactId>
     <dependencies>
