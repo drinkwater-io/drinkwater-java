@@ -188,7 +188,11 @@ public class Service implements drinkwater.IDrinkWaterService {
 
     @Override
     public String toString() {
-        return serviceConfiguration.getServiceName() + " as " + serviceConfiguration.getScheme() +
-                " [" + serviceConfiguration.getServiceClass() + "]";
+        return String.format("%s [%s : %s]",
+                serviceConfiguration.getServiceName(),
+                serviceConfiguration.getScheme(),
+                serviceConfiguration.getServiceClass().getSimpleName());
     }
+
+
 }

@@ -28,9 +28,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static drinkwater.DrinkWaterPropertyConstants.*;
@@ -173,12 +171,12 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
     }
 
-    private boolean isUseServiceManagement(){
+    private boolean isUseServiceManagement() {
         boolean fromAppBuilder = applicationBuilder.isUseServiceManagement();
         return safeLookupProperty(Boolean.class, "useServiceManagement", fromAppBuilder);
     }
 
-    private boolean isUseTracing(){
+    private boolean isUseTracing() {
         boolean fromAppBuilder = applicationBuilder.isUseTracing();
         return safeLookupProperty(Boolean.class, "useTracing", fromAppBuilder);
     }
@@ -243,14 +241,14 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
             @Override
             public void configure() throws Exception {
 
-                    from("vm:trace").bean(logger, "logEvent(${body})");
+                from("vm:trace").bean(logger, "logEvent(${body})");
 
             }
         };
     }
 
     private ApplicationOptions getOptions() {
-       return new ApplicationOptions();
+        return new ApplicationOptions();
     }
 
 
@@ -636,19 +634,22 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     private void logStartedInfo(StopWatch stoppedwatch) {
-        logger.info(String.format("application started in %d ms, drink some water and have a nice journey !!!", stoppedwatch.taken()));
-        logger.info("----------------------- " + name + " STARTED------------------------------------");
+
+        Iterator<String> services = getServices().stream()
+                .sorted(Comparator.comparing(s -> s.getConfiguration().getScheme()))
+                .map(Object::toString)
+                .iterator();
+        logger.info("configured services :");
+        services.forEachRemaining(s -> logger.info("  > " + s));
+        logger.info(String.format("-----------------------application %s STARTED in %d ms, have a nice day------------------------------------", name, stoppedwatch.taken()));
     }
 
     private void logStopingInfo() {
-        logger.info("-----------------------STOPING " + name + "------------------------------------");
-        logger.info("");
+        logger.info("-----------------------STOPPING " + name + "------------------------------------");
     }
 
     private void logStoppedInfo(StopWatch stoppedwatch) {
-        logger.info(String.format("application stopped in %d ms", stoppedwatch.taken()));
-        logger.info("have a nice day");
-        logger.info("-----------------------STOPPED " + name + "------------------------------------");
+        logger.info(String.format("-----------------------application %s STOPPED in %d ms, have a nice day------------------------------------", name, stoppedwatch.taken()));
     }
 
     //fixme : it should be possible to restart only some services...
@@ -800,6 +801,8 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
         return propertiesComponent;
     }
+
+
 
 
 }
