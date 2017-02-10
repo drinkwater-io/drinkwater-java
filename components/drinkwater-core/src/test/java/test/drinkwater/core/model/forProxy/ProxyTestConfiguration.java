@@ -1,7 +1,9 @@
-package test.drinkwater.core.model;
+package test.drinkwater.core.model.forProxy;
 
 import drinkwater.ApplicationBuilder;
 import drinkwater.trace.MockEventLogger;
+import test.drinkwater.core.model.ITestService;
+import test.drinkwater.core.model.TestServiceImpl;
 
 public class ProxyTestConfiguration extends ApplicationBuilder {
 

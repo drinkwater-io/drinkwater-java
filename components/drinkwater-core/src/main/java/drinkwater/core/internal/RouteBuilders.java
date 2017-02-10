@@ -3,6 +3,7 @@ package drinkwater.core.internal;
 import drinkwater.IDrinkWaterService;
 import drinkwater.ServiceRepository;
 import drinkwater.ServiceScheme;
+import drinkwater.core.CamelContextFactory;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.helper.BeanFactory;
 import drinkwater.core.helper.Service;
@@ -55,9 +56,9 @@ public class RouteBuilders {
             @Override
             public void configure() throws Exception {
 
-                boolean jobActive = service.safeLookupProperty(Boolean.class, "job.activated" ,true);
+                boolean jobActive = service.safeLookupProperty(Boolean.class, "job.activated", true);
 
-                if(jobActive) {
+                if (jobActive) {
 
                     Object bean = BeanFactory.createBean(app, service.getConfiguration(), service);
 
@@ -90,7 +91,7 @@ public class RouteBuilders {
         };
     }
 
-    public static RouteBuilder mapHttpProxyRoutes(ServiceRepository app, Service service) {
+    public static RouteBuilder mapHttpProxyRoutes(DrinkWaterApplication app, Service service) {
 
         return new RouteBuilder() {
             @Override
@@ -104,11 +105,13 @@ public class RouteBuilders {
                     throw new RuntimeException("could not find proxy and destination endpoint from config");
                 }
 
+                String handlers = getHandlersForJetty(service);
+                String handlersConfig = handlers == null ? "":"&handlers="+handlers;
 
                 addExceptionTracing(service, Exception.class, this);
 
                 RouteDefinition choice =
-                        from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true");
+                        from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true" + handlersConfig);
 
                 choice = addServerReceivedTracing(service, choice);
                 choice = choice.to("jetty:" + destinationEndpoint + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=true");
@@ -117,6 +120,24 @@ public class RouteBuilders {
         };
     }
 
+    public static String getHandlersForJetty(Service service) {
+        String handlers = service.safeLookupProperty(String.class, "handlers", null);
+        if (handlers == null) {
+            return null;
+        }
+        String[] handlersArray = handlers.split(",");
+
+        try {
+            for (String handler :
+                    handlersArray) {
+                Object obj = Class.forName(handler).newInstance();
+                CamelContextFactory.registerBean(service.getCamelContext(), handler, obj);
+            }
+            return handlers;
+        } catch (Exception ex) {
+            throw new RuntimeException("could not register handler : ", ex);
+        }
+    }
 
     //TODO configure request headera nd response size
     public static RouteBuilder mapRoutingRoutes(DrinkWaterApplication app, Service service) {
@@ -127,7 +148,10 @@ public class RouteBuilders {
 
                 String frontEndpoint = endpointFrom(service, service.getConfiguration());
 
-                RouteDefinition frontRoute = from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true&optionsEnabled=true");
+                String handlers = getHandlersForJetty(service);
+                String handlersConfig = handlers == null ? "":"&handlers="+handlers;
+
+                RouteDefinition frontRoute = from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true&optionsEnabled=true" + handlersConfig);
 
                 from("direct:SINK_OK_ENDPOINT").transform().constant("OK");
 
