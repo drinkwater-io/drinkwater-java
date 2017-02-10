@@ -54,7 +54,7 @@ configure the app
 ```java
 public class App extends ApplicationBuilder{
     public static void main(String[] args) throws Exception {
-        new Main(new App()).run();
+        Drinkwater.run(App.class);
     }
 
     @Override
