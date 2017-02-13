@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
 public class SimpleTestHandler extends AbstractHandler {
@@ -18,6 +19,7 @@ public class SimpleTestHandler extends AbstractHandler {
     public void handle(String s, Request request, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException, ServletException {
 
         try {
+            HttpSession sess =  httpServletRequest.getSession();
             if (httpServletRequest.getQueryString() != null) {
                 if (httpServletRequest.getQueryString().contains("increment")) {
                     increment++;

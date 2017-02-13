@@ -97,6 +97,9 @@ public class RouteBuilders {
             @Override
             public void configure() throws Exception {
 
+                boolean useSessionManager = service.safeLookupProperty(Boolean.class, "useSessionManager:false", false);
+                String sessionManagerOption = useSessionManager? "&sessionSupport=true":"";
+
                 String frontEndpoint = service.lookupProperty("proxy.endpoint");
 
                 String destinationEndpoint = service.lookupProperty("destination.endpoint");
@@ -111,7 +114,7 @@ public class RouteBuilders {
                 addExceptionTracing(service, Exception.class, this);
 
                 RouteDefinition choice =
-                        from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true" + handlersConfig);
+                        from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true" + handlersConfig + sessionManagerOption);
 
                 choice = addServerReceivedTracing(service, choice);
                 choice = choice.to("jetty:" + destinationEndpoint + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=true");
