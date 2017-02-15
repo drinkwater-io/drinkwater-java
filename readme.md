@@ -4,6 +4,10 @@
 
 layer on top of camel to create and manage (micro)services easily
 
+### development 
+
+follows : https://help.github.com/articles/github-flow/
+
 ### features:
 
 - not production ready
