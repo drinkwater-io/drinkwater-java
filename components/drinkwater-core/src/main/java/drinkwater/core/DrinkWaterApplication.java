@@ -40,12 +40,11 @@ import static drinkwater.DrinkWaterPropertyConstants.*;
  */
 //@Vetoed
 public class DrinkWaterApplication implements ServiceRepository, IPropertiesAware, IPropertyResolver, Closeable {
+    private static Logger logger = LoggerFactory.getLogger(DrinkWaterApplication.class);
 
     public static final String DW_STATICHANDLER = "dw-static-management-handler";
     public static final String DW_STATIC_WWW_HANDLER = "dw-static-www-handler";
     public static boolean SHOW_BANNER = true;
-
-    private static Logger logger = LoggerFactory.getLogger(DrinkWaterApplication.class);
 
     private PropertiesComponent propertiesComponent;
     private List<DrinkWaterApplicationHistory> applicationHistory = List.empty();
@@ -116,7 +115,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
     }
 
-
     private void startTokenServiceIfEnabled() {
         if (this.safeLookupProperty(Boolean.class, Authentication_token_service_enabled, false)) {
 
@@ -140,7 +138,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
             tokenService.stop();
         }
     }
-
 
     private static void addWWWIfEnabled(DrinkWaterApplication app) throws Exception {
         Boolean serveStaticWWW = Boolean.parseBoolean(app.lookupProperty(WWW_Enabled));
@@ -252,7 +249,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         return new ApplicationOptions();
     }
 
-
     public synchronized void startTracingRoute() {
         try {
             if (isUseTracing()) {
@@ -341,7 +337,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 //        List.ofAll(builder.getConfigurations()).forEach(this::addService);
     }
 
-
     private void cofigureServices() {
 
         if (applicationBuilder != null) {
@@ -363,7 +358,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     public boolean isStopped() {
         return this.state == ApplicationState.Stopped;
     }
-
     //fixme should throw error if called twice
     public void start() {
 
@@ -447,7 +441,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
 
     }
-
 
     private void startDataStores() {
 
@@ -557,7 +550,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         return (T) serviceProxies.get(serviceName);
     }
 
-
     //fixme : for now I assume only one store per app....
     //we could filter on name
     public <T> T getStore(String name) {
@@ -577,11 +569,10 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
                         .get();
     }
 
-    public Object getServiceProperty(String serviceName, String key){
+    public Object getServiceProperty(String serviceName, String key) {
         IDrinkWaterService dws = this.getDrinkWaterService(serviceName);
         return dws.safeLookupProperty(Object.class, key, null);
     }
-
 
     private void startExternalServices() {
         restConfiguration.start();
@@ -626,7 +617,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
             throw new RuntimeException("Could not start Core Context ", ex);
         }
     }
-
 
     private void stopManagementService() {
         if (managementService != null) {
@@ -721,23 +711,13 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         return applicationHistory.toJavaList();
     }
 
-
     public String getPropertiesDefaultName() {
         return name;
     }
 
-//    public EventAggregator getEventAggregator() {
-//        return eventAggregator;
-//    }
-
-//    public void setEventLoggerClass(Class eventLoggerClass) {
-//        this.eventLoggerClass = eventLoggerClass;
-//    }
-
     public void addProperty(String property, String value) {
         initialApplicationProperties.setProperty(property, value);
     }
-
 
     @Override
     public Properties getInitialProperties() {
@@ -818,24 +798,21 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         return propertiesComponent;
     }
 
-    public String getManagetementPort(){
+    public String getManagetementPort() {
         if (managementService != null) {
             return managementService.safeLookupProperty(String.class, RestService.REST_PORT_KEY, null);
         }
-        return  null;
+        return null;
 
 
     }
 
-    public String getTokenServicePort(){
+    public String getTokenServicePort() {
         if (tokenService != null) {
             return tokenService.safeLookupProperty(String.class, RestService.REST_PORT_KEY, null);
         }
-        return  null;
+        return null;
 
 
     }
-
-
-
 }
