@@ -1,6 +1,7 @@
 package test.drinkwater.examples.drinktracker.asrest;
 
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.rest.RestService;
 import drinkwater.test.HttpUnitTest;
 import examples.drinkwater.drinktracker.asrest.ApplicationAsRest;
 import examples.drinkwater.drinktracker.model.Account;
@@ -21,7 +22,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class ServiceConfigurationAsRestTest extends HttpUnitTest {
     private static DrinkWaterApplication app;
-    private static String apiEnpoint = "http://127.0.0.1:8889/WaterVolumeFileRepository";
+    private static String apiEnpoint = "http://127.0.0.1:%s/WaterVolumeFileRepository";
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -38,7 +39,9 @@ public class ServiceConfigurationAsRestTest extends HttpUnitTest {
         IAccountService accountService = app.getService(IAccountService.class);
         Account acc = accountService.createAccount("cedric", "secret");
 
-        httpPostRequestString(apiEnpoint + "/WaterVolume?volume=10",
+        String apiHost = String.format(apiEnpoint, app.getServiceProperty("WaterVolumeFileRepository", RestService.REST_PORT_KEY));
+
+        httpPostRequestString(apiHost + "/WaterVolume?volume=10",
                 "{'accountName':'cedric','authenticated':true, 'accountPassword':'secret'}");
 
 

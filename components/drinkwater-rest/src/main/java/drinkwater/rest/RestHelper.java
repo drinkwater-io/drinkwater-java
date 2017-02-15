@@ -2,6 +2,7 @@ package drinkwater.rest;
 
 import com.mashape.unirest.http.HttpMethod;
 import drinkwater.*;
+import drinkwater.helper.SocketUtils;
 import drinkwater.helper.json.CustomJacksonObjectMapper;
 import drinkwater.helper.reflect.ReflectHelper;
 import drinkwater.rest.fileupload.FileUploadProcessor;
@@ -115,9 +116,18 @@ public class RestHelper {
         return propertiesResolver.lookupProperty(RestService.REST_HOST_KEY + ":0.0.0.0");
     }
 
-    private static String port(IPropertyResolver propertiesResolver) throws Exception {
-        String portKey = RestService.REST_PORT_KEY + ":8889";
-        return propertiesResolver.lookupProperty(portKey);
+    private static String port(IDrinkWaterService propertiesResolver) throws Exception {
+
+       String port = propertiesResolver.addProperty(RestService.REST_PORT_KEY, (key) -> SocketUtils.freePort() + "");
+
+       return port;
+
+//        String port = propertiesResolver.safeLookupProperty(String.class, RestService.REST_PORT_KEY, null);
+//
+//        SocketUtils.freePort();
+//
+//        String portKey = RestService.REST_PORT_KEY + ":8889";
+//        return propertiesResolver.lookupProperty(portKey);
     }
 
     private static String sinkPort(IPropertyResolver propertiesResolver) throws Exception {
@@ -131,10 +141,10 @@ public class RestHelper {
 
 
 
-    public static String endpointFrom(IPropertyResolver propertiesResolver, IServiceConfiguration config) throws Exception {
+    public static String endpointFrom(IDrinkWaterService service) throws Exception {
 
         String serviceHost = "";
-            serviceHost = "http://" + host(propertiesResolver) + ":" + port(propertiesResolver) + "/" + context(propertiesResolver, config);
+            serviceHost = "http://" + host(service) + ":" + port(service) + "/" + context(service, service.getConfiguration());
         return serviceHost;
 
     }
@@ -158,7 +168,7 @@ public class RestHelper {
         //http://camel.465427.n5.nabble.com/Workaround-with-REST-DSL-to-avoid-HTTP-method-not-allowed-405-td5771508.html
         try {
 
-            String serviceHost = endpointFrom(drinkWaterService, drinkWaterService.getConfiguration());
+            String serviceHost = endpointFrom(drinkWaterService);
             drinkWaterService.getConfiguration().setServiceHost(serviceHost);
 
             RestPropertyDefinition corsAllowedHeaders = new RestPropertyDefinition();

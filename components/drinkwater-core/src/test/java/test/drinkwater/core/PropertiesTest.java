@@ -1,6 +1,7 @@
 package test.drinkwater.core;
 
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.rest.RestService;
 import drinkwater.test.HttpUnitTest;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,7 +29,9 @@ public class PropertiesTest extends HttpUnitTest {
         try {
             propertiesApp.start();
 
-            String result = httpGetString("http://127.0.0.1:8889/test-without-properties/info").result();
+            String result = httpGetString(String.format(
+                    "http://127.0.0.1:%s/test-without-properties/info",
+                    propertiesApp.getServiceProperty("test-without-properties", RestService.REST_PORT_KEY))).result();
             assertEquals("test info", result);
 
         }
@@ -46,7 +49,9 @@ public class PropertiesTest extends HttpUnitTest {
         try {
             propertiesApp.start();
 
-            String result = httpGetString("http://127.0.0.1:8889/test-with-application-properties/info").result();
+            String result = httpGetString(String.format(
+                    "http://127.0.0.1:%s/test-with-application-properties/info",
+                    propertiesApp.getServiceProperty("test-with-application-properties", RestService.REST_PORT_KEY))).result();
             assertEquals("info from application properties file", result);
 
         }
@@ -64,7 +69,8 @@ public class PropertiesTest extends HttpUnitTest {
         try {
             propertiesApp.start();
 
-            String result = httpGetString("http://127.0.0.1:8889/ppa-service/info").result();
+            String result = httpGetString(String.format("http://127.0.0.1:%s/ppa-service/info",
+                    propertiesApp.getServiceProperty("ppa-service", RestService.REST_PORT_KEY))).result();
             assertEquals("cascaded keys in application : hello john", result);
 
         }
@@ -82,7 +88,9 @@ public class PropertiesTest extends HttpUnitTest {
         try {
             propertiesApp.start();
 
-            String result = httpGetString("http://127.0.0.1:8889/props-with-placeholders/info").result();
+            String result = httpGetString(String.format(
+                    "http://127.0.0.1:%s/props-with-placeholders/info",
+                    propertiesApp.getServiceProperty("props-with-placeholders", RestService.REST_PORT_KEY))).result();
             assertEquals("cascaded keys : hello cedric", result);
 
         }
@@ -100,7 +108,8 @@ public class PropertiesTest extends HttpUnitTest {
         try {
             propertiesApp.start();
 
-            String result = httpGetString("http://127.0.0.1:8889/test-properties/info").result();
+            String result = httpGetString(String.format("http://127.0.0.1:%s/test-properties/info",
+                    propertiesApp.getServiceProperty("test-properties", RestService.REST_PORT_KEY))).result();
             assertEquals("info from service properties file", result);
 
         }
@@ -125,7 +134,8 @@ public class PropertiesTest extends HttpUnitTest {
         try {
             propertiesApp.start();
 
-            String result = httpGetString("http://127.0.0.1:8889/test-external-properties/info").result();
+            String result = httpGetString(String.format("http://127.0.0.1:%s/test-external-properties/info",
+                    propertiesApp.getServiceProperty("test-external-properties", RestService.REST_PORT_KEY))).result();
             assertEquals("info from external properties file", result);
 
         }

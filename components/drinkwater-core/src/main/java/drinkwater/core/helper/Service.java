@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import static drinkwater.DrinkWaterPropertyConstants.*;
 import static drinkwater.common.tracing.TraceRouteBuilder.addClientReceivedTracing;
@@ -91,11 +92,16 @@ public class Service implements drinkwater.IDrinkWaterService {
         return propertiesComponent;
     }
 
+    private String getpropertyLookupPrefix(){
+        String prefix = this._dwa.getApplicationName() + "." + getConfiguration().getServiceName() +".";
+
+        return prefix;
+    }
+
     @Override
     public String lookupProperty(String s) throws Exception {
         //create the propertyprefix
-        String prefix = this._dwa.getApplicationName() + "." + getConfiguration().getServiceName() +".";
-        return getPropertiesComponent().parseUri(prefix + s);
+        return getPropertiesComponent().parseUri(getpropertyLookupPrefix() + s);
     }
 
     @Override
@@ -168,6 +174,16 @@ public class Service implements drinkwater.IDrinkWaterService {
     @Override
     public String getApplicationName() {
         return _dwa.getApplicationName();
+    }
+
+    @Override
+    public <V> V addProperty(String key, Function<String, ? extends V> mappingFunction){
+
+        final String finalKey = getpropertyLookupPrefix() + key;
+
+        return (V)getPropertiesComponent()
+                .getInitialProperties()
+                .computeIfAbsent(finalKey, (obj) -> mappingFunction.apply(finalKey));
     }
 
     @Override

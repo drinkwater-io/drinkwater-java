@@ -3,6 +3,7 @@ package test.drinkwater.core;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.security.SimpleToken;
 import drinkwater.helper.GeneralUtils;
+import drinkwater.rest.RestService;
 import drinkwater.security.Credentials;
 import drinkwater.test.HttpUnitTest;
 import org.junit.Test;
@@ -28,24 +29,28 @@ public class SecurityTest extends HttpUnitTest {
             String result = "";
 
             //test simple service
-            result = httpGetString("http://localhost:8889/test/info").result();
+
+            String testPort = (String)app.getServiceProperty("test", RestService.REST_PORT_KEY);
+            String securedPort = (String)app.getServiceProperty("secured", RestService.REST_PORT_KEY);
+
+            result = httpGetString(String.format("http://localhost:%s/test/info",testPort)).result();
             assertThat(result).isEqualTo("test info");
 
-            result = httpGetString("http://localhost:8889/secured/info")
+            result = httpGetString(String.format("http://localhost:%s/secured/info", securedPort))
                     .expectsStatus(401).result();
             assertThat(result).isEqualTo("Unauthorized");
 
             //test secure service
             Map<String, String> headers = new HashMap<>();
             headers.put("Authorization", "TOKEN " + createNewToken(360000));
-            result = httpGetString("http://localhost:8889/secured/info", headers).expectsStatus(200).result();
+            result = httpGetString(String.format("http://localhost:%s/secured/info", securedPort), headers).expectsStatus(200).result();
             assertThat(result).isEqualTo("test info");
 
 
             headers = new HashMap<>();
             headers.put("Authorization", "TOKEN " + createNewToken(100));
             Thread.sleep(101);
-            result = httpGetString("http://localhost:8889/secured/info", headers).expectsStatus(401).result();
+            result = httpGetString(String.format("http://localhost:%s/secured/info", securedPort), headers).expectsStatus(401).result();
             assertThat(result).isEqualTo("Unauthorized");
 
         }
@@ -63,14 +68,16 @@ public class SecurityTest extends HttpUnitTest {
             Credentials credentials = new Credentials("cedric","Dumont");
             String body = GeneralUtils.toJsonString(credentials);
 
-            result = httpPostRequestString("http://localhost:8889/auth/token", body)
+            String authPort = app.getTokenServicePort();
+
+            result = httpPostRequestString(String.format("http://localhost:%s/auth/token", authPort), body)
                     .expectsStatus(200)
                     .result();
 
             credentials = new Credentials("unknown","unknown");
             body = GeneralUtils.toJsonString(credentials);
 
-            result = httpPostRequestString("http://localhost:8889/auth/token", body)
+            result = httpPostRequestString(String.format("http://localhost:%s/auth/token", authPort), body)
                     .expectsStatus(401)
                     .result();
 
@@ -99,7 +106,9 @@ public class SecurityTest extends HttpUnitTest {
             Credentials credentials = new Credentials("xxx","xx");
             String body = GeneralUtils.toJsonString(credentials);
 
-            result = httpPostRequestString("http://localhost:8889/auth/token", body)
+            String authPort = (String)app.getServiceProperty("auth", RestService.REST_PORT_KEY);
+
+            result = httpPostRequestString(String.format("http://localhost:%s/auth/token", authPort), body)
                     .expectsStatus(200)
                     .result();
 

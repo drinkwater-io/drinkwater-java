@@ -21,9 +21,11 @@ public class ProxyTest extends HttpUnitTest {
                                      .use(ProxyTestConfiguration.class)
                                      .autoStart())) {
 
-            String result = httpGetString("http://127.0.0.1:7777/icc/info").result();
+            String proxyEndpoint = (String)proxyApp.getServiceProperty("proxyService", "proxy.endpoint");
+
+            String result = httpGetString(proxyEndpoint + "/info").result();
             assertEquals("test info", result);
-            result = httpGetString("http://127.0.0.1:7777/icc/info?increment").result();
+            result = httpGetString(proxyEndpoint + "/info?increment").result();
             assertEquals("test info", result);
 
             proxyApp.stop();

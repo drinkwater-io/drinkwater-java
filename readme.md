@@ -72,7 +72,7 @@ test.prefix=pong
 
 and run it.
 
-next open link **http://localhost:8889/test/ping?message=hello**
+next open link **http://localhost:????/test/ping?message=hello**
 
 you should receive **"pong hello"**
 

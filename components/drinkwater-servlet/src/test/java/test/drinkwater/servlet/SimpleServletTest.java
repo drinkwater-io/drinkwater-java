@@ -1,6 +1,7 @@
 package test.drinkwater.servlet;
 
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.rest.RestService;
 import drinkwater.servlet.DrinkWaterServletContextListener;
 import drinkwater.test.ServletUnitTest;
 import drinkwater.trace.MockEventLogger;
@@ -20,7 +21,9 @@ public class SimpleServletTest extends ServletUnitTest {
         DrinkWaterApplication application = getDrinkWaterApplication();
         assertThat(application).isNotNull();
 
-        String result = httpGetString("http://localhost:8889/test/echo?message=testmessage").result();
+        String result = httpGetString(String.format(
+                "http://localhost:%s/test/echo?message=testmessage",
+                application.getServiceProperty("test", RestService.REST_PORT_KEY))).result();
         assertThat(result).isEqualTo("testmessage");
 
         Thread.sleep(100);
@@ -28,6 +31,8 @@ public class SimpleServletTest extends ServletUnitTest {
         //check access to properties
         String fromProps = application.safeLookupProperty(String.class, "hello", "nodefault");
         assertThat(fromProps).isEqualTo("world");
+
+        application.stop();
 
         //check logs
         MockEventLogger logger = (MockEventLogger) application.getCurrentBaseEventLogger();

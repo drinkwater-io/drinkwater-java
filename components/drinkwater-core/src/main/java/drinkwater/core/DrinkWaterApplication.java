@@ -534,7 +534,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
                 serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Remote) {
             serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
                     ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
-                            new RestInvocationHandler(serviceToProxy, serviceToProxy)));
+                            new RestInvocationHandler(serviceToProxy)));
         }
     }
 
@@ -575,6 +575,11 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         return
                 services.filter(s -> s.getConfiguration().getServiceName().equals(serviceName))
                         .get();
+    }
+
+    public Object getServiceProperty(String serviceName, String key){
+        IDrinkWaterService dws = this.getDrinkWaterService(serviceName);
+        return dws.safeLookupProperty(Object.class, key, null);
     }
 
 
@@ -812,6 +817,25 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
         return propertiesComponent;
     }
+
+    public String getManagetementPort(){
+        if (managementService != null) {
+            return managementService.safeLookupProperty(String.class, RestService.REST_PORT_KEY, null);
+        }
+        return  null;
+
+
+    }
+
+    public String getTokenServicePort(){
+        if (tokenService != null) {
+            return tokenService.safeLookupProperty(String.class, RestService.REST_PORT_KEY, null);
+        }
+        return  null;
+
+
+    }
+
 
 
 }

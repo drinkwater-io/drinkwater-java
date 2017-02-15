@@ -2,6 +2,7 @@ package test.drinkwater.core;
 
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.helper.json.CustomJacksonObjectMapper;
+import drinkwater.rest.RestService;
 import drinkwater.test.HttpUnitTest;
 import org.junit.Test;
 import test.drinkwater.core.model.forRest.FileReadResult;
@@ -27,7 +28,11 @@ public class RestTest extends HttpUnitTest {
             String file_to_upload = getFileContent("/file_to_upload.txt");
             InputStream is = new ByteArrayInputStream(file_to_upload.getBytes());
 
-            FileReadResult result = httpPostFile("http://127.0.0.1:8889/serviceA/upload", is, FileReadResult.class, null).asObject();
+            String port = (String)app.getServiceProperty("serviceA", RestService.REST_PORT_KEY);
+
+            FileReadResult result = httpPostFile(
+                    String.format("http://127.0.0.1:%s/serviceA/upload",
+                            app.getServiceProperty("serviceA", RestService.REST_PORT_KEY)), is, FileReadResult.class, null).asObject();
 
             assertEquals("hello world uploaded", result.getContent());
         }
@@ -46,8 +51,11 @@ public class RestTest extends HttpUnitTest {
             String s = mapper.writeValueAsString(mapelements);
             s = java.net.URLEncoder.encode(s, StandardCharsets.UTF_8.toString());
 
+            String host = String.format("http://127.0.0.1:%s",
+                    app.getServiceProperty("serviceA", RestService.REST_PORT_KEY));
+
             //pass it as a json object
-            String result = httpGetString("http://127.0.0.1:8889/serviceA/methodWithMap?paramAsMap=" + s + "&another_param=someOtherParamValue").result();
+            String result = httpGetString(host + "/serviceA/methodWithMap?paramAsMap="+s+"&another_param=someOtherParamValue").result();
 
             //assert
             assertEquals("paramAsMap=[(myKey:myValue)(mynumber:1)] - another_param=someOtherParamValue", result);

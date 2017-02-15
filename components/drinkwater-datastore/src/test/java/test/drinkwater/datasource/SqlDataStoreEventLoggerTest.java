@@ -3,6 +3,7 @@ package test.drinkwater.datasource;
 import com.opentable.db.postgres.embedded.EmbeddedPostgres;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.datastore.JndiSqlDataStore;
+import drinkwater.rest.RestService;
 import drinkwater.test.HttpUnitTest;
 import drinkwater.test.jndi.MockJndiContextFactoryRule;
 import org.junit.AfterClass;
@@ -64,7 +65,9 @@ public class SqlDataStoreEventLoggerTest extends HttpUnitTest {
 
             JndiSqlDataStore store = app.getStore("test");
 
-            String result = httpGetString("http://localhost:8889/test/echo?message=hello").result();
+
+            String result = httpGetString(String.format("http://localhost:%s/test/echo?message=hello",
+                    app.getServiceProperty("test", RestService.REST_PORT_KEY))).result();
 
             assertThat(result).isEqualTo("hello");
 

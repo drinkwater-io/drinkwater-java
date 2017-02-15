@@ -149,7 +149,7 @@ public class RouteBuilders {
             @Override
             public void configure() throws Exception {
 
-                String frontEndpoint = endpointFrom(service, service.getConfiguration());
+                String frontEndpoint = endpointFrom(service);
 
                 String handlers = getHandlersForJetty(service);
                 String handlersConfig = handlers == null ? "":"&handlers="+handlers;
@@ -184,7 +184,7 @@ public class RouteBuilders {
                             String serviceHost = serviceTemp.getConfiguration().getServiceHost();
                             if (serviceTemp.getConfiguration().getScheme() == ServiceScheme.Routeur) {
                                 try {
-                                    serviceHost = endpointFrom(serviceTemp, serviceTemp.getConfiguration());
+                                    serviceHost = endpointFrom(serviceTemp);
                                 } catch (Exception e) {
                                     throw new RuntimeException();
                                 }

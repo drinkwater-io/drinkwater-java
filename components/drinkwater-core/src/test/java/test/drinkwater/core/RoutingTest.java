@@ -1,6 +1,7 @@
 package test.drinkwater.core;
 
 import drinkwater.core.DrinkWaterApplication;
+import drinkwater.rest.RestService;
 import drinkwater.test.HttpUnitTest;
 import org.junit.Test;
 import test.drinkwater.core.model.forRouting.RoutingApplicationFromConfigFile;
@@ -22,7 +23,9 @@ public class RoutingTest extends HttpUnitTest {
         try (DrinkWaterApplication app = DrinkWaterApplication.create("routing-test",
                 options().use(RoutingApplicationFromConfigFile.class).autoStart())) {
 
-            String frontHost = "http://localhost:8889/frontService/data";
+            String port = (String)app.getServiceProperty("frontService", RestService.REST_PORT_KEY);
+
+            String frontHost = String.format("http://localhost:%s/frontService/data", port);
             Map<String, String> headers = new HashMap<>();
 
             //Route to A

@@ -16,13 +16,16 @@ import static drinkwater.ApplicationOptionsBuilder.options;
 public class ServiceManagementRestTest extends HttpUnitTest {
 
     static DrinkWaterApplication app;
-    private static String MANAGEMENT_API_ENDPOINT = "http://localhost:8889/service-management";
-    private static String DEFAULT_REST_HOST_AND_PORT = "http://localhost:8889";
+    private static String MANAGEMENT_API_ENDPOINT;
 
     @BeforeClass
     public static void start() {
         app = DrinkWaterApplication.create("service-management",
                 options().use(TestConfiguration.class).autoStart());
+
+        String managmenetPort = app.getManagetementPort();
+        MANAGEMENT_API_ENDPOINT = String.format("http://localhost:%s/service-management", managmenetPort);
+
     }
 
     @AfterClass
@@ -31,13 +34,6 @@ public class ServiceManagementRestTest extends HttpUnitTest {
             app.stop();
         }
     }
-
-    @Test
-    public void checkTestServiceEndpoint() throws UnirestException {
-        httpGetString(DEFAULT_REST_HOST_AND_PORT + "/test/info").expectsBody("test info");
-
-    }
-
 
     @Test
     public void checkServiceNames() throws UnirestException {
