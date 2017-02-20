@@ -114,7 +114,8 @@ public class RouteBuilders {
                 addExceptionTracing(service, Exception.class, this);
 
                 RouteDefinition choice =
-                        from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true" + handlersConfig + sessionManagerOption);
+                        from("jetty:" + frontEndpoint + "?matchOnUriPrefix=true&amp;enablemulti-partFilter=false"
+                                + handlersConfig + sessionManagerOption);
 
                 choice = addServerReceivedTracing(service, choice);
                 choice = choice.to("jetty:" + destinationEndpoint + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=true");
