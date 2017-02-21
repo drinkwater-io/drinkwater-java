@@ -25,5 +25,6 @@ public class ProxyTestConfiguration extends ApplicationBuilder {
                 ITestService.class,
                 new TestServiceImpl())
                 .addInitialProperty(RestService.REST_PORT_KEY, randomPort).asRest();
+
     }
 }
