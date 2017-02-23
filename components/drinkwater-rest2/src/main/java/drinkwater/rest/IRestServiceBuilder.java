@@ -1,6 +1,10 @@
 package drinkwater.rest;
 
-import drinkwater.IServiceBuilder2;
+import drinkwater.IBuilder;
 
-public class IRestServiceBuilder implements IServiceBuilder2 {
+public class IRestServiceBuilder implements IBuilder {
+
+    public IRestServiceBuilder withPort(int port){
+        return this;
+    }
 }
