@@ -14,5 +14,10 @@
             <artifactId>drinkwater-common</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>

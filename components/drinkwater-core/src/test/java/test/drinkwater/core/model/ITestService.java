@@ -5,4 +5,6 @@ package test.drinkwater.core.model;
  */
 public interface ITestService {
     String getInfo();
+
+    String ping(String param);
 }
