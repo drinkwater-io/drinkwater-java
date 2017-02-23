@@ -31,6 +31,7 @@
         <module>drinkwater-test</module>
         <module>drinkwater-cdi</module>
         <module>drinkwater-rest</module>
+        <module>drinkwater-rest2</module>
         <module>drinkwater-helper</module>
         <module>drinkwater-api</module>
         <module>drinkwater-datastore</module>

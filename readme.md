@@ -1,8 +1,14 @@
-[![Build Status](https://travis-ci.org/drinkwater-io/drinkwater-java.svg?branch=master)](https://travis-ci.org/drinkwater-io/drinkwater-java)
+master : [![Build Status](https://travis-ci.org/drinkwater-io/drinkwater-java.svg?branch=master)](https://travis-ci.org/drinkwater-io/drinkwater-java)
+
+this-branch : [![Build Status](https://travis-ci.org/drinkwater-io/drinkwater-java.svg?branch=issue-20)](https://travis-ci.org/drinkwater-io/drinkwater-java)
 
 # DrinkWater 
 
 layer on top of camel to create and manage (micro)services easily
+
+### development 
+
+follows : https://help.github.com/articles/github-flow/
 
 ### features:
 
