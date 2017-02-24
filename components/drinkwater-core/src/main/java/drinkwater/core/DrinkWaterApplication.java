@@ -14,7 +14,6 @@ import drinkwater.rest.RestInvocationHandler;
 import drinkwater.rest.RestService;
 import drinkwater.security.ITokenProvider;
 import drinkwater.trace.JavaLoggingEventLogger;
-import javaslang.collection.List;
 import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.properties.PropertiesComponent;
@@ -47,7 +46,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     public static boolean SHOW_BANNER = true;
 
     private PropertiesComponent propertiesComponent;
-    private List<DrinkWaterApplicationHistory> applicationHistory = List.empty();
+    private List<DrinkWaterApplicationHistory> applicationHistory = new ArrayList<>();
     private List<StoreProxy> dataStores;
     private ApplicationState state = ApplicationState.Stopped;
     private String name;
@@ -309,8 +308,8 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
             serviceProxies.clear();
         }
         serviceProxies = new HashMap<>();
-        services = List.empty();
-        dataStores = List.empty();
+        services = new ArrayList<>();
+        dataStores = new ArrayList<>();
         tracer = new TracerBean();
         jvmMetricsBean = new JVMMetricsBean();
         restConfiguration = new RestService();
@@ -341,8 +340,8 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         if (applicationBuilder != null) {
 //            applicationBuilder.configure();
-            List.ofAll(applicationBuilder.getStores()).forEach(this::addStore);
-            List.ofAll(applicationBuilder.getConfigurations()).forEach(this::addService);
+            applicationBuilder.getStores().forEach(this::addStore);
+            applicationBuilder.getConfigurations().forEach(this::addService);
 
         } else {
             //TODO add explanation how to ad a srvice
@@ -476,13 +475,13 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     private void addService(IServiceConfiguration serviceConfig) {
         Service s = createServiceFromConfig(serviceConfig, tracer);
-        services = services.append(s);
+        services.add(s);
         addProxy(s);
     }
 
     private void addStore(IDataStoreConfiguration serviceConfig) {
         StoreProxy s = createStoreFromConfig(serviceConfig);
-        dataStores = dataStores.append(s);
+       dataStores.add(s);
         //addProxy(s);
     }
 
@@ -536,8 +535,10 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     public <T> T getService(Class<? extends T> iface) {
         T service = null;
         //check in service if there is one that serves iface
-        if (services.filter(s -> s.getConfiguration().getServiceClass().equals(iface)).size() > 0) {
-            service = (T) serviceProxies.get(services.filter(s -> s.getConfiguration().getServiceClass().equals(iface)).get().getConfiguration().getServiceName());
+        if (services.stream()
+                .filter(s -> s.getConfiguration().getServiceClass().equals(iface)).count() > 0) {
+            service = (T) serviceProxies.get(services.stream().filter(s -> s.getConfiguration().getServiceClass().equals(iface))
+                    .findFirst().get().getConfiguration().getServiceName());
         }
         if (service == null) {
             service = (T) serviceProxies.get(iface.getName());
@@ -558,15 +559,16 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     public IServiceConfiguration getServiceDefinition(String serviceName) {
         return
-                services.filter(s -> s.getConfiguration().getServiceName().equals(serviceName))
+                services.stream().filter(s -> s.getConfiguration().getServiceName().equals(serviceName))
                         .map(s -> s.getConfiguration())
-                        .get();
+                        .findFirst().get();
     }
 
     public IDrinkWaterService getDrinkWaterService(String serviceName) {
         return
-                services.filter(s -> s.getConfiguration().getServiceName().equals(serviceName))
-                        .get();
+                services.stream()
+                        .filter(s -> s.getConfiguration().getServiceName().equals(serviceName))
+                        .findFirst().get();
     }
 
     public Object getServiceProperty(String serviceName, String key) {
@@ -685,7 +687,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 //        this.stop();
 
         DrinkWaterApplicationHistory history = DrinkWaterApplicationHistory.createApplicationHistory(this);
-        applicationHistory = applicationHistory.append(history);
+        applicationHistory.add(history);
 
 //        this.start();
 
@@ -695,7 +697,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     public void revertState() {
         this.stop();
 
-        DrinkWaterApplicationHistory history = applicationHistory.last();
+        DrinkWaterApplicationHistory history = applicationHistory.get(applicationHistory.size() - 1);
 
         java.util.List<ServiceConfiguration> previousConfig = DrinkWaterApplicationHistory.getConfig(history);
 
@@ -708,7 +710,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     public java.util.List<DrinkWaterApplicationHistory> history() {
-        return applicationHistory.toJavaList();
+        return applicationHistory;
     }
 
     public String getPropertiesDefaultName() {
@@ -757,7 +759,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     public enum ApplicationState {Up, Stopped}
 
     public java.util.List<IDrinkWaterService> getServices() {
-        return services.toJavaList();
+        return services;
     }
 
     public String getApplicationName() {

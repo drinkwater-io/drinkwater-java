@@ -1,8 +1,8 @@
 package drinkwater.rest;
 
-import drinkwater.IBuilder;
+import drinkwater.Builder;
 
-public class IRestServiceBuilder implements IBuilder {
+public class IRestServiceBuilder extends Builder {
 
     public IRestServiceBuilder withPort(int port){
         return this;

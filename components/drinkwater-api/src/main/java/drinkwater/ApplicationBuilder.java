@@ -176,7 +176,7 @@ public class ApplicationBuilder implements IApplicationBuilder {
     public void configure() {
     }
 
-    public ComponentBuilder use(Class clazz){
+    public ComponentBuilder expose(Class clazz){
        return new ComponentBuilder();
     }
 

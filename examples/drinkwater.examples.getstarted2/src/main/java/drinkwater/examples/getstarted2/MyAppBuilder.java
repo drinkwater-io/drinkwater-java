@@ -9,18 +9,17 @@ public class MyAppBuilder extends ApplicationBuilder {
     }
 
     public void addServices(){
+
         addService(ISimpleService.class).asRest();
+        expose(ISimpleService.class)
+                .as(RestComponent.class).withPort(10);
+
     }
 
 
     public static void main(String[] args) {
         MyAppBuilder app = new MyAppBuilder();
-//        IRestServiceBuilder sb = app.use(ISimpleService.class)
-//                .as(RestComponent.class).getBuilder().withPort(10);
-        app.use(ISimpleService.class)
-                .asBuilder(RestComponent.class).withPort(10);
-
-
-//        sb.withPort(10);
+        app.expose(ISimpleService.class)
+                .as(RestComponent.class).withPort(10).named("test");
     }
 }
