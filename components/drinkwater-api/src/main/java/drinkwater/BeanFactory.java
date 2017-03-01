@@ -12,7 +12,7 @@ import java.util.Map;
  */
 public class BeanFactory {
 
-    public static Object createBean(DrinkWaterApplication app,
+    public static Object createBean(ServiceRepository app,
                                     IServiceConfiguration service,
                                     IPropertyResolver propertyResolver) throws Exception {
         if (service.getTargetBean() != null) {
@@ -23,7 +23,7 @@ public class BeanFactory {
 
     }
 
-    public static Object createBeanClass(DrinkWaterApplication app,
+    public static Object createBeanClass(ServiceRepository app,
                                          IServiceConfiguration service,
                                          IPropertyResolver propertyResolver) throws Exception {
         // create an instance of the bean
@@ -39,7 +39,7 @@ public class BeanFactory {
 
     }
 
-    public static Object createBean(DrinkWaterApplication app,
+    public static Object createBean(ServiceRepository app,
                                          IDataStoreConfiguration storeConfig) {
         try {
             // create an instance of the bean
@@ -59,7 +59,7 @@ public class BeanFactory {
 
     }
 
-    public static Object createBeanObject(DrinkWaterApplication app, IServiceConfiguration serviceConfiguration, IPropertyResolver propertyResolver) throws Exception {
+    public static Object createBeanObject(ServiceRepository app, IServiceConfiguration serviceConfiguration, IPropertyResolver propertyResolver) throws Exception {
         // create an instance of the bean
         Object beanToUse = serviceConfiguration.getTargetBean();
 
@@ -84,7 +84,7 @@ public class BeanFactory {
 
     }
 
-    private static void injectStores(DrinkWaterApplication app,
+    private static void injectStores(ServiceRepository app,
                               Object beanToUse) throws IllegalAccessException {
 
 
