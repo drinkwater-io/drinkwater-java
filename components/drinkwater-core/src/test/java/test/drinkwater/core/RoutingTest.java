@@ -1,7 +1,6 @@
 package test.drinkwater.core;
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.rest.RestService;
 import drinkwater.test.HttpUnitTest;
 import org.junit.Test;
 import test.drinkwater.core.model.forRouting.RoutingApplicationFromConfigFile;

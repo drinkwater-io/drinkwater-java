@@ -2,8 +2,8 @@ package test.drinkwater.core.model.forProxy;
 
 import drinkwater.ApplicationBuilder;
 import drinkwater.helper.SocketUtils;
-import drinkwater.rest.RestService;
 import drinkwater.trace.MockEventLogger;
+import test.drinkwater.core.RestService;
 import test.drinkwater.core.model.ITestService;
 import test.drinkwater.core.model.TestServiceImpl;
 

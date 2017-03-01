@@ -1,7 +1,6 @@
 package test.drinkwater.core;
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.rest.RestService;
 import drinkwater.test.HttpUnitTest;
 import drinkwater.trace.*;
 import org.junit.FixMethodOrder;
@@ -178,7 +177,8 @@ public class TracingTest extends HttpUnitTest {
 
             MockEventLogger logger = (MockEventLogger) app.getCurrentBaseEventLogger();
 
-            String port = (String)app.getServiceProperty("test", RestService.REST_PORT_KEY);
+//            String port = (String)app.getServiceProperty("test", RestService.REST_PORT_KEY);
+            String port = "";
 
             String result = httpGetString(String.format("http://127.0.0.1:%s/test/info", port)).result();
 

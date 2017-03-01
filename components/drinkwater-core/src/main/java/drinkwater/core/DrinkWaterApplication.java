@@ -10,8 +10,6 @@ import drinkwater.core.reflect.BeanInvocationHandler;
 import drinkwater.core.security.SimpleTokenProvider;
 import drinkwater.helper.GeneralUtils;
 import drinkwater.helper.reflect.ReflectHelper;
-import drinkwater.rest.RestInvocationHandler;
-import drinkwater.rest.RestService;
 import drinkwater.security.ITokenProvider;
 import drinkwater.trace.JavaLoggingEventLogger;
 import org.apache.camel.CamelContext;
@@ -52,7 +50,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     private String name;
     private TracerBean tracer;
     private JVMMetricsBean jvmMetricsBean;
-    private RestService restConfiguration;
     private List<IDrinkWaterService> services;
     private List<ComponentBuilder> components;
     private Map<String, Object> serviceProxies;
@@ -314,7 +311,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         dataStores = new ArrayList<>();
         tracer = new TracerBean();
         jvmMetricsBean = new JVMMetricsBean();
-        restConfiguration = new RestService();
 //        if (isTraceMaster) {
 //            eventAggregator.clear();
 //        }
@@ -544,9 +540,9 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
                             new BeanClassInvocationHandler(serviceToProxy.getCamelContext())));
         } else if (serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Rest ||
                 serviceToProxy.getConfiguration().getScheme() == ServiceScheme.Remote) {
-            serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
-                    ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
-                            new RestInvocationHandler(serviceToProxy)));
+//            serviceProxies.put(serviceToProxy.getConfiguration().getServiceName(),
+//                    ReflectHelper.simpleProxy(serviceToProxy.getConfiguration().getServiceClass(),
+//                            new RestInvocationHandler(serviceToProxy)));
         }
     }
 
@@ -609,11 +605,11 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     private void startExternalServices() {
-        restConfiguration.start();
+//        restConfiguration.start();
     }
 
     private void stopExternalServices() {
-        restConfiguration.start();
+//        restConfiguration.start();
     }
 
     private void createAndStartManagementService() {
@@ -833,18 +829,18 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     }
 
     public String getManagetementPort() {
-        if (managementService != null) {
-            return managementService.safeLookupProperty(String.class, RestService.REST_PORT_KEY, null);
-        }
+//        if (managementService != null) {
+//            return managementService.safeLookupProperty(String.class, RestService.REST_PORT_KEY, null);
+//        }
         return null;
 
 
     }
 
     public String getTokenServicePort() {
-        if (tokenService != null) {
-            return tokenService.safeLookupProperty(String.class, RestService.REST_PORT_KEY, null);
-        }
+//        if (tokenService != null) {
+//            return tokenService.safeLookupProperty(String.class, RestService.REST_PORT_KEY, null);
+//        }
         return null;
 
 

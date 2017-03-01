@@ -7,7 +7,6 @@ import drinkwater.core.CamelContextFactory;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.BeanFactory;
 import drinkwater.core.helper.Service;
-import drinkwater.rest.RestHelper;
 import drinkwater.security.UnauthorizedException;
 import drinkwater.trace.Operation;
 import javaslang.collection.List;
@@ -23,7 +22,6 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 
 import static drinkwater.common.tracing.TraceRouteBuilder.*;
-import static drinkwater.rest.RestHelper.endpointFrom;
 import static org.apache.camel.builder.Builder.constant;
 
 /**
@@ -149,8 +147,9 @@ public class RouteBuilders {
         return new RouteBuilder() {
             @Override
             public void configure() throws Exception {
+                String frontEndpoint="";
 
-                String frontEndpoint = endpointFrom(service);
+//                String frontEndpoint = endpointFrom(service);
 
                 String handlers = getHandlersForJetty(service);
                 String handlersConfig = handlers == null ? "":"&handlers="+handlers;
@@ -185,7 +184,8 @@ public class RouteBuilders {
                             String serviceHost = serviceTemp.getConfiguration().getServiceHost();
                             if (serviceTemp.getConfiguration().getScheme() == ServiceScheme.Routeur) {
                                 try {
-                                    serviceHost = endpointFrom(serviceTemp);
+                                    serviceHost ="";
+//                                    serviceHost = endpointFrom(serviceTemp);
                                 } catch (Exception e) {
                                     throw new RuntimeException();
                                 }
@@ -212,7 +212,8 @@ public class RouteBuilders {
 
     private static RouteDefinition enableCorsOnRoute(RouteDefinition route, Service service) {
 
-        String allowedHeaders = RestHelper.getAllowedCorsheaders(service);
+        String allowedHeaders = "";
+//        String allowedHeaders = RestHelper.getAllowedCorsheaders(service);
         return route
                 .setHeader("Access-Control-Allow-Origin", constant("*"))
                 .setHeader("Access-Control-Allow-Methods", constant("GET, HEAD, POST, PUT, DELETE, TRACE, OPTIONS, CONNECT, PATCH"))
@@ -229,7 +230,7 @@ public class RouteBuilders {
 
                 Object bean = BeanFactory.createBean(app, service.getConfiguration(), service);
 
-                RestHelper.buildRestRoutes(this, bean, service);
+//                RestHelper.buildRestRoutes(this, bean, service);
 
             }
         };

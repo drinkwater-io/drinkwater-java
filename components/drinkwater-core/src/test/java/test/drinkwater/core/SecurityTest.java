@@ -3,7 +3,6 @@ package test.drinkwater.core;
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.security.SimpleToken;
 import drinkwater.helper.GeneralUtils;
-import drinkwater.rest.RestService;
 import drinkwater.security.Credentials;
 import drinkwater.test.HttpUnitTest;
 import org.junit.Test;
@@ -30,8 +29,12 @@ public class SecurityTest extends HttpUnitTest {
 
             //test simple service
 
-            String testPort = (String)app.getServiceProperty("test", RestService.REST_PORT_KEY);
-            String securedPort = (String)app.getServiceProperty("secured", RestService.REST_PORT_KEY);
+//            String testPort = (String)app.getServiceProperty("test", RestService.REST_PORT_KEY);
+//            String securedPort = (String)app.getServiceProperty("secured", RestService.REST_PORT_KEY);
+
+
+            String testPort = "";
+            String securedPort = "";
 
             result = httpGetString(String.format("http://localhost:%s/test/info",testPort)).result();
             assertThat(result).isEqualTo("test info");
@@ -106,7 +109,8 @@ public class SecurityTest extends HttpUnitTest {
             Credentials credentials = new Credentials("xxx","xx");
             String body = GeneralUtils.toJsonString(credentials);
 
-            String authPort = (String)app.getServiceProperty("auth", RestService.REST_PORT_KEY);
+//            String authPort = (String)app.getServiceProperty("auth", RestService.REST_PORT_KEY);
+            String authPort = "";
 
             result = httpPostRequestString(String.format("http://localhost:%s/auth/token", authPort), body)
                     .expectsStatus(200)
