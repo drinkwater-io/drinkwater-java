@@ -10,7 +10,7 @@
     <dependencies>
         <dependency>
             <groupId>io.drinkwater</groupId>
-            <artifactId>drinkwater-rest2</artifactId>
+            <artifactId>drinkwater-rest</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

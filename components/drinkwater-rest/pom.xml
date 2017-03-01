@@ -9,17 +9,6 @@
     <artifactId>drinkwater-rest</artifactId>
     <url>http://maven.apache.org</url>
     <dependencies>
-        <dependency>
-            <groupId>io.drinkwater</groupId>
-            <artifactId>drinkwater-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
         <!--unirest dependencies-->
         <dependency>
             <groupId>com.mashape.unirest</groupId>
@@ -51,12 +40,7 @@
             <artifactId>commons-io</artifactId>
             <version>2.5</version>
         </dependency>
-        <!--javaslang-->
-        <dependency>
-            <groupId>io.javaslang</groupId>
-            <artifactId>javaslang</artifactId>
-            <version>2.0.2</version>
-        </dependency>
+
         <!--camel-->
         <dependency>
             <groupId>org.apache.camel</groupId>
@@ -77,6 +61,18 @@
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-api</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater-core</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>commons-fileupload</groupId>

@@ -43,7 +43,7 @@ public class HttpProxyServiceBuilder extends Builder {
     }
 
     public void configureMethodEndpoint(RouteBuilder rb, Method method) {
-        // not based on method
+        // not based on method fro now
     }
 
 }
