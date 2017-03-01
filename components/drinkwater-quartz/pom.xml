@@ -6,22 +6,18 @@
         <groupId>io.drinkwater</groupId>
         <version>0.0.10-SNAPSHOT</version>
     </parent>
-    <artifactId>drinkwater-api</artifactId>
+    <artifactId>drinkwater-quartz</artifactId>
+    <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
-            <groupId>io.javaslang</groupId>
-            <artifactId>javaslang</artifactId>
-            <version>2.0.5</version>
-        </dependency>
-        <dependency>
             <groupId>io.drinkwater</groupId>
-            <artifactId>drinkwater-helper</artifactId>
+            <artifactId>drinkwater-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.camel</groupId>
-            <artifactId>camel-core</artifactId>
-            <version>2.18.1</version>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

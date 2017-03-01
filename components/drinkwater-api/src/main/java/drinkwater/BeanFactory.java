@@ -1,7 +1,6 @@
-package drinkwater.core.helper;
+package drinkwater;
 
 import drinkwater.*;
-import drinkwater.core.DrinkWaterApplication;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -11,6 +10,14 @@ import java.util.Map;
  * Created by A406775 on 28/12/2016.
  */
 public class BeanFactory {
+
+    public static Object buildBean(ServiceRepository serviceRepository, Class clazz) throws Exception{
+        Object beanToUse = clazz.newInstance();
+
+        injectFields(beanToUse, serviceRepository);
+
+        return beanToUse;
+    }
 
     public static Object createBean(ServiceRepository app,
                                     IServiceConfiguration service,
@@ -158,6 +165,25 @@ public class BeanFactory {
         }
 
         return bean;
+    }
+
+    private static Object injectFields(Object bean,
+                                       IPropertyResolver propertyresolver) throws Exception {
+
+            for (Field f : bean.getClass().getDeclaredFields()) {
+                String propertyUri = f.getName() + ":undefined";
+                String value = propertyresolver.lookupProperty(propertyUri);
+
+                if (!"undefined".equals(value)) {
+                    Object convertedValue = propertyresolver.lookupProperty(f.getType(),propertyUri);
+
+                    f.setAccessible(true);
+                    f.set(bean, convertedValue);
+                }
+            }
+
+        return bean;
+
     }
 
 

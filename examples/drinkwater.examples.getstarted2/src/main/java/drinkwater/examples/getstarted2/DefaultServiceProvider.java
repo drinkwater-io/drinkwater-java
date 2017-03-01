@@ -2,7 +2,7 @@ package drinkwater.examples.getstarted2;
 
 
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.core.helper.BeanFactory;
+import drinkwater.BeanFactory;
 
 public class DefaultServiceProvider implements IServiceProvider {
 

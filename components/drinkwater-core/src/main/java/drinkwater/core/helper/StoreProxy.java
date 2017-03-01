@@ -1,5 +1,6 @@
 package drinkwater.core.helper;
 
+import drinkwater.BeanFactory;
 import drinkwater.IDataStore;
 import drinkwater.IDataStoreConfiguration;
 import drinkwater.core.DrinkWaterApplication;
@@ -18,7 +19,7 @@ public class StoreProxy implements IDataStore {
         this.application = application;
         this.configuration = configuration;
 
-        this.realStore = (IDataStore)BeanFactory.createBean(application, configuration);
+        this.realStore = (IDataStore) BeanFactory.createBean(application, configuration);
 
     }
 

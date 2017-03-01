@@ -2,31 +2,45 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>examples</artifactId>
+        <artifactId>components</artifactId>
         <groupId>io.drinkwater</groupId>
         <version>0.0.10-SNAPSHOT</version>
     </parent>
-    <artifactId>drinkwater.examples.drinktracker.asrest</artifactId>
+    <artifactId>drinkwater-http-proxy</artifactId>
+    <url>http://maven.apache.org</url>
     <dependencies>
         <dependency>
             <groupId>io.drinkwater</groupId>
-            <artifactId>drinkwater-rest2</artifactId>
+            <artifactId>drinkwater-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jetty</artifactId>
+            <version>${camel.version}</version>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>${project.version}</version>
+            <version>0.0.10-SNAPSHOT</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
-            <artifactId>drinkwater.examples.drinktracker</artifactId>
-            <version>${project.version}</version>
+            <artifactId>drinkwater-rest2</artifactId>
+            <version>0.0.10-SNAPSHOT</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-test</artifactId>
-            <version>${project.version}</version>
+            <version>0.0.10-SNAPSHOT</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

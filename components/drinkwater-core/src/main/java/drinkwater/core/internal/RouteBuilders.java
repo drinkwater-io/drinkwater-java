@@ -5,7 +5,7 @@ import drinkwater.ServiceRepository;
 import drinkwater.ServiceScheme;
 import drinkwater.core.CamelContextFactory;
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.core.helper.BeanFactory;
+import drinkwater.BeanFactory;
 import drinkwater.core.helper.Service;
 import drinkwater.rest.RestHelper;
 import drinkwater.security.UnauthorizedException;

@@ -4,8 +4,6 @@ import com.codahale.metrics.MetricRegistry;
 import drinkwater.IDrinkWaterService;
 import drinkwater.ServiceState;
 import drinkwater.core.DrinkWaterApplication;
-import drinkwater.rest.HttpMethod;
-import drinkwater.rest.NoBody;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,8 +51,8 @@ public class ServiceManagementBean implements IServiceManagement {
         return svc;
     }
 
-    @HttpMethod("POST")
-    @NoBody
+//    @HttpMethod("POST")
+//    @NoBody
     @Override
     public String stopService(String serviceName) {
 
@@ -66,8 +64,8 @@ public class ServiceManagementBean implements IServiceManagement {
         return String.format("Service %s stopped", serviceName);
     }
 
-    @HttpMethod("POST")
-    @NoBody
+//    @HttpMethod("POST")
+//    @NoBody
     @Override
     public String startService(String serviceName) {
         IDrinkWaterService svc = getService(serviceName);

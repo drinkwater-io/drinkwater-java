@@ -20,6 +20,8 @@ public class ApplicationBuilder implements IApplicationBuilder {
 
     private java.util.List<ServiceConfiguration> configurations = new ArrayList<>();
 
+    private java.util.List<ComponentBuilder> components = new ArrayList<>();
+
     private java.util.List<IDataStoreConfiguration> dataStoreConfigs = new ArrayList<>();
 
     public ApplicationBuilder() {
@@ -176,8 +178,15 @@ public class ApplicationBuilder implements IApplicationBuilder {
     public void configure() {
     }
 
-    public ComponentBuilder expose(Class clazz){
-       return new ComponentBuilder();
+    public java.util.List<ComponentBuilder> getComponents() {
+        return components;
+    }
+
+    public ComponentBuilder expose(Class clazz) {
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.setServiceClass(clazz);
+        components.add(builder);
+        return builder;
     }
 
 }

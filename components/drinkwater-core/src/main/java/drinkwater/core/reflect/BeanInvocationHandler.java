@@ -7,7 +7,7 @@ import org.apache.camel.CamelContext;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import static drinkwater.core.helper.BeanFactory.createBeanObject;
+import static drinkwater.BeanFactory.createBeanObject;
 
 /**
  * Created by A406775 on 30/12/2016.

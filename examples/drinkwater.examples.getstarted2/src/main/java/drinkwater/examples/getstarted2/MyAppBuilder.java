@@ -10,16 +10,16 @@ public class MyAppBuilder extends ApplicationBuilder {
 
     public void addServices(){
 
-        addService(ISimpleService.class).asRest();
-        expose(ISimpleService.class)
-                .as(RestComponent.class).withPort(10);
+//        addService(ISimpleService.class).asRest();
+//        expose(ISimpleService.class)
+//                .as(RestComponent.class).withPort(10);
 
     }
 
 
     public static void main(String[] args) {
-        MyAppBuilder app = new MyAppBuilder();
-        app.expose(ISimpleService.class)
-                .as(RestComponent.class).withPort(10).named("test");
+//        MyAppBuilder app = new MyAppBuilder();
+//        app.expose(ISimpleService.class)
+//                .as(RestComponent.class).withPort(10).named("test");
     }
 }

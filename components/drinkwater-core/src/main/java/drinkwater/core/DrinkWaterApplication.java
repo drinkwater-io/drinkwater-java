@@ -1,7 +1,7 @@
 package drinkwater.core;
 
 import drinkwater.*;
-import drinkwater.core.helper.BeanFactory;
+import drinkwater.BeanFactory;
 import drinkwater.core.helper.Service;
 import drinkwater.core.helper.StoreProxy;
 import drinkwater.core.internal.*;
@@ -54,12 +54,13 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     private JVMMetricsBean jvmMetricsBean;
     private RestService restConfiguration;
     private List<IDrinkWaterService> services;
+    private List<ComponentBuilder> components;
     private Map<String, Object> serviceProxies;
     private Service managementService;
     private Service tokenService;
     private ApplicationOptions options;
     private Class eventLoggerClass = null;
-    //fixme : should support multiple service builder
+    //fixme : should support multiple service componentBuilder
     private ApplicationBuilder applicationBuilder;
     private Properties initialApplicationProperties = new Properties();
 
@@ -309,6 +310,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
         serviceProxies = new HashMap<>();
         services = new ArrayList<>();
+        components = new ArrayList<>();
         dataStores = new ArrayList<>();
         tracer = new TracerBean();
         jvmMetricsBean = new JVMMetricsBean();
@@ -331,9 +333,9 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
         this.applicationBuilder = builder;
 
-//        builder.configure();
+//        componentBuilder.configure();
 //
-//        List.ofAll(builder.getConfigurations()).forEach(this::addService);
+//        List.ofAll(componentBuilder.getConfigurations()).forEach(this::addService);
     }
 
     private void cofigureServices() {
@@ -342,10 +344,11 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 //            applicationBuilder.configure();
             applicationBuilder.getStores().forEach(this::addStore);
             applicationBuilder.getConfigurations().forEach(this::addService);
+                applicationBuilder.getComponents().forEach(this::buildComponent);
 
         } else {
             //TODO add explanation how to ad a srvice
-            logger.warn("no service builder initialized, add at leas one service");
+            logger.warn("no service componentBuilder initialized, add at leas one service");
         }
 
     }
@@ -473,6 +476,23 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     }
 
+    private void buildComponent(ComponentBuilder componentBuilder) {
+
+        try {
+            components.add(componentBuilder);
+
+            RouteBuilder rb = new DrinkWaterRouteBuilder(applicationLevelContext, componentBuilder) ;
+
+            applicationLevelContext.addRoutes(rb);
+
+        }
+        catch(Exception ex){
+            throw new RuntimeException(ex);
+        }
+
+
+    }
+
     private void addService(IServiceConfiguration serviceConfig) {
         Service s = createServiceFromConfig(serviceConfig, tracer);
         services.add(s);
@@ -574,6 +594,18 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     public Object getServiceProperty(String serviceName, String key) {
         IDrinkWaterService dws = this.getDrinkWaterService(serviceName);
         return dws.safeLookupProperty(Object.class, key, null);
+    }
+
+    public ComponentBuilder getComponent(String componentName) {
+        return
+                components.stream()
+                        .filter(s -> s.getBuilder().getName().equals(componentName))
+                        .findFirst().get();
+    }
+
+    public Object getComponentProperty(String componentName, String key) {
+        ComponentBuilder dws = this.getComponent(componentName);
+        return dws.getBuilder().lookupProperty(Object.class, key, null);
     }
 
     private void startExternalServices() {

@@ -25,13 +25,17 @@
     <artifactId>components</artifactId>
     <packaging>pom</packaging>
     <modules>
+        <module>drinkwater-auth</module>
+        <module>drinkwater-http-proxy</module>
+        <module>drinkwater-http-routing</module>
+        <module>drinkwater-quartz</module>
+        <module>drinkwater-trace</module>
         <module>drinkwater-servlet</module>
         <module>drinkwater-common</module>
         <module>drinkwater-core</module>
         <module>drinkwater-test</module>
         <module>drinkwater-cdi</module>
         <module>drinkwater-rest</module>
-        <module>drinkwater-rest2</module>
         <module>drinkwater-helper</module>
         <module>drinkwater-api</module>
         <module>drinkwater-datastore</module>
