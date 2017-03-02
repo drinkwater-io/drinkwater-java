@@ -31,7 +31,8 @@ public class MethodToRestParameters {
 
     private void init() {
         HttpMethod httpMethod = httpMethodFor(method);
-        List<Parameter> parameterInfos = List.of(method.getParameters());
+        List<Parameter> parameterInfos = javaslang.collection.List.of(method.getParameters());
+        NoBody noBodyAnnotation = method.getAnnotation(NoBody.class);
 
         hasReturn = returnsVoid(method);
 
@@ -45,7 +46,9 @@ public class MethodToRestParameters {
             if (parameterInfos.size() > 0) {
                 hasBody = true;
             }
-
+            if (noBodyAnnotation != null) {
+                hasBody = false;
+            }
         } else {
             throw new RuntimeException("come back here : MethodToRestParameters.init()");
         }

@@ -25,11 +25,9 @@
     <artifactId>components</artifactId>
     <packaging>pom</packaging>
     <modules>
-        <module>drinkwater-auth</module>
         <module>drinkwater-http-proxy</module>
         <module>drinkwater-http-routing</module>
         <module>drinkwater-quartz</module>
-        <module>drinkwater-trace</module>
         <module>drinkwater-servlet</module>
         <module>drinkwater-common</module>
         <module>drinkwater-core</module>
@@ -41,5 +39,9 @@
         <module>drinkwater-datastore</module>
         <module>drinkwater-datastore-dbcp</module>
         <module>drinkwater-datastore-postgres-embedded</module>
+        <module>drinkwater-feature-trace</module>
+        <module>drinkwater-feature-auth</module>
+        <module>drinkwater-feature-multipart</module>
+        <module>drinkwater-unit-test</module>
     </modules>
 </project>

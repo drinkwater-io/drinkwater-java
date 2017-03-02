@@ -1,4 +1,4 @@
-package drinkwater.test.samples;
+package drinkwater.test;
 
 public class SimpleTestServiceImpl implements ISimpleTestService {
     @Override

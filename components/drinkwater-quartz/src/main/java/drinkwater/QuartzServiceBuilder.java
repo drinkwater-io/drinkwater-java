@@ -6,16 +6,15 @@ import java.lang.reflect.Method;
 
 public class QuartzServiceBuilder extends Builder {
 
-    @Override
     public void configureRouteBuilder(RouteBuilder rb) {
 
     }
 
     public void configureMethodEndpoint(RouteBuilder rb, Method method) {
-        String groupName = (String) lookupProperty(Boolean.class, "groupName", getName());
-        String timerName = (String) lookupProperty(Boolean.class, "timerName", method.getName());
-        String cronExpression = (String) lookupProperty(Boolean.class, "cronexpression", true);
-        long interval = (long) lookupProperty(Long.class, "repeat", true);
+        String groupName = (String) lookupProperty(Boolean.class, "groupName:"+ getName());
+        String timerName = (String) lookupProperty(Boolean.class, "timerName:"+ method.getName());
+        String cronExpression = (String) lookupProperty(Boolean.class, "cronexpression:true");
+        long interval = (long) lookupProperty(Long.class, "repeat:true");
 
         String enpoint = "quartz2://" + groupName + "/" +
                 timerName + "?fireNow=true";

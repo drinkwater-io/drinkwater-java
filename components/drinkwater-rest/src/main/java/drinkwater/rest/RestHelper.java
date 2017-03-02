@@ -51,10 +51,33 @@ public class RestHelper {
 
         HttpMethod defaultHttpMethod = HttpMethod.GET;
 
+        drinkwater.rest.HttpMethod methodAsAnnotation = method.getDeclaredAnnotation(drinkwater.rest.HttpMethod.class);
+
+        if (methodAsAnnotation != null) {
+            return mapToUnirestHttpMethod(methodAsAnnotation);
+        }
+
         return List.ofAll(prefixesMap.entrySet())
                 .filter(prefix -> startsWithOneOf(method.getName(), prefix.getValue()))
                 .map(entryset -> entryset.getKey())
                 .getOrElse(defaultHttpMethod);
+    }
+
+    public static HttpMethod mapToUnirestHttpMethod(drinkwater.rest.HttpMethod methodAsAnnotation) {
+        switch (methodAsAnnotation.value().toUpperCase()) {
+            case "GET":
+                return HttpMethod.GET;
+            case "POST":
+                return HttpMethod.POST;
+            case "DELETE":
+                return HttpMethod.DELETE;
+            case "PUT":
+                return HttpMethod.PUT;
+            case "PATCH":
+                return HttpMethod.PATCH;
+            default:
+                throw new RuntimeException(String.format("could not map correct http method : %s", methodAsAnnotation.value()));
+        }
     }
 
 
@@ -170,7 +193,8 @@ public class RestHelper {
             throw new RuntimeException("could not configure the rest service correctly", ex);
         }
 
-        List.of(ReflectHelper.getPublicDeclaredMethods(bean.getClass()))
+        javaslang.collection
+                .List.of(ReflectHelper.getPublicDeclaredMethods(bean.getClass()))
                 .map(method -> buildRestRoute(builder, method, drinkWaterService.getTracer()))
                 .map(tuple -> routeToBeanMethod(tuple._1, bean, tuple._2, drinkWaterService));
     }
@@ -180,7 +204,7 @@ public class RestHelper {
         if (httpMethod == HttpMethod.OPTIONS) {
             return "";
         }
-        String fromPath = null;
+        String fromPath = getPathFromAnnotation(method);
 
         if (fromPath == null || fromPath.isEmpty()) {
             fromPath = List.of(prefixesMap.get(httpMethod))
@@ -196,7 +220,7 @@ public class RestHelper {
 
         if (httpMethod == HttpMethod.GET) {
             if (fromPath == null || fromPath.isEmpty()) {
-                fromPath = List.of(method.getParameters())
+                fromPath = javaslang.collection.List.of(method.getParameters())
                         .map(p -> "{" + p.getName() + "}").getOrElse("");
             }
         }
@@ -247,7 +271,7 @@ public class RestHelper {
     }
 
 
-    public static boolean isMultipartBody(Method method) {
+    private static boolean isMultipartBody(Method method) {
 
         if (method.getParameters().length > 0) {
             Class type = method.getParameters()[0].getType();
@@ -290,7 +314,6 @@ public class RestHelper {
             routeDefinition.process(new SecurityProcessor());
         }
 
-
         routeDefinition.onException(UnauthorizedException.class)
                 .handled(true)
                 .setHeader("WWW-Authenticate").constant("TOKEN")
@@ -324,7 +347,7 @@ public class RestHelper {
         return addServerSentTracing(iDrinkWaterService, routeDefinition);
     }
 
-    public static boolean hasObjectReturnType(Method method) {
+    private static boolean hasObjectReturnType(Method method) {
         if (method.getReturnType() == String.class) {
             return false;
         }
@@ -332,5 +355,14 @@ public class RestHelper {
     }
 
 
+    private static String getPathFromAnnotation(Method method) {
+        Path methodPathAnnotation = method.getAnnotation(Path.class);
+
+        if (methodPathAnnotation != null) {
+            return methodPathAnnotation.value();
+        }
+
+        return null;
+    }
 
 }

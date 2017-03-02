@@ -1,5 +1,6 @@
 package drinkwater.rest.security;
 
+import drinkwater.security.ITokenProvider;
 import drinkwater.security.ITokenValidation;
 import drinkwater.security.UnauthorizedException;
 import org.apache.camel.Exchange;

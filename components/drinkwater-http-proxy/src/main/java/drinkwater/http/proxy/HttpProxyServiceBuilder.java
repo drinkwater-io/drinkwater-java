@@ -2,21 +2,22 @@ package drinkwater.http.proxy;
 
 import drinkwater.Builder;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.model.RouteDefinition;
 
 import java.lang.reflect.Method;
 
 public class HttpProxyServiceBuilder extends Builder {
-    public static final String SessionSupport = "sessionSupport";
-    public static final String FrontEndPoint = "proxy.endpoint";
-    public static final String DestintationEndpoint = "destination.endpoint";
+    public static final String SessionSupport = "sessionSupport:false";
+    public static final String FrontEndPoint = "proxy.endpoint:";
+    public static final String DestintationEndpoint = "destination.endpoint:";
 
 
     private String startEndpoint() {
-        Boolean useSessionManager = (Boolean)lookupProperty(Boolean.class, "sessionSupport", false);
+        Boolean useSessionManager = (Boolean)lookupProperty(Boolean.class, SessionSupport);
 
         String sessionManagerOption = useSessionManager ? "&sessionSupport=true" : "";
 
-        String frontEndpoint = (String)lookupProperty(String.class, FrontEndPoint, "");
+        String frontEndpoint = (String)lookupProperty(String.class, FrontEndPoint);
 
 
         if (frontEndpoint == null) {
@@ -29,7 +30,7 @@ public class HttpProxyServiceBuilder extends Builder {
     }
 
     private String endEndPoint() {
-        String destinationEndpoint = (String)lookupProperty(String.class, DestintationEndpoint, "");
+        String destinationEndpoint = (String)lookupProperty(String.class, DestintationEndpoint);
 
         if (destinationEndpoint == null) {
             throw new RuntimeException("could not find proxy and destination endpoint from config");
@@ -38,12 +39,10 @@ public class HttpProxyServiceBuilder extends Builder {
         return "jetty:" + destinationEndpoint + "?bridgeEndpoint=true&amp;throwExceptionOnFailure=true";
     }
 
-    public void configureRouteBuilder(RouteBuilder rb) {
+    @Override
+    public void beforeExposeService(RouteBuilder rb) {
         rb.from(startEndpoint()).to(endEndPoint());
     }
 
-    public void configureMethodEndpoint(RouteBuilder rb, Method method) {
-        // not based on method fro now
-    }
 
 }

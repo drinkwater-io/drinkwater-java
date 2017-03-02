@@ -1,4 +1,4 @@
-package test.drinkwater.core.model.forProxy;
+package drinkwater.unit.test.model.forProxy;
 
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;

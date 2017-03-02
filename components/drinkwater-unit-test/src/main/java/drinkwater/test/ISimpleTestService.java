@@ -1,4 +1,4 @@
-package drinkwater.test.samples;
+package drinkwater.test;
 
 public interface ISimpleTestService {
 

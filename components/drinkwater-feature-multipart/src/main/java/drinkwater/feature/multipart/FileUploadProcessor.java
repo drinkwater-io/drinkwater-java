@@ -1,4 +1,4 @@
-package drinkwater.rest.fileupload;
+package drinkwater.feature.multipart;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;

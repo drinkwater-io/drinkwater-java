@@ -1,4 +1,4 @@
-package test.drinkwater.core.model.forProxy;
+package drinkwater.unit.test.model.forProxy;
 
 import drinkwater.ApplicationBuilder;
 //import drinkwater.helper.SocketUtils;

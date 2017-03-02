@@ -1,47 +1,41 @@
-package test.drinkwater.core;
+package drinkwater.unit.test;
 
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.test.HttpUnitTest;
 import drinkwater.trace.MockEventLogger;
+import drinkwater.unit.test.model.forProxy.ProxyTestConfiguration;
+import drinkwater.unit.test.model.forProxy.SimpleTestHandler;
 import org.junit.Test;
-import test.drinkwater.core.model.forProxy.ProxyMultipartTestApplicationBuilder;
-import test.drinkwater.core.model.forProxy.ProxyTestConfiguration;
-import test.drinkwater.core.model.forProxy.SimpleTestHandler;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 
 import static drinkwater.ApplicationOptionsBuilder.options;
-import static drinkwater.helper.GeneralUtils.getFileContent;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 
 public class ProxyTest extends HttpUnitTest {
 
-//    @Test
-//    public void shouldProxySimpleService() throws Exception {
-//
-//        try (DrinkWaterApplication proxyApp =
-//                     DrinkWaterApplication.create("proxy-application",options()
-//                                     .use(ProxyTestConfiguration.class)
-//                                     .autoStart())) {
-//
-//            String proxyEndpoint = (String)proxyApp.getServiceProperty("proxyService", "proxy.endpoint");
-//
-//            String result = httpGetString(proxyEndpoint + "/info").result();
-//            assertEquals("test info", result);
-//            result = httpGetString(proxyEndpoint + "/info?increment").result();
-//            assertEquals("test info", result);
-//
-//            proxyApp.stop();
-//            MockEventLogger logger = (MockEventLogger) proxyApp.getCurrentBaseEventLogger();
-//            assertEquals(4, logger.getEvents().size());
-//
-//            //check the handler status
-//            assertThat(SimpleTestHandler.increment).isEqualTo(2);
-//
-//        }
-//    }
+    @Test
+    public void shouldProxySimpleService() throws Exception {
+
+        try (DrinkWaterApplication proxyApp =
+                     DrinkWaterApplication.create("proxy-application",options()
+                                     .use(ProxyTestConfiguration.class)
+                                     .autoStart())) {
+
+            String proxyEndpoint = (String)proxyApp.getComponentProperty("proxyService", "proxy.endpoint");
+
+            String result = httpGetString(proxyEndpoint + "/info").result();
+            assertThat(result).isEqualTo("test info");
+            result = httpGetString(proxyEndpoint + "/info?increment").result();
+            assertThat(result).isEqualTo("test info");
+
+            proxyApp.stop();
+            MockEventLogger logger = (MockEventLogger) proxyApp.getCurrentBaseEventLogger();
+            assertThat(logger.getEvents().size()).isEqualTo(4);
+
+            //check the handler status
+            assertThat(SimpleTestHandler.increment).isEqualTo(2);
+
+        }
+    }
 //
 //    @Test
 //    public void shouldProxyWithMultipart() throws Exception {

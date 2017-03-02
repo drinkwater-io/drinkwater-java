@@ -23,6 +23,7 @@ public class RestInvocationHandler implements InvocationHandler {
 //                service.sendEvent(clazz, method, body);
     }
 
+    //fixme make it thread safe another way. the probleme here route the configuration...
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 

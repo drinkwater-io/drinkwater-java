@@ -1,6 +1,5 @@
-package drinkwater.core.helper;
+package drinkwater;
 
-import drinkwater.IPropertiesAware;
 import org.apache.camel.util.IOHelper;
 import org.apache.camel.util.ObjectHelper;
 
@@ -13,18 +12,17 @@ import static drinkwater.helper.MapUtils.prefixProperties;
 
 public class PropertiesResolver {
 
-    private IPropertiesAware propLocator;
+//    private IPropertiesAware propLocator;
 
     private boolean ignoreMissingLocation = true;
 
-    public PropertiesResolver(IPropertiesAware propLocator){
-        this.propLocator = propLocator;
+    public PropertiesResolver(){
     }
 
-    public synchronized Properties resolveProperties(String prefix) throws Exception {
-        Properties props = resolveProperties(ignoreMissingLocation, propLocator.getPropertiesLocations());
+    public synchronized Properties resolveProperties(String[] propertiesLocations) throws Exception {
+        Properties props = resolveProperties(ignoreMissingLocation,propertiesLocations);
 
-        props = prefixProperties(prefix, props);
+       // props = prefixProperties(prefix, props);
 
         return props;
     }
@@ -86,7 +84,7 @@ public class PropertiesResolver {
             path = "/" + path;
         }
 
-        InputStream is = propLocator.getClass().getResourceAsStream(path);
+        InputStream is = PropertiesResolver.class.getResourceAsStream(path);
         Reader reader = null;
         if (is == null) {
             if (!ignoreMissingLocation) {

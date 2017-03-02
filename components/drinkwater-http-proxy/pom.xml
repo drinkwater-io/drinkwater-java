@@ -27,19 +27,25 @@
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-core</artifactId>
-            <version>0.0.10-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-rest</artifactId>
-            <version>0.0.10-SNAPSHOT</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-test</artifactId>
-            <version>0.0.10-SNAPSHOT</version>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater-feature-trace</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -1,7 +1,6 @@
 package drinkwater.core;
 
 import drinkwater.*;
-import drinkwater.BeanFactory;
 import drinkwater.core.helper.Service;
 import drinkwater.core.helper.StoreProxy;
 import drinkwater.core.internal.*;
@@ -334,13 +333,22 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 //        List.ofAll(componentBuilder.getConfigurations()).forEach(this::addService);
     }
 
+    private void configureComponents(Configuration config) {
+        if (applicationBuilder != null) {
+            applicationBuilder.getComponents().forEach(c -> buildComponent(c, config));
+
+        } else {
+            //TODO add explanation how to ad a srvice
+            logger.warn("no service componentBuilder initialized, add at leas one service");
+        }
+    }
+
     private void cofigureServices() {
 
         if (applicationBuilder != null) {
 //            applicationBuilder.configure();
             applicationBuilder.getStores().forEach(this::addStore);
             applicationBuilder.getConfigurations().forEach(this::addService);
-                applicationBuilder.getComponents().forEach(this::buildComponent);
 
         } else {
             //TODO add explanation how to ad a srvice
@@ -356,6 +364,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     public boolean isStopped() {
         return this.state == ApplicationState.Stopped;
     }
+
     //fixme should throw error if called twice
     public void start() {
 
@@ -376,26 +385,31 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
             startApplicationContext();
 
+
+
             cleanBeforeStart();
 
-            startExternalServices();
+            //startExternalServices();
 
-            cofigureServices();
+            //cofigureServices();
 
-            startDataStores();
+            Configuration config = new Configuration(name, applicationLevelContext);
+            configureComponents(config);
 
-            startTracingRoute();
+            //startDataStores();
 
-            startTokenServiceIfEnabled();
+            //startTracingRoute();
+
+            //startTokenServiceIfEnabled();
 
 
-            for (IDrinkWaterService service : services) {
-                service.start();
-            }
-
-            if (isUseServiceManagement()) {
-                createAndStartManagementService();
-            }
+//            for (IDrinkWaterService service : services) {
+//                service.start();
+//            }
+//
+//            if (isUseServiceManagement()) {
+//                createAndStartManagementService();
+//            }
 
             state = ApplicationState.Up;
         } finally {
@@ -416,19 +430,21 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
             logStopingInfo();
 
-            for (IDrinkWaterService service : services) {
-                service.stop();
-            }
+            shutdownComponents();
 
-            stopExternalServices();
-
-            if (isUseServiceManagement()) {
-                stopManagementService();
-            }
-
-            stopTokenServiceIfEnabled();
-
-            stopDataStores();
+//            for (IDrinkWaterService service : services) {
+//                service.stop();
+//            }
+//
+//            stopExternalServices();
+//
+//            if (isUseServiceManagement()) {
+//                stopManagementService();
+//            }
+//
+//            stopTokenServiceIfEnabled();
+//
+//            stopDataStores();
 
             stopApplicationContext();
 
@@ -472,17 +488,28 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     }
 
-    private void buildComponent(ComponentBuilder componentBuilder) {
+    private void shutdownComponents(){
+        components.forEach(c -> c.getBuilder().stop());
+    }
+
+    private void buildComponent(ComponentBuilder componentBuilder, Configuration config) {
 
         try {
             components.add(componentBuilder);
+            componentBuilder.getBuilder().start();
+            componentBuilder.getBuilder().setCamelContext(applicationLevelContext);
+            componentBuilder.getBuilder().setConfiguration(config);
+            List<Feature> features = componentBuilder.getBuilder().getFeatures();
+            for (Feature feature :
+                    features) {
+                feature.configureContext(applicationLevelContext);
+            }
 
-            RouteBuilder rb = new DrinkWaterRouteBuilder(applicationLevelContext, componentBuilder) ;
+            RouteBuilder rb = new DrinkWaterRouteBuilder(componentBuilder);
 
             applicationLevelContext.addRoutes(rb);
 
-        }
-        catch(Exception ex){
+        } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
 
@@ -497,7 +524,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     private void addStore(IDataStoreConfiguration serviceConfig) {
         StoreProxy s = createStoreFromConfig(serviceConfig);
-       dataStores.add(s);
+        dataStores.add(s);
         //addProxy(s);
     }
 
@@ -601,7 +628,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     public Object getComponentProperty(String componentName, String key) {
         ComponentBuilder dws = this.getComponent(componentName);
-        return dws.getBuilder().lookupProperty(Object.class, key, null);
+        return dws.getBuilder().lookupProperty(Object.class, key);
     }
 
     private void startExternalServices() {
