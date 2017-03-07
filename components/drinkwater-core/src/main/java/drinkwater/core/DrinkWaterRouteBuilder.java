@@ -36,11 +36,11 @@ public class DrinkWaterRouteBuilder extends RouteBuilder {
             RouteDefinition pd = componentBuilder.getBuilder().exposeService(this, method);
             if(pd != null) {
 
-                features.forEach(f -> f.afterServiceExposed(pd, method));
+                features.forEach(f -> f.afterServiceExposed(pd, method, componentBuilder));
 
                 componentBuilder.getBuilder().targetService(pd, method);
 
-                features.forEach(f -> f.afterServiceTargeted(pd, method));
+                features.forEach(f -> f.afterServiceTargeted(pd, method, componentBuilder));
             }
 
         }

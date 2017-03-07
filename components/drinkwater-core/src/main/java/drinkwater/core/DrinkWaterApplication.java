@@ -111,29 +111,29 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         }
     }
 
-    private void startTokenServiceIfEnabled() {
-        if (this.safeLookupProperty(Boolean.class, Authentication_token_service_enabled, false)) {
-
-            ServiceConfiguration config =
-                    (ServiceConfiguration) new ServiceConfiguration()
-                            .forService(ITokenProvider.class)
-                            .useBeanClass(SimpleTokenProvider.class)
-                            .addInitialProperty(Authentication_token_service_enabled, false)
-                            .name("auth")
-                            .asRest();
-
-            tokenService = createServiceFromConfig(config, tracer);
-
-            tokenService.start();
-
-        }
-    }
-
-    private void stopTokenServiceIfEnabled() {
-        if (tokenService != null) {
-            tokenService.stop();
-        }
-    }
+//    private void startTokenServiceIfEnabled() {
+//        if (this.safeLookupProperty(Boolean.class, Authentication_token_service_enabled, false)) {
+//
+//            ServiceConfiguration config =
+//                    (ServiceConfiguration) new ServiceConfiguration()
+//                            .forService(ITokenProvider.class)
+//                            .useBeanClass(SimpleTokenProvider.class)
+//                            .addInitialProperty(Authentication_token_service_enabled, false)
+//                            .name("auth")
+//                            .asRest();
+//
+//            tokenService = createServiceFromConfig(config, tracer);
+//
+//            tokenService.start();
+//
+//        }
+//    }
+//
+//    private void stopTokenServiceIfEnabled() {
+//        if (tokenService != null) {
+//            tokenService.stop();
+//        }
+//    }
 
     private static void addWWWIfEnabled(DrinkWaterApplication app) throws Exception {
         Boolean serveStaticWWW = Boolean.parseBoolean(app.lookupProperty(WWW_Enabled));
@@ -335,6 +335,7 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     private void configureComponents(Configuration config) {
         if (applicationBuilder != null) {
+
             applicationBuilder.getComponents().forEach(c -> buildComponent(c, config));
 
         } else {
@@ -384,7 +385,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
             this.eventLoggerClass = applicationBuilder.getEventLoggerClass();
 
             startApplicationContext();
-
 
 
             cleanBeforeStart();
@@ -488,22 +488,32 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
 
     }
 
-    private void shutdownComponents(){
+    private void shutdownComponents() {
         components.forEach(c -> c.getBuilder().stop());
     }
 
-    private void buildComponent(ComponentBuilder componentBuilder, Configuration config) {
+    private boolean firstCall = false;
+
+    private synchronized void buildComponent(ComponentBuilder componentBuilder, Configuration config) {
 
         try {
             components.add(componentBuilder);
-            componentBuilder.getBuilder().start();
+
+
             componentBuilder.getBuilder().setCamelContext(applicationLevelContext);
             componentBuilder.getBuilder().setConfiguration(config);
+            componentBuilder.getBuilder().setServiceRepository(this);
+            //TODO : ????? this should be reviewed...
+            componentBuilder.getBuilder().getProperties()
+                    .forEach((k,v) -> componentBuilder.getBuilder().addProperty((String)k, (String)v));
+            componentBuilder.getBuilder().start();
             List<Feature> features = componentBuilder.getBuilder().getFeatures();
             for (Feature feature :
                     features) {
-                feature.configureContext(applicationLevelContext);
+                feature.configureContext(applicationLevelContext, componentBuilder);
             }
+
+            firstCall = false;
 
             RouteBuilder rb = new DrinkWaterRouteBuilder(componentBuilder);
 
@@ -512,8 +522,6 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
-
-
     }
 
     private void addService(IServiceConfiguration serviceConfig) {
@@ -810,6 +818,18 @@ public class DrinkWaterApplication implements ServiceRepository, IPropertiesAwar
     public void close() throws IOException {
         stop();
     }
+
+    public <B extends Feature> B getFeature(String componentName, Class<? extends B> traceFeatureClass) {
+        ComponentBuilder component = components.stream()
+                .filter(c -> c.getBuilder().getName().equals(componentName))
+                .findFirst().get();
+
+        return (B) component.getBuilder()
+                .getFeatures()
+                .stream().filter(f -> f.getClass().equals(traceFeatureClass))
+                .findFirst().get();
+    }
+
 
     public enum ApplicationState {Up, Stopped}
 

@@ -1,4 +1,6 @@
 package drinkwater;
 
-public class FeatureBuilder {
+public interface FeatureBuilder<B extends Feature> {
+
+    B getFeature();
 }

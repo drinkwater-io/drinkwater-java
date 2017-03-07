@@ -1,4 +1,4 @@
-package drinkwater.support.tokenprovider;
+package drinkwater.feature.auth;
 
 
 import drinkwater.helper.GeneralUtils;

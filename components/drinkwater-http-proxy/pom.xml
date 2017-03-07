@@ -34,14 +34,15 @@
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-rest</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-test</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>io.drinkwater</groupId>
             <artifactId>drinkwater-feature-trace</artifactId>

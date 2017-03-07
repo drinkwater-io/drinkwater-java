@@ -11,4 +11,5 @@ public interface ServiceRepository extends IPropertyResolver {
     IServiceConfiguration getServiceDefinition(String serviceName);
 
     public <T> T getStore(String name) ;
+
 }

@@ -14,56 +14,47 @@ import static drinkwater.DrinkWaterConstants.*;
 
 public class TraceRouteBuilder extends RouteBuilder {
 
-    public static String ROUTE_CheckFlowIDHeader = "direct:checkFlowHeader";
+    public static String ROUTE_CheckFlowIDHeader = "direct:checkFlowHeaderFor";
 
-    public static String ROUTE_serverReceivedEvent = "direct:serverReceivedEvent";
+    public static String ROUTE_serverReceivedEvent = "direct:serverReceivedEventFor";
 
-    public static String ROUTE_serverSentEvent = "direct:serverSentEvent";
+    public static String ROUTE_serverSentEvent = "direct:serverSentEventFor";
 
-    public static String ROUTE_exceptionEvent = "direct:exceptionEvent";
+    public static String ROUTE_exceptionEvent = "direct:exceptionEventFor";
 
-    public static String ROUTE_clientReceivedEvent = "direct:clientReceivedEvent";
+    public static String ROUTE_Trace = "direct:traceFor";
 
-    public static String ROUTE_clientSentEvent = "direct:clientSentEvent";
 
-    public static String ROUTE_MethodInvokedStartEvent = "direct:methodInvokedStart";
+    private String componentName;
 
-    public static String ROUTE_MethodInvokedEndEvent = "direct:methodInvokedEnd";
+    public TraceRouteBuilder(String componentName) {
+        this.componentName = componentName;
+    }
 
-    public static String ROUTE_operationEvent = "direct:operationEvent";
+    public static String checkFlowHeaderRouteFor(String componentName){
+        return ROUTE_CheckFlowIDHeader + componentName;
+    }
 
-    public static String ROUTE_trace = "vm:trace";
+    public static String serverReceivedEventRouteFor(String componentName){
+        return ROUTE_serverReceivedEvent + componentName;
+    }
 
-    @JsonIgnore
-    private static Logger logger = LoggerFactory.getLogger(TraceRouteBuilder.class);
+    public static String serverSentEventRouteFor(String componentName){
+        return ROUTE_serverSentEvent + componentName;
+    }
 
-    private String serviceName;
-    
-    private String applicationName;
+    public static String exceptionEventRouteFor(String componentName){
+        return ROUTE_exceptionEvent + componentName;
+    }
 
-    private boolean isTracingEnabled;
-
-    public TraceRouteBuilder(String applicationName, String serviceName, boolean isTracingEnabled) {
-        this.serviceName = serviceName;
-        this.applicationName = applicationName;
-        this.isTracingEnabled = isTracingEnabled;
+    public static String traceRouteFor(String componentName){
+        return ROUTE_Trace + componentName;
     }
 
     @Override
     public void configure() throws Exception {
 
-        if (!isTracingEnabled) {
-            return;
-        }
-
-        IBaseEventLogger emptyLogger = new IBaseEventLogger() {
-            @Override
-            public void logEvent(BaseEvent event) {
-                logger.debug(event.toString());
-            }
-        };
-
-        from(ROUTE_CheckFlowIDHeader).id("CheckFlowIDHeader").process(exchange -> {
+        from(checkFlowHeaderRouteFor(componentName)).id("CheckFlowIDHeader").process(exchange -> {
             if (exchange.getIn().getHeader(FlowCorrelationIDKey) == null) {
                 exchange.getIn().setHeader(FlowCorrelationIDKey, exchange.getExchangeId());
             }
@@ -74,109 +65,42 @@ public class TraceRouteBuilder extends RouteBuilder {
         //TODO implement undo tracing differently
 
         //TODO : there can be some reuse here => refactor routes
-        from(ROUTE_serverReceivedEvent)
-                .to(ROUTE_CheckFlowIDHeader)
-                .wireTap("direct:createServerReceivedEventAndTrace").id("async-createServerReceivedEventAndTrace");
+        from(serverReceivedEventRouteFor(componentName))
+                .to(checkFlowHeaderRouteFor(componentName))
+                .wireTap("direct:createServerReceivedEventAndTrace" + componentName);
 
-        from(ROUTE_serverSentEvent)
-                .to(ROUTE_CheckFlowIDHeader)
-                .wireTap("direct:createServerSentEventAndTrace").id("async-createServerSentEventAndTrace");
-
-        from(ROUTE_clientReceivedEvent)
-                .to(ROUTE_CheckFlowIDHeader)
-                .wireTap("direct:createClientReceivedEventAndTrace").id("async-createClientReceivedEventAndTrace");
-
-        from(ROUTE_clientSentEvent)
-                .to(ROUTE_CheckFlowIDHeader)
-                .wireTap("direct:createClientSentEventAndTrace").id("async-createClientSentEventAndTrace");
-
-        from(ROUTE_exceptionEvent)
-                .to(ROUTE_CheckFlowIDHeader)
-                .wireTap("direct:createExceptionEventAndTrace").id("async-createExceptionEventAndTrace");
+        from(serverSentEventRouteFor(componentName))
+                .to(checkFlowHeaderRouteFor(componentName))
+                .wireTap("direct:createServerSentEventAndTrace" + componentName);
+        from(exceptionEventRouteFor(componentName))
+                .to(checkFlowHeaderRouteFor(componentName))
+                .wireTap("direct:createExceptionEventAndTrace"+ componentName);
 
 
-        from(ROUTE_MethodInvokedStartEvent)
-                .to(ROUTE_CheckFlowIDHeader)
-                .wireTap("direct:createMISEventAndTrace").id("async-createMISEventAndTrace");
-
-        from(ROUTE_MethodInvokedEndEvent)
-                .to(ROUTE_CheckFlowIDHeader)
-                .wireTap("direct:createMIEEventAndTrace").id("async-createMIEEventAndTrace");
-
-        from("direct:emptyLogger").bean(emptyLogger, "logEvent(${body})");
-
-        String tracingRoute = ROUTE_trace;
-
-        if (!isTracingEnabled) {
-            tracingRoute = "direct:emptyLogger";
-        }
 
         //server events
-        from("direct:createServerReceivedEventAndTrace").process(exchange -> {
+        from("direct:createServerReceivedEventAndTrace"+ componentName).process(exchange -> {
             exchange.getIn().setBody(new ServerReceivedEvent(
                     instantFrom(exchange),
                     correlationFrom(exchange),
                     safeMethodName(methodFrom(exchange)),
-                    applicationName,
-                    serviceName,
+                    applicationNameFrom(exchange),
+                    serviceNameFrom(exchange),
                     payloadFrom(exchange)));
-        }).to(tracingRoute);
+        }).to(traceRouteFor(componentName));
 
-        from("direct:createServerSentEventAndTrace").process(exchange -> {
+        from("direct:createServerSentEventAndTrace"+ componentName).process(exchange -> {
             exchange.getIn().setBody(new ServerSentEvent(
                     instantFrom(exchange),
                     correlationFrom(exchange),
                     safeMethodName(methodFrom(exchange)),
-                    applicationName,
-                    serviceName,
+                    applicationNameFrom(exchange),
+                    serviceNameFrom(exchange),
                     payloadFrom(exchange)));
-        }).to(tracingRoute);
+        }).to(traceRouteFor(componentName));
 
-        //client events
-        from("direct:createClientReceivedEventAndTrace").process(exchange -> {
-            exchange.getIn().setBody(new ClientReceivedEvent(
-                    instantFrom(exchange),
-                    correlationFrom(exchange),
-                    safeMethodName(methodFrom(exchange)),
-                    applicationName,
-                    serviceName,
-                    payloadFrom(exchange)));
-        }).to(tracingRoute);
 
-        from("direct:createClientSentEventAndTrace").process(exchange -> {
-            exchange.getIn().setBody(new ClientSentEvent(
-                    instantFrom(exchange),
-                    correlationFrom(exchange),
-                    safeMethodName(methodFrom(exchange)),
-                    applicationName,
-                    serviceName,
-                    payloadFrom(exchange)));
-        }).to(tracingRoute);
-
-        //method invocation events
-        from("direct:createMISEventAndTrace").process(exchange -> {
-
-            exchange.getIn().setBody(new MethodInvocationStartEvent(
-                    instantFrom(exchange),
-                    correlationFrom(exchange),
-                    safeMethodName(methodFrom(exchange)),
-                    applicationName,
-                    serviceName,
-                    payloadFrom(exchange)));
-        }).to(tracingRoute);
-
-        from("direct:createMIEEventAndTrace").process(exchange -> {
-            exchange.getIn().setBody(new MethodInvocationEndEvent(
-                    instantFrom(exchange),
-                    correlationFrom(exchange),
-                    safeMethodName(methodFrom(exchange)),
-                    applicationName,
-                    serviceName,
-                    payloadFrom(exchange)));
-        }).to(tracingRoute);
-
-        //method invocation events
-        from("direct:createExceptionEventAndTrace").process(exchange -> {
+        from("direct:createExceptionEventAndTrace"+ componentName).process(exchange -> {
 
             //set track trace in body
             Exception exception = (Exception) exchange.getProperties().get("CamelExceptionCaught");
@@ -190,11 +114,11 @@ public class TraceRouteBuilder extends RouteBuilder {
                     instantFrom(exchange),
                     correlationFrom(exchange),
                     safeMethodName(methodFrom(exchange)),
-                    applicationName,
-                    serviceName,
+                    applicationNameFrom(exchange),
+                    serviceNameFrom(exchange),
                     payload));
 
-        }).to(tracingRoute);
+        }).to(traceRouteFor(componentName));
     }
 
     private static String safeMethodName(Operation operation) {
@@ -206,6 +130,14 @@ public class TraceRouteBuilder extends RouteBuilder {
 
     private static String correlationFrom(Exchange exchange) {
         return (String) exchange.getIn().getHeader(FlowCorrelationIDKey);
+    }
+
+    private static String serviceNameFrom(Exchange exchange) {
+        return (String) exchange.getIn().getHeader(ComponentName);
+    }
+
+    private static String applicationNameFrom(Exchange exchange) {
+        return (String) exchange.getIn().getHeader(ApplicationName);
     }
 
     private static Instant instantFrom(Exchange exchange) {

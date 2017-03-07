@@ -189,4 +189,11 @@ public class ApplicationBuilder implements IApplicationBuilder {
         return builder;
     }
 
+    public ComponentBuilder expose(Object obj) {
+        ComponentBuilder builder = new ComponentBuilder();
+        builder.setObject(obj);
+        components.add(builder);
+        return builder;
+    }
+
 }

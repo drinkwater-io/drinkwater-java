@@ -1,8 +1,9 @@
-package drinkwater.unit.test.model;
+package drinkwater.unit.test;
 
 import drinkwater.core.DrinkWaterApplication;
 import drinkwater.core.security.SimpleToken;
 import drinkwater.helper.GeneralUtils;
+import drinkwater.rest.RestService;
 import drinkwater.security.Credentials;
 import drinkwater.test.HttpUnitTest;
 import drinkwater.unit.test.model.forSecurity.*;
@@ -25,14 +26,8 @@ public class SecurityTest extends HttpUnitTest {
                                      .autoStart())) {
             String result = "";
 
-            //test simple service
-
-//            String testPort = (String)app.getServiceProperty("test", RestService.REST_PORT_KEY);
-//            String securedPort = (String)app.getServiceProperty("secured", RestService.REST_PORT_KEY);
-
-
-            String testPort = "";
-            String securedPort = "";
+            String testPort = (String) app.getComponentProperty("test", RestService.REST_PORT_KEY);
+            String securedPort = (String) app.getComponentProperty("secured", RestService.REST_PORT_KEY);
 
             result = httpGetString(String.format("http://localhost:%s/test/info",testPort)).result();
             assertThat(result).isEqualTo("test info");
@@ -44,7 +39,9 @@ public class SecurityTest extends HttpUnitTest {
             //test secure service
             Map<String, String> headers = new HashMap<>();
             headers.put("Authorization", "TOKEN " + createNewToken(360000));
-            result = httpGetString(String.format("http://localhost:%s/secured/info", securedPort), headers).expectsStatus(200).result();
+            result = httpGetString(String.format("http://localhost:%s/secured/info", securedPort), headers)
+                    .expectsStatus(200)
+                    .result();
             assertThat(result).isEqualTo("test info");
 
 
@@ -69,7 +66,8 @@ public class SecurityTest extends HttpUnitTest {
             Credentials credentials = new Credentials("cedric","Dumont");
             String body = GeneralUtils.toJsonString(credentials);
 
-            String authPort = app.getTokenServicePort();
+            String authPort = (String) app.getComponentProperty("test", RestService.REST_PORT_KEY);
+
 
             result = httpPostRequestString(String.format("http://localhost:%s/auth/token", authPort), body)
                     .expectsStatus(200)

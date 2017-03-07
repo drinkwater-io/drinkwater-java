@@ -89,7 +89,11 @@ public class Configuration {
         }
     }
 
-//    private static void initProperties(CamelContext context) {
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    //    private static void initProperties(CamelContext context) {
 //
 //        try {
 //            PropertiesComponent propertiesComponent = context.getComponent(

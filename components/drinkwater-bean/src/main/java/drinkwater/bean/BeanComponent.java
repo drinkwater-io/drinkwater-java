@@ -1,4 +1,11 @@
 package drinkwater.bean;
 
-public class BeanComponent {
+import drinkwater.IBuilderProvider;
+
+public class BeanComponent implements IBuilderProvider<BeanServiceBuilder> {
+    BeanServiceBuilder _builder = new BeanServiceBuilder();
+    @Override
+    public BeanServiceBuilder getBuilder() {
+        return _builder;
+    }
 }

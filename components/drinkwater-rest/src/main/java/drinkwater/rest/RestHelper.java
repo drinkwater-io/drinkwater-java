@@ -200,7 +200,7 @@ public class RestHelper {
     }
 
 
-    private static String restPath(Method method, HttpMethod httpMethod) {
+    public static String restPath(Method method, HttpMethod httpMethod) {
         if (httpMethod == HttpMethod.OPTIONS) {
             return "";
         }

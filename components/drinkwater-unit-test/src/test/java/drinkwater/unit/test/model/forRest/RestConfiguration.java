@@ -5,6 +5,8 @@ import drinkwater.ApplicationBuilder;
 import drinkwater.feature.multipart.MultiPartFeature;
 import drinkwater.rest.RestComponent;
 
+import static drinkwater.feature.multipart.MultiPartFeature.multipart;
+
 public class RestConfiguration extends ApplicationBuilder {
 
 
@@ -13,7 +15,7 @@ public class RestConfiguration extends ApplicationBuilder {
         expose(ServiceAImpl.class)
                 .as(RestComponent.class)
                 .named("serviceA")
-                .use(MultiPartFeature.class);
+                .use(multipart());
 //before issue-20
 //        addService("serviceA", IServiceA.class, ServiceAImpl.class)
 //                .asRest();

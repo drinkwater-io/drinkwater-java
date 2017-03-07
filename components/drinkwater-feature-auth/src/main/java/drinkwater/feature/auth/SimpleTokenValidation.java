@@ -1,4 +1,4 @@
-package drinkwater.core.security;
+package drinkwater.feature.auth;
 
 import drinkwater.helper.GeneralUtils;
 import drinkwater.security.ITokenValidation;

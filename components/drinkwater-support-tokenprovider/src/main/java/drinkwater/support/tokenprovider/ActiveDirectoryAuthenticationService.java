@@ -1,4 +1,4 @@
-package drinkwater.core.security;
+package drinkwater.support.tokenprovider;
 
 import com.sun.jndi.ldap.LdapCtxFactory;
 import drinkwater.security.Credentials;

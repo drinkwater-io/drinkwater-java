@@ -5,6 +5,10 @@ package drinkwater;
  */
 public class DrinkWaterConstants {
 
+    public static String ApplicationName = "DW-ApplicationName";
+
+    public static String ComponentName = "DW-ComponentName";
+
     public static String MetricsOperationTimer = "DW-MetricsOperationTimer";
 
     public static String BeanOperationName = "DW-BeanOperationName";

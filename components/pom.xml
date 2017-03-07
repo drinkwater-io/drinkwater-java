@@ -43,5 +43,7 @@
         <module>drinkwater-feature-auth</module>
         <module>drinkwater-feature-multipart</module>
         <module>drinkwater-unit-test</module>
+        <module>drinkwater-support-tokenprovider</module>
+        <module>drinkwater-bean</module>
     </modules>
 </project>

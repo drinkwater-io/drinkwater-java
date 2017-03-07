@@ -19,6 +19,14 @@ public class BeanFactory {
         return beanToUse;
     }
 
+    public static Object configureBean(ServiceRepository serviceRepository, Object obj) throws Exception{
+        Object beanToUse = obj;
+
+        injectFields(beanToUse, serviceRepository);
+
+        return beanToUse;
+    }
+
     public static Object createBean(ServiceRepository app,
                                     IServiceConfiguration service,
                                     IPropertyResolver propertyResolver) throws Exception {

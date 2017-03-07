@@ -11,5 +11,18 @@
 
     <artifactId>drinkwater-bean</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.drinkwater</groupId>
+            <artifactId>drinkwater-helper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
 
 </project>

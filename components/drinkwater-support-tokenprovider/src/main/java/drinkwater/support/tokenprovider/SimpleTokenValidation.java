@@ -1,5 +1,6 @@
-package drinkwater.core.security;
+package drinkwater.support.tokenprovider;
 
+import drinkwater.feature.auth.SimpleToken;
 import drinkwater.helper.GeneralUtils;
 import drinkwater.security.ITokenValidation;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;

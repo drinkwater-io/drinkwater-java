@@ -1,4 +1,4 @@
-package test.drinkwater.core.model;
+package drinkwater.unit.test.model;
 
 /**
  * Created by A406775 on 2/01/2017.

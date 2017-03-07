@@ -1,7 +1,6 @@
 package drinkwater.unit.test.model.forProxy;
 
 import drinkwater.ApplicationBuilder;
-import drinkwater.feature.trace.TraceFeature;
 import drinkwater.helper.SocketUtils;
 import drinkwater.http.proxy.HttpProxyComponent;
 import drinkwater.http.proxy.HttpProxyServiceBuilder;
@@ -9,8 +8,13 @@ import drinkwater.rest.RestComponent;
 import drinkwater.rest.RestServiceBuilder;
 import drinkwater.test.samples.ISimpleTestService;
 import drinkwater.test.samples.SimpleTestServiceImpl;
+import drinkwater.trace.MockEventLogger;
+
+import static drinkwater.feature.trace.TraceFeatureBuilder.trace;
 
 public class ProxyTestConfiguration extends ApplicationBuilder {
+
+
 
     public void configure() {
 //        useTracing(true);
@@ -24,7 +28,8 @@ public class ProxyTestConfiguration extends ApplicationBuilder {
                 .named("proxyService")
                 .with(HttpProxyServiceBuilder.FrontEndPoint,String.format("http://0.0.0.0:%s/icc",randomPortIcc ) )
                 .with(HttpProxyServiceBuilder.DestintationEndpoint,String.format("http://0.0.0.0:%s/test",randomPort ))
-                .use(TraceFeature.class);
+                .use(trace().withLogger(MockEventLogger.class))
+        ;
 
         expose(SimpleTestServiceImpl.class)
                 .as(RestComponent.class)

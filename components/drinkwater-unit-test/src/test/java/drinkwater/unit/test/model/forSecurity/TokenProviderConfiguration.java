@@ -1,12 +1,11 @@
-package test.drinkwater.core.model.forSecurity;
+package drinkwater.unit.test.model.forSecurity;
 
 import drinkwater.ApplicationBuilder;
 import drinkwater.security.Credentials;
 import drinkwater.security.IAuthenticationService;
+import drinkwater.support.tokenprovider.TokenProvider;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import test.drinkwater.core.model.ITestService;
-import test.drinkwater.core.model.TestServiceImpl;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,6 +21,8 @@ import static org.mockito.Mockito.when;
 public class TokenProviderConfiguration extends ApplicationBuilder {
     @Override
     public void configure() {
+
+
         try {
 
             IAuthenticationService authService = mock(IAuthenticationService.class);
@@ -31,7 +32,9 @@ public class TokenProviderConfiguration extends ApplicationBuilder {
             when(authService.authenticate(new Credentials("unknown", "unknown")))
                     .thenReturn(null);
 
-            addService("authenticator", IAuthenticationService.class, authService).useTracing(true);
+            TokenProvider.configure(this, authService);
+
+//            addService("authenticator", IAuthenticationService.class, authService).useTracing(true);
         }
         catch(Exception ex){
             throw new RuntimeException(ex);

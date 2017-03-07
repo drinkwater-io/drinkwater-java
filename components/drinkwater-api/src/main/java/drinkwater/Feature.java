@@ -6,10 +6,10 @@ import org.apache.camel.model.RouteDefinition;
 
 import java.lang.reflect.Method;
 
-public interface Feature {
-    default void afterServiceExposed(RouteDefinition routeDefinition, Method method){}
+public interface Feature<B extends Feature> {
+    default void afterServiceExposed(RouteDefinition routeDefinition, Method method, ComponentBuilder componentBuilder){}
 
-    default void afterServiceTargeted(RouteDefinition routeDefinition, Method method){}
+    default void afterServiceTargeted(RouteDefinition routeDefinition, Method method, ComponentBuilder componentBuilder){}
 
-    default void configureContext(CamelContext context) throws Exception {}
+    default void configureContext(CamelContext context, ComponentBuilder componentBuilder) throws Exception {}
 }

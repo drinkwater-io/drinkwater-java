@@ -1,4 +1,4 @@
-package test.drinkwater.core.model.forSecurity;
+package drinkwater.unit.test.model.forSecurity;
 
 import drinkwater.ApplicationBuilder;
 import drinkwater.core.security.ActiveDirectoryAuthenticationService;

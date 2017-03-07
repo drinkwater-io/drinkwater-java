@@ -1,6 +1,8 @@
 package drinkwater.feature.multipart;
 
+import drinkwater.ComponentBuilder;
 import drinkwater.Feature;
+import drinkwater.FeatureBuilder;
 import drinkwater.helper.json.CustomJacksonObjectMapper;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
@@ -10,9 +12,9 @@ import org.apache.camel.model.RouteDefinition;
 import java.io.InputStream;
 import java.lang.reflect.Method;
 
-public class MultiPartFeature implements Feature {
+public class MultiPartFeature implements Feature, FeatureBuilder<MultiPartFeature> {
     @Override
-    public void afterServiceExposed(RouteDefinition routeDefinition, Method method) {
+    public void afterServiceExposed(RouteDefinition routeDefinition, Method method, ComponentBuilder componentBuilder) {
         //TODO create own process
         if (isMultipartBody(method)) {
             routeDefinition.process(new FileUploadProcessor());
@@ -20,7 +22,7 @@ public class MultiPartFeature implements Feature {
     }
 
     @Override
-    public void afterServiceTargeted(RouteDefinition routeDefinition, Method method) {
+    public void afterServiceTargeted(RouteDefinition routeDefinition, Method method,ComponentBuilder componentBuilder) {
         if (isMultipartBody(method) && hasObjectReturnType(method)) {
             routeDefinition.process(exchange -> {
                 CustomJacksonObjectMapper mapper = new CustomJacksonObjectMapper();
@@ -30,10 +32,7 @@ public class MultiPartFeature implements Feature {
         }
     }
 
-    @Override
-    public void configureContext(CamelContext context) throws Exception {
 
-    }
 
     private static boolean isMultipartBody(Method method) {
 
@@ -51,5 +50,14 @@ public class MultiPartFeature implements Feature {
             return false;
         }
         return method.getReturnType() != Void.class;
+    }
+
+    @Override
+    public MultiPartFeature getFeature() {
+        return new MultiPartFeature();
+    }
+
+    public static MultiPartFeature multipart(){
+        return new MultiPartFeature();
     }
 }

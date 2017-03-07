@@ -1,6 +1,7 @@
-package drinkwater.core.security;
+package drinkwater.support.tokenprovider;
 
 import drinkwater.ServiceDependency;
+import drinkwater.feature.auth.SimpleToken;
 import drinkwater.helper.GeneralUtils;
 import drinkwater.security.Credentials;
 import drinkwater.security.IAuthenticationService;
