@@ -32,8 +32,6 @@ public class MultiPartFeature implements Feature, FeatureBuilder<MultiPartFeatur
         }
     }
 
-
-
     private static boolean isMultipartBody(Method method) {
 
         if (method.getParameters().length > 0) {
